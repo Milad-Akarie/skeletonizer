@@ -1,7 +1,3 @@
 library skeleton_builder;
 
-/// A Calculator.
-class Calculator {
-  /// Returns [value] plus 1.
-  int addOne(int value) => value + 1;
-}
+export 'package:skeleton_builder/src/skeleton_scanner.dart';

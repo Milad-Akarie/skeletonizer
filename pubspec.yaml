@@ -1,7 +1,7 @@
 name: skeleton_builder
 description: A new Flutter package project.
 version: 0.0.1
-homepage:
+homepage: https://github.com/Milad-Akarie/skeleton_builder
 
 environment:
   sdk: '>=2.19.5 <3.0.0'
