@@ -1,3 +1,4 @@
 library skeleton_builder;
 
-export 'package:skeleton_builder/src/skeleton_scanner.dart';
+export 'src/bones/bones.dart';
+export 'src/skeleton_scanner.dart';

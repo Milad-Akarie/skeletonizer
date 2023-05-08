@@ -1,7 +1,12 @@
 import 'dart:developer';
+import 'dart:math';
 
+import 'package:flutter/foundation.dart';
+import 'package:flutter/foundation.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
+import 'package:skeleton_builder/skeleton_builder.dart';
 import 'package:skeleton_builder/src/builder/widget_describer.dart';
 
 class SkeletonScanner extends SingleChildRenderObjectWidget {
@@ -26,7 +31,7 @@ class RenderSkeletonScanner extends RenderProxyBox {
     final res = rebuildWidget(child!);
 
     onLayout(res.widget);
-    log(res.describer!.bluePrint(4));
+    // log(res.describer!.bluePrint(4));
   }
 
   RebuildResult rebuildWidget(RenderObject? node) {
@@ -265,15 +270,17 @@ class RenderSkeletonScanner extends RenderProxyBox {
         children: List.of(children.map((e) => e.describer!)),
       );
     } else if (node is RenderPhysicalShape) {
-      final res = rebuildWidget(node.child);
-      widget = Material(
+      final isButton = node.findParentWithName('_RenderInputPadding') != null;
+      final res = isButton ? RebuildResult() : rebuildWidget(node.child);
+      final shape = (node.clipper as ShapeBorderClipper).shape;
+      widget = BoxBone.container(
         clipBehavior: node.clipBehavior,
-        shape: (node.clipper as ShapeBorderClipper).shape,
-        color: Colors.yellow.withOpacity(.4),
+        elevation: node.elevation,
+        shape: shape,
         child: res.widget,
       );
       describer = SingleChildWidgetDescriber(
-        name: 'Material',
+        name: 'BoxBone.container',
         properties: {
           'clipBehavior': 'Clip.none',
           'shape': 'ShapeBorderClipper()',
@@ -281,13 +288,9 @@ class RenderSkeletonScanner extends RenderProxyBox {
         child: res.describer,
       );
     } else if (node is RenderImage) {
-      widget = ColoredBox(
-        color: Colors.green.withOpacity(.2),
-        // width: node.size.width,
-        // height: node.size.height,
-      );
+      widget = const BoxBone();
       describer = const SingleChildWidgetDescriber(
-        name: 'ColoredBox',
+        name: 'BoxBone',
       );
     } else if (node is RenderCustomPaint) {
       var size = node.size;
@@ -315,13 +318,26 @@ class RenderSkeletonScanner extends RenderProxyBox {
         );
       }
     } else if (node is RenderParagraph) {
-      widget = Container(
-        color: Colors.red.withOpacity(.2),
-        width: node.textSize.width,
-        height: node.textSize.height,
+      final painter = TextPainter(
+        text: node.text,
+        textAlign: node.textAlign,
+        textDirection: node.textDirection,
+        textScaleFactor: node.textScaleFactor,
+      )..layout(maxWidth: node.constraints.maxWidth);
+      final fontSize = (node.text.style?.fontSize ?? 14) * node.textScaleFactor;
+      final lineCount = (painter.size.height / painter.preferredLineHeight);
+      widget = TextBone(
+        lineHeight: painter.preferredLineHeight,
+        textAlign: node.textAlign,
+        textDirection: node.textDirection,
+        fontSize: fontSize,
+        lineLength: lineCount * node.textSize.width,
+        maxLines: node.maxLines,
+        width: lineCount == 1 ? node.textSize.width : null,
       );
+
       describer = const SingleChildWidgetDescriber(
-        name: 'Container',
+        name: 'TextBone',
         properties: {
           'width': '0',
           'height': '0',
@@ -330,11 +346,22 @@ class RenderSkeletonScanner extends RenderProxyBox {
     } else if (node is RenderDecoratedBox) {
       final boxDecoration =
           node.decoration is BoxDecoration ? (node.decoration as BoxDecoration) : const BoxDecoration();
-       final res = rebuildWidget(node.child);
-      widget = Container(
-        decoration: boxDecoration.copyWith(color: Colors.blue.withOpacity(.4)),
-        width: node.size.width,
-        height: node.size.height,
+
+      final ShapeBorder shape;
+      final borderSide = boxDecoration.border?.top ?? BorderSide.none;
+      if (boxDecoration.shape == BoxShape.circle) {
+        shape = CircleBorder(side: borderSide);
+      } else {
+        shape = RoundedRectangleBorder(
+          borderRadius: boxDecoration.borderRadius ?? BorderRadius.zero,
+          side: borderSide,
+        );
+      }
+      final res = rebuildWidget(node.child);
+      widget = BoxBone.container(
+        shape: shape,
+        width: node.constraints.specificWidth,
+        height: node.constraints.specificHeight,
         child: res.widget,
       );
       describer = const SingleChildWidgetDescriber(
@@ -400,7 +427,7 @@ class RenderSkeletonScanner extends RenderProxyBox {
           );
           describer = SingleChildWidgetDescriber(
             name: 'Padding',
-            properties: {'padding':'EdgeInsets.zero'},
+            properties: {'padding': 'EdgeInsets.zero'},
             child: res.describer,
           );
         }
@@ -508,6 +535,19 @@ extension RenderObjectX on RenderObject {
     return null;
   }
 
+  AbstractNode? findParentWithName(String name) {
+    AbstractNode? find(AbstractNode box) {
+      if (box.runtimeType.toString() == name) {
+        return box;
+      } else if (box.parent != null) {
+        return find(box.parent!);
+      }
+      return null;
+    }
+
+    return find(this);
+  }
+
   bool isWidget<T extends Widget>() {
     if (debugCreator is! DebugCreator) return false;
     final element = (debugCreator as DebugCreator).element;
@@ -515,4 +555,14 @@ extension RenderObjectX on RenderObject {
   }
 
   bool get isListTile => typeName == '_RenderListTile';
+}
+
+extension BoxConstrainsX on BoxConstraints {
+  bool get hasSpecificWidth => maxWidth == minWidth;
+
+  bool get hasSpecificHeight => maxHeight == minHeight;
+
+  double? get specificWidth => hasSpecificWidth ? maxWidth : null;
+
+  double? get specificHeight => hasBoundedHeight ? maxHeight : null;
 }

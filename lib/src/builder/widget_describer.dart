@@ -4,7 +4,7 @@ class RebuildResult {
   final Widget? widget;
   final WidgetDescriber? describer;
 
-  RebuildResult(this.widget, this.describer);
+  RebuildResult([this.widget, this.describer]);
 }
 
 abstract class WidgetDescriber {
@@ -54,7 +54,7 @@ class MultiChildWidgetDescriber extends WidgetDescriber {
   @override
   String bluePrint([int depth = 0]) {
 
-    final childrenDes = '\n${tabs(depth)}children: ${children.map((e) => e.bluePrint(depth + 1)).toList().join(',\n${tabs(depth)}')}';
+    final childrenDes = '\n${tabs(depth)}children:[\n${children.map((e) => '${tabs(depth)}${e.bluePrint(depth + 1)}').toList().join(',\n')}\n${tabs(depth)}]';
     return '$name(\n${properties.keys.map((k) => '${tabs(depth)}$k: ${properties[k]}').join(',\n')},$childrenDes\n${tabs(depth)})';
   }
 }
