@@ -3,8 +3,13 @@ import 'package:flutter/material.dart';
 class RebuildResult {
   final Widget? widget;
   final WidgetDescriber? describer;
+  final bool skipParent;
 
-  RebuildResult([this.widget, this.describer]);
+  RebuildResult({
+    this.widget,
+    this.describer,
+    this.skipParent = false,
+  });
 }
 
 abstract class WidgetDescriber {
@@ -35,7 +40,7 @@ class SingleChildWidgetDescriber extends WidgetDescriber {
 
   @override
   String bluePrint([int depth = 0]) {
-    if(child == null && properties.isEmpty ) return '$name(),';
+    if (child == null && properties.isEmpty) return '$name(),';
     final childDesc = child == null ? '' : '\n${tabs(depth)}child: ${child!.bluePrint(depth + 1)}';
     return '$name(\n${properties.keys.map((k) => '${tabs(depth)}$k: ${properties[k]}').join(',\n')},$childDesc\n${tabs(depth)})';
   }
@@ -53,8 +58,8 @@ class MultiChildWidgetDescriber extends WidgetDescriber {
 
   @override
   String bluePrint([int depth = 0]) {
-
-    final childrenDes = '\n${tabs(depth)}children:[\n${children.map((e) => '${tabs(depth)}${e.bluePrint(depth + 1)}').toList().join(',\n')}\n${tabs(depth)}]';
+    final childrenDes =
+        '\n${tabs(depth)}children:[\n${children.map((e) => '${tabs(depth)}${e.bluePrint(depth + 1)}').toList().join(',\n')}\n${tabs(depth)}]';
     return '$name(\n${properties.keys.map((k) => '${tabs(depth)}$k: ${properties[k]}').join(',\n')},$childrenDes\n${tabs(depth)})';
   }
 }

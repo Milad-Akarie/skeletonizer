@@ -1,6 +1,7 @@
 import 'dart:math' as math;
 
 import 'package:flutter/material.dart';
+import 'package:skeleton_builder/src/custom_decorated_box.dart';
 
 class TextBone extends StatelessWidget {
   const TextBone(
@@ -33,9 +34,7 @@ class TextBone extends StatelessWidget {
       final actualLineCount = (lineLength / effectiveWidth).ceil();
       var lineCount = maxLines == null ? actualLineCount : math.min(maxLines!, actualLineCount);
 
-
       final spacing = lineHeight - fontSize;
-
 
       return Text.rich(
         TextSpan(
@@ -50,9 +49,7 @@ class TextBone extends StatelessWidget {
                       height: fontSize,
                       width: _calcWidth(i, lineCount, effectiveWidth),
                       padding: EdgeInsets.only(top: spacing * .6),
-                       shape: RoundedRectangleBorder(
-                         borderRadius:  BorderRadius.circular(4),
-                       ),
+                      borderRadius: BorderRadius.circular(6),
                     ),
                   ),
                 ),
@@ -79,54 +76,85 @@ class BoxBone extends StatelessWidget {
     this.height,
     this.color,
     this.child,
-    this.shape,
+    this.shape = BoxShape.rectangle,
     this.padding = EdgeInsets.zero,
-  })  : _container = false,
-        elevation = 0.0,
-        clipBehavior = Clip.none,
-        super(key: key);
+  }) : super(key: key);
 
   final BorderRadius? borderRadius;
   final double? width;
   final double? height;
   final Color? color;
   final Widget? child;
-  final ShapeBorder? shape;
-  final bool _container;
-  final Clip clipBehavior;
-  final double elevation;
+  final BoxShape shape;
   final EdgeInsetsGeometry padding;
 
-  const BoxBone.container({
+  @override
+  Widget build(BuildContext context) {
+    return Padding(
+      padding: padding,
+      child: SizedBox(
+        width: width,
+        height: height,
+        child: DecoratedBox(
+          decoration: BoxDecoration(
+            color: color ?? Colors.grey.shade300,
+            borderRadius: borderRadius,
+            shape: shape,
+          ),
+          child: child,
+        ),
+      ),
+    );
+  }
+}
+
+class SkeletonContainer extends StatelessWidget {
+  const SkeletonContainer({
     Key? key,
-    this.borderRadius,
     this.width,
     this.height,
     this.color,
     this.child,
     this.shape,
-    this.clipBehavior = Clip.none,
-    this.elevation = 0.0,
     this.padding = EdgeInsets.zero,
-  })  : _container = true,
-        super(key: key);
+    this.elevation = 0.0,
+    this.clipBehavior = Clip.none,
+  }) : super(key: key);
+
+  final double? width;
+  final double? height;
+  final Color? color;
+  final Widget? child;
+  final ShapeBorder? shape;
+  final Clip clipBehavior;
+  final double elevation;
+  final EdgeInsetsGeometry padding;
 
   @override
   Widget build(BuildContext context) {
-    final isContainer = _container && child != null;
-    final effectiveColor = isContainer ? Theme.of(context).colorScheme.surface : Colors.grey.shade300;
-    final effectiveElevation = isContainer ? elevation : 0.0;
     return Padding(
       padding: padding,
       child: SizedBox(
         width: width,
         height: height,
         child: Material(
-          color: color ?? effectiveColor,
+          color: color ?? Theme.of(context).colorScheme.surface,
           clipBehavior: clipBehavior,
-          elevation: effectiveElevation,
+          elevation: elevation,
           shape: shape,
-          child: child,
+          child: ShaderMask(
+            shaderCallback: (Rect bounds) {
+              return const LinearGradient(
+                colors: [
+                  Colors.red,
+                  Colors.blue,
+                ],
+                begin: Alignment.topRight,
+                end: Alignment.bottomLeft
+              ).createShader(Offset.zero & MediaQuery.of(context).size);
+            },
+            child: child,
+          ),
         ),
       ),
     );
