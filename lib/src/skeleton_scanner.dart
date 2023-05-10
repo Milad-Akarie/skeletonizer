@@ -1,5 +1,3 @@
-import 'dart:developer';
-
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
@@ -7,15 +5,14 @@ import 'package:skeleton_builder/skeleton_builder.dart';
 import 'package:skeleton_builder/src/builder/widget_describer.dart';
 
 class SkeletonScanner extends SingleChildRenderObjectWidget {
-  /// Creates a widget that isolates repaints.
-  const SkeletonScanner({super.key, super.child, required this.onLayout});
+  const SkeletonScanner({super.key, super.child, required this.onPreviewReady});
 
-  final ValueChanged<Widget?> onLayout;
+  final ValueChanged<Widget?> onPreviewReady;
 
   @override
   RenderSkeletonScanner createRenderObject(BuildContext context) {
     return RenderSkeletonScanner(
-      onLayout,
+      onPreviewReady,
       textDirection: Directionality.of(context),
     );
   }
@@ -23,16 +20,20 @@ class SkeletonScanner extends SingleChildRenderObjectWidget {
 
 class RenderSkeletonScanner extends RenderProxyBox {
   /// Creates a repaint boundary around [child].
-  RenderSkeletonScanner(this.onLayout, {required this.textDirection, RenderBox? child}) : super(child);
+  RenderSkeletonScanner(this.onPreview, {required this.textDirection, RenderBox? child}) : super(child);
   final TextDirection textDirection;
-  final ValueChanged<Widget?> onLayout;
+  final ValueChanged<Widget?> onPreview;
 
   Widget? rootWidget;
 
-  void visitAll() {
+  WidgetDescriber? scan({bool preview = false}) {
     final res = rebuildWidget(child!);
-
-    onLayout(res.widget);
+    if (preview) {
+      onPreview(res.widget);
+      return null;
+    } else {
+      return res.describer;
+    }
     // log(res.describer!.bluePrint(4));
   }
 
@@ -281,7 +282,7 @@ class RenderSkeletonScanner extends RenderProxyBox {
         },
         children: List.of(children.map((e) => e.describer!)),
       );
-    } else if(node is RenderSliverGrid){
+    } else if (node is RenderSliverGrid) {
       final children = [for (final child in node.children) rebuildWidget(child)];
       EdgeInsetsGeometry? padding;
       if (node.parent is RenderSliverPadding) {
@@ -305,8 +306,8 @@ class RenderSkeletonScanner extends RenderProxyBox {
         },
         children: List.of(children.map((e) => e.describer!)),
       );
-    }else if (node is RenderViewport) {
-      if(node.isWidget<CustomScrollView>()) {
+    } else if (node is RenderViewport) {
+      if (node.isWidget<CustomScrollView>()) {
         // final children = [for (final child in node.children) rebuildWidget(child)];
         //
         // widget = SingleChildScrollView(
@@ -316,7 +317,7 @@ class RenderSkeletonScanner extends RenderProxyBox {
         //     ),
         //   ),
         // );
-      }else{
+      } else {
         widget = rebuildWidget(node.firstChild).widget;
       }
     } else if (node is RenderClipPath) {
