@@ -20,12 +20,11 @@ class SkeletonBuilder extends StatefulWidget {
   State<SkeletonBuilder> createState() => SkeletonBuilderState();
 }
 
-const double _menuHeight = 40;
-
+const double _toolsBarHeight = 40;
 class SkeletonBuilderState extends State<SkeletonBuilder> {
   Widget? _skeletonPreview;
   final _scannerKey = GlobalKey();
-  bool _menuExpanded = false;
+  bool _toolsBarExpanded = false;
   double _skeletonOpacity = .7;
 
   @override
@@ -48,9 +47,19 @@ class SkeletonBuilderState extends State<SkeletonBuilder> {
             opacity: _skeletonOpacity,
             child: _skeletonPreview!,
           ),
+        if (_toolsBarExpanded)
+          Positioned.fill(
+            child: GestureDetector(
+              onTap: () {
+                setState(() {
+                  _toolsBarExpanded = false;
+                });
+              },
+            ),
+          ),
         AnimatedPositionedDirectional(
             duration: const Duration(milliseconds: 200),
-            top: _menuExpanded ? 0 : -_menuHeight,
+            top: _toolsBarExpanded ? 0 : -_toolsBarHeight,
             start: 48,
             child: Material(
               elevation: 1,
@@ -62,7 +71,7 @@ class SkeletonBuilderState extends State<SkeletonBuilder> {
               ),
               child: Container(
                 width: 240,
-                height: _menuHeight,
+                height: _toolsBarHeight,
                 padding: const EdgeInsetsDirectional.only(start: 0),
                 child: Padding(
                   padding: const EdgeInsetsDirectional.only(start: 0),
@@ -109,7 +118,7 @@ class SkeletonBuilderState extends State<SkeletonBuilder> {
                           );
                           ScaffoldMessenger.of(context).showSnackBar(
                             const SnackBar(
-                              content: Text('Contented copied to clipboard'),
+                              content: Text('Widget copied to clipboard'),
                             ),
                           );
                         },
@@ -127,12 +136,12 @@ class SkeletonBuilderState extends State<SkeletonBuilder> {
             duration: const Duration(milliseconds: 200),
             top: 0,
             start: 4,
-            width: _menuExpanded ? 40 : 32,
-            height: _menuExpanded ? _menuHeight : 24,
+            width: _toolsBarExpanded ? 40 : 32,
+            height: _toolsBarExpanded ? _toolsBarHeight : 24,
             child: ElevatedButton(
               onPressed: () {
                 setState(() {
-                  _menuExpanded = !_menuExpanded;
+                  _toolsBarExpanded = !_toolsBarExpanded;
                 });
               },
               style: FilledButton.styleFrom(
@@ -148,37 +157,28 @@ class SkeletonBuilderState extends State<SkeletonBuilder> {
               ),
               child: AnimatedRotation(
                 duration: const Duration(milliseconds: 200),
-                turns: _menuExpanded ? .5 : 0,
+                turns: _toolsBarExpanded ? .5 : 0,
                 child: const Icon(Icons.keyboard_arrow_down_rounded),
               ),
             )),
-        if (_menuExpanded)
-          Positioned.fill(
-            child: GestureDetector(
-              onTap: () {
-                setState(() {
-                  _menuExpanded = false;
-                });
-              },
-            ),
-          ),
+
       ],
     );
   }
 
-  RenderSkeletonScanner? get scannerRenderer {
+  RenderSkeletonScanner? get _skeletonRenderer {
     return _scannerKey.currentContext?.findRenderObject() as RenderSkeletonScanner?;
   }
 
   void preview() {
-    final renderer = scannerRenderer;
+    final renderer = _skeletonRenderer;
     if (renderer != null) {
       renderer.scan(preview: true);
     }
   }
 
   String getSkeletonAsText() {
-    final renderer = scannerRenderer;
+    final renderer = _skeletonRenderer;
     if (renderer != null) {
       final describer = renderer.scan();
       if (describer != null) {
@@ -194,3 +194,4 @@ class SkeletonBuilderState extends State<SkeletonBuilder> {
     return '';
   }
 }
+
