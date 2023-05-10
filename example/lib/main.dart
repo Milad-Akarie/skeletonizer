@@ -9,15 +9,14 @@ void main() {
 
 class MyApp extends StatelessWidget {
   const MyApp({super.key});
-
   // This widget is the root of your application.
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
       title: 'Flutter Demo',
-      theme: ThemeData(
-        primarySwatch: Colors.blue,
-      ),
+      theme: ThemeData.light(
+          // primarySwatch: Colors.blue,
+          ),
       home: const MyHomePage(title: 'Flutter Demo Home Page'),
     );
   }
@@ -33,8 +32,7 @@ class MyHomePage extends StatefulWidget {
 }
 
 class _MyHomePageState extends State<MyHomePage> {
-  Widget? overlay;
-  final _key = GlobalKey();
+
 
   @override
   Widget build(BuildContext context) {
@@ -43,16 +41,7 @@ class _MyHomePageState extends State<MyHomePage> {
     // });
 
     return Scaffold(
-      appBar: AppBar(
-        actions: [
-          IconButton(
-              onPressed: () async {
-                final renderBox = _key.currentContext?.findRenderObject() as RenderSkeletonScanner;
-                renderBox.scan();
-              },
-              icon: const Icon(Icons.layers_outlined))
-        ],
-      ),
+      appBar: AppBar(),
       body: SkeletonBuilder(
         child: false
             ? CustomScrollView(
@@ -115,17 +104,32 @@ class _MyHomePageState extends State<MyHomePage> {
                   //     ),
                   //   ),
                   // ),
-
-                  // if (false)
+                  // SizedBox(
+                  //   height: 20,
+                  // ),
+                  // ElevatedButton(
+                  //   onPressed: () {},
+                  //   child: Text('Click me'),
+                  // ),
+                  // // if (false)
                   Expanded(
-                    child: GridView.builder(
+                    child: ListView.builder(
                       padding: const EdgeInsets.all(20),
-                      gridDelegate:
-                          const SliverGridDelegateWithFixedCrossAxisCount(crossAxisCount: 2, childAspectRatio: .5),
-                      itemCount: 20,
+                      itemCount: 1,
                       itemBuilder: (ctx, index) {
+                        return Container(
+                          decoration: BoxDecoration(
+                          color: Colors.red.shade100,
+                            borderRadius: BorderRadius.circular(16)
+                          ),
+                          margin: EdgeInsets.symmetric(vertical: 4),
+                          child: const ListTile(
+                            title: Text('Im a title'),
+                            subtitle: Text('Im a subtitle'),
+                            trailing: Icon(Icons.ac_unit),
+                          ),
+                        );
                         return Card(
-                          margin: const EdgeInsets.all(20),
                           shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
                           child: Column(
                             children: [

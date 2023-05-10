@@ -2,6 +2,7 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
 import 'package:skeleton_builder/skeleton_builder.dart';
+import 'package:skeleton_builder/src/builder/text_bone_editor.dart';
 import 'package:skeleton_builder/src/builder/widget_describer.dart';
 
 class SkeletonScanner extends SingleChildRenderObjectWidget {
@@ -23,8 +24,7 @@ class RenderSkeletonScanner extends RenderProxyBox {
   RenderSkeletonScanner(this.onPreview, {required this.textDirection, RenderBox? child}) : super(child);
   final TextDirection textDirection;
   final ValueChanged<Widget?> onPreview;
-
-  Widget? rootWidget;
+  final _textBoneConfigs = <RenderParagraph, TextBoneConfig>{};
 
   WidgetDescriber? scan({bool preview = false}) {
     final res = rebuildWidget(child!);
@@ -34,7 +34,6 @@ class RenderSkeletonScanner extends RenderProxyBox {
     } else {
       return res.describer;
     }
-    // log(res.describer!.bluePrint(4));
   }
 
   RebuildResult rebuildWidget(RenderObject? node) {
@@ -89,22 +88,10 @@ class RenderSkeletonScanner extends RenderProxyBox {
         child: res.describer,
       );
     } else if (node is RenderConstrainedBox) {
-      // var size = node.additionalConstraints.smallest;
-      // if (node.widget is SizedBox) {
-      //   final sizedBox = (node.widget as SizedBox);
-      //   size = Size(sizedBox.width ?? 0, sizedBox.height ?? 0);
-      // } else if (node.parent is RenderFlex) {
-      //   final direction = (node.parent as RenderFlex).direction;
-      //   if (direction == Axis.vertical && size.width.isInfinite) {
-      //     size = Size(0, size.height);
-      //   } else if (direction == Axis.horizontal && size.height.isInfinite) {
-      //     size = Size(size.width, 0);
-      //   }
-      // }
       final res = rebuildWidget(node.child);
       widget = SizedBox(
-        width: node.additionalConstraints.specificWidth,
-        height: node.additionalConstraints.specificHeight,
+        width: node.additionalConstraints.specificWidth ?? node.size.width,
+        height: node.additionalConstraints.specificHeight ?? node.size.height,
         child: res.widget,
       );
       describer = SingleChildWidgetDescriber(
@@ -292,7 +279,6 @@ class RenderSkeletonScanner extends RenderProxyBox {
       final delegate = node.gridDelegate;
       DiagnosticPropertiesBuilder builder = DiagnosticPropertiesBuilder();
       node.debugFillProperties(builder);
-      print(builder.properties.skip(2).map((e) => e.name));
       widget = GridView(
         gridDelegate: node.gridDelegate,
         padding: padding,
@@ -431,14 +417,26 @@ class RenderSkeletonScanner extends RenderProxyBox {
       final fontSize = (node.text.style?.fontSize ?? 14) * node.textScaleFactor;
       final lineCount = (painter.size.height / painter.preferredLineHeight);
 
-      widget = TextBone(
-        lineHeight: painter.preferredLineHeight,
-        textAlign: node.textAlign,
-        textDirection: node.textDirection,
-        fontSize: fontSize,
-        lineLength: lineCount * node.textSize.width,
-        maxLines: node.maxLines,
-        width: lineCount == 1 ? node.textSize.width : null,
+      final config = _textBoneConfigs[node] ??= TextBoneConfig(
+        fixedWidth: lineCount == 1,
+        radius: 8,
+      );
+      widget = TextBoneEditor(
+        initialConfig: config,
+        onChange: (config) {
+          _textBoneConfigs[node] = config;
+          scan(preview: true);
+        },
+        child: TextBone(
+          lineHeight: painter.preferredLineHeight,
+          textAlign: node.textAlign,
+          textDirection: node.textDirection,
+          fontSize: fontSize,
+          lineLength: lineCount * painter.width,
+          maxLines: node.maxLines,
+          borderRadius: config.radius,
+          width: config.fixedWidth ? painter.width : null,
+        ),
       );
 
       describer = const SingleChildWidgetDescriber(
