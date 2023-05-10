@@ -418,9 +418,15 @@ class RenderSkeletonScanner extends RenderProxyBox {
       final lineCount = (painter.size.height / painter.preferredLineHeight);
 
       final config = _textBoneConfigs[node] ??= TextBoneConfig(
-        fixedWidth: lineCount == 1,
+        fixedWidth: lineCount <= 1,
         radius: 8,
+        width: painter.width,
+        canHaveFixedWidth: lineCount <= 1,
       );
+
+
+
+
       widget = TextBoneEditor(
         initialConfig: config,
         onChange: (config) {
@@ -435,7 +441,8 @@ class RenderSkeletonScanner extends RenderProxyBox {
           lineLength: lineCount * painter.width,
           maxLines: node.maxLines,
           borderRadius: config.radius,
-          width: config.fixedWidth ? painter.width : null,
+          indent: config.fixedWidth ? 0 : config.indent,
+          width: config.fixedWidth ? config.width : null,
         ),
       );
 

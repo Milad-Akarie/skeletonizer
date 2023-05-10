@@ -70,13 +70,13 @@ class _MyHomePageState extends State<MyHomePage> {
               )
             : Column(
                 children: [
-                  // const Padding(
-                  //   padding: EdgeInsets.all(20.0),
-                  //   child: Text(
-                  //     "Lorem Ipsum is simply dummy text of the printing and typesetting industry. Lorem Ipsum has been the industry's standard dummy text ever since the 1500s, when an unknown printer took a galley of type and scrambled it to make a type specimen book.",
-                  //     style: TextStyle(fontSize: 20),
-                  //   ),
-                  // ),
+                  const Padding(
+                    padding: EdgeInsets.all(20.0),
+                    child: Text(
+                      "Lorem Ipsum is simply dummy text of the printing and typesetting industry. Lorem Ipsum has been the industry's standard dummy text ever since the 1500s, when an unknown printer took a galley of type and scrambled it to make a type specimen book.",
+                      style: TextStyle(fontSize: 20),
+                    ),
+                  ),
                   // Card(
                   //   shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
                   //   child: const Text("Hello"),
@@ -111,7 +111,7 @@ class _MyHomePageState extends State<MyHomePage> {
                   //   onPressed: () {},
                   //   child: Text('Click me'),
                   // ),
-                  // // if (false)
+                  // if (false)
                   Expanded(
                     child: ListView.builder(
                       padding: const EdgeInsets.all(20),
@@ -122,7 +122,7 @@ class _MyHomePageState extends State<MyHomePage> {
                           color: Colors.red.shade100,
                             borderRadius: BorderRadius.circular(16)
                           ),
-                          margin: EdgeInsets.symmetric(vertical: 4),
+                          margin: const EdgeInsets.symmetric(vertical: 4),
                           child: const ListTile(
                             title: Text('Im a title'),
                             subtitle: Text('Im a subtitle'),

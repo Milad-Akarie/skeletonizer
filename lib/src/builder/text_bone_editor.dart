@@ -27,31 +27,80 @@ class TextBoneEditor extends StatelessWidget {
               children: [
                 Row(
                   children: [
-                    const Expanded(child: Text('Fixed width')),
+                    const Expanded(child: Text('Include bone')),
                     Checkbox(
-                      value: config.fixedWidth,
+                      value: config.includeBone,
                       onChanged: (v) {
-                        notifier.value = config.copyWith(fixedWidth: v == true);
+                        notifier.value = config.copyWith(includeBone: v == true);
                       },
                     )
                   ],
                 ),
-                Row(
-                  children: [
-                     Text('Radius (${config.radius.toStringAsFixed(0)})'),
-                    Expanded(
-                      child: Slider(
-                        value: config.radius,
-                        min: 0,
-                        max: 50,
-                        divisions: 25,
-                        onChanged: (v) {
-                          notifier.value = config.copyWith(radius: v);
-                        },
-                      ),
+                if (config.includeBone) ...[
+                  if (config.canHaveFixedWidth)
+                    Row(
+                      children: [
+                        const Expanded(child: Text('Fixed width')),
+                        Checkbox(
+                          value: config.fixedWidth,
+                          onChanged: (v) {
+                            notifier.value = config.copyWith(fixedWidth: v == true);
+                          },
+                        )
+                      ],
                     ),
-                  ],
-                ),
+                  if (config.fixedWidth)
+                    Row(
+                      children: [
+                        Expanded(child: Text('Width (${config.width.toStringAsFixed(0)})')),
+                        SizedBox(
+                          width: 120,
+                          child: Slider(
+                            value: config.width,
+                            min: 1,
+                            max: 1000,
+                            onChanged: (v) {
+                              notifier.value = config.copyWith(width: v);
+                            },
+                          ),
+                        ),
+                      ],
+                    )
+                  else
+                    Row(
+                      children: [
+                        Expanded(child: Text('Indent (${config.indent.toStringAsFixed(0)})')),
+                        SizedBox(
+                          width: 120,
+                          child: Slider(
+                            value: config.indent,
+                            min: 0,
+                            max: 150,
+                            onChanged: (v) {
+                              notifier.value = config.copyWith(indent: v);
+                            },
+                          ),
+                        ),
+                      ],
+                    ),
+                  Row(
+                    children: [
+                      Expanded(child: Text('Radius (${config.radius.toStringAsFixed(0)})')),
+                      SizedBox(
+                        width: 120,
+                        child: Slider(
+                          value: config.radius,
+                          min: 0,
+                          max: 50,
+                          divisions: 25,
+                          onChanged: (v) {
+                            notifier.value = config.copyWith(radius: v);
+                          },
+                        ),
+                      ),
+                    ],
+                  ),
+                ],
               ],
             ),
           ),
@@ -62,22 +111,43 @@ class TextBoneEditor extends StatelessWidget {
   }
 }
 
-class TextBoneConfig {
+abstract class BoneConfig {
+  final bool includeBone;
+
+  const BoneConfig({this.includeBone = true});
+}
+
+class TextBoneConfig extends BoneConfig {
   final double radius;
+  final double width;
+  final double indent;
   final bool fixedWidth;
+  final bool canHaveFixedWidth;
 
   const TextBoneConfig({
     this.radius = 0,
+    this.width = 0,
+    this.indent = 0,
     this.fixedWidth = false,
+    this.canHaveFixedWidth = false,
+    super.includeBone,
   });
 
   TextBoneConfig copyWith({
     double? radius,
+    double? width,
+    double? indent,
     bool? fixedWidth,
+    bool? canHaveFixedWidth,
+    bool? includeBone,
   }) {
     return TextBoneConfig(
       radius: radius ?? this.radius,
+      width: width ?? this.width,
+      indent: indent ?? this.indent,
       fixedWidth: fixedWidth ?? this.fixedWidth,
+      canHaveFixedWidth: canHaveFixedWidth ?? this.canHaveFixedWidth,
+      includeBone: includeBone ?? this.includeBone,
     );
   }
 
@@ -87,13 +157,23 @@ class TextBoneConfig {
       other is TextBoneConfig &&
           runtimeType == other.runtimeType &&
           radius == other.radius &&
-          fixedWidth == other.fixedWidth;
+          width == other.width &&
+          indent == other.indent &&
+          fixedWidth == other.fixedWidth &&
+          includeBone == other.includeBone &&
+          canHaveFixedWidth == other.canHaveFixedWidth;
 
   @override
-  int get hashCode => radius.hashCode ^ fixedWidth.hashCode;
+  int get hashCode =>
+      radius.hashCode ^
+      width.hashCode ^
+      indent.hashCode ^
+      fixedWidth.hashCode ^
+      canHaveFixedWidth.hashCode ^
+      includeBone.hashCode;
 }
 
-class BoneConfigLayout<T> extends StatefulWidget {
+class BoneConfigLayout<T extends BoneConfig> extends StatefulWidget {
   const BoneConfigLayout({
     Key? key,
     required this.child,
@@ -116,7 +196,7 @@ class BoneConfigLayout<T> extends StatefulWidget {
   State<BoneConfigLayout> createState() => _BoneConfigLayoutState<T>();
 }
 
-class _BoneConfigLayoutState<T> extends State<BoneConfigLayout<T>> {
+class _BoneConfigLayoutState<T extends BoneConfig> extends State<BoneConfigLayout<T>> {
   bool _hovering = false;
   OverlayEntry? _overlayEntry;
   final _layoutKey = GlobalKey();
@@ -137,6 +217,7 @@ class _BoneConfigLayoutState<T> extends State<BoneConfigLayout<T>> {
 
   void _onChange() {
     widget.onChange(_overlayStateNotifier.value);
+    setState(() {});
   }
 
   @override
@@ -164,7 +245,10 @@ class _BoneConfigLayoutState<T> extends State<BoneConfigLayout<T>> {
           decoration: BoxDecoration(
             border: _hovering ? Border.all() : null,
           ),
-          child: widget.child,
+          child: Opacity(
+            opacity: _overlayStateNotifier.value.includeBone ? 1 : 0,
+            child: widget.child,
+          ),
         ),
       ),
     );
