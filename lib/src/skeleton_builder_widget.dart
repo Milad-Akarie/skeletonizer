@@ -174,7 +174,7 @@ class SkeletonBuilderState extends State<SkeletonBuilder> {
   void preview() {
     final renderer = _skeletonRenderer;
     if (renderer != null) {
-      renderer.scan(preview: true);
+      renderer.scan(preview: true, reset: true);
     }
   }
 

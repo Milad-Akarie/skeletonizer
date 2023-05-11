@@ -2,7 +2,9 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
 import 'package:skeleton_builder/skeleton_builder.dart';
-import 'package:skeleton_builder/src/builder/text_bone_editor.dart';
+import 'package:skeleton_builder/src/builder/editors/box_bone_editor.dart';
+import 'package:skeleton_builder/src/builder/editors/editor_config.dart';
+import 'package:skeleton_builder/src/builder/editors/text_bone_editor.dart';
 import 'package:skeleton_builder/src/builder/widget_describer.dart';
 
 class SkeletonScanner extends SingleChildRenderObjectWidget {
@@ -25,8 +27,13 @@ class RenderSkeletonScanner extends RenderProxyBox {
   final TextDirection textDirection;
   final ValueChanged<Widget?> onPreview;
   final _textBoneConfigs = <RenderParagraph, TextBoneConfig>{};
+  final _boxBoneConfigs = <RenderObject, BoxBoneConfig>{};
 
-  WidgetDescriber? scan({bool preview = false}) {
+  WidgetDescriber? scan({bool preview = false, bool reset = false}) {
+    if (reset) {
+      _textBoneConfigs.clear();
+      _boxBoneConfigs.clear();
+    }
     final res = rebuildWidget(child!);
     if (preview) {
       onPreview(res.widget);
@@ -361,26 +368,54 @@ class RenderSkeletonScanner extends RenderProxyBox {
       );
     } else if (node is RenderPhysicalShape) {
       final isButton = node.findParentWithName('_RenderInputPadding') != null;
-      final res = isButton ? RebuildResult() : rebuildWidget(node.child);
       final shape = (node.clipper as ShapeBorderClipper).shape;
-      widget = SkeletonContainer(
-        clipBehavior: node.clipBehavior,
-        elevation: node.elevation,
-        shape: shape,
-        child: res.widget,
+
+      final config = _boxBoneConfigs[node] ??= BoxBoneConfig(
+        canBeContainer: !isButton,
+        treatAsBone: isButton,
       );
-      describer = SingleChildWidgetDescriber(
-        name: 'SkeletonContainer',
-        properties: {
-          'clipBehavior': 'Clip.none',
-          'shape': 'ShapeBorderClipper()',
+
+      if (config.treatAsBone || !config.includeBone) {
+        widget = BoxBone(
+          width: double.infinity,
+          height: node.size.height,
+        );
+      } else {
+        final res = rebuildWidget(node.child);
+        widget = SkeletonContainer(
+          clipBehavior: node.clipBehavior,
+          elevation: node.elevation,
+          shape: shape,
+          child: res.widget,
+        );
+        describer = SingleChildWidgetDescriber(
+          name: 'SkeletonContainer',
+          properties: {
+            'clipBehavior': 'Clip.none',
+            'shape': 'ShapeBorderClipper()',
+          },
+          child: res.describer,
+        );
+      }
+      widget = BoxBoneEditor(
+        initialConfig: config,
+        onChange: (config) {
+          _boxBoneConfigs[node] = config;
+          scan(preview: true);
         },
-        child: res.describer,
+        child: widget,
       );
     } else if (node is RenderImage) {
       widget = const BoxBone();
-      describer = const SingleChildWidgetDescriber(
-        name: 'BoxBone',
+      describer = const SingleChildWidgetDescriber(name: 'BoxBone');
+      final config = _boxBoneConfigs[node] ??= BoxBoneConfig();
+      widget = BoxBoneEditor(
+        initialConfig: config,
+        onChange: (config) {
+          _boxBoneConfigs[node] = config;
+          scan(preview: true);
+        },
+        child: widget,
       );
     } else if (node is RenderCustomPaint) {
       var size = node.size;
@@ -423,9 +458,6 @@ class RenderSkeletonScanner extends RenderProxyBox {
         width: painter.width,
         canHaveFixedWidth: lineCount <= 1,
       );
-
-
-
 
       widget = TextBoneEditor(
         initialConfig: config,
@@ -471,12 +503,18 @@ class RenderSkeletonScanner extends RenderProxyBox {
         );
       }
       final res = rebuildWidget(node.child);
+      final treatAsBone = node.isWidget<Divider>();
+      final config = _boxBoneConfigs[node] ??= BoxBoneConfig(
+        canBeContainer: res.widget != null && !node.isWidget<Divider>(),
+        treatAsBone: treatAsBone,
+      );
 
-      if (node.isWidget<Divider>()) {
+      if (config.treatAsBone || !config.includeBone) {
         widget = BoxBone(
           borderRadius: boxDecoration.borderRadius?.resolve(textDirection),
-          height: node.constraints.specificHeight,
+          height: node.constraints.specificHeight ?? node.size.height,
           width: double.infinity,
+
           // child: res.widget,
         );
         describer = const SingleChildWidgetDescriber(
@@ -501,6 +539,14 @@ class RenderSkeletonScanner extends RenderProxyBox {
           },
         );
       }
+      widget = BoxBoneEditor(
+        initialConfig: config,
+        onChange: (config) {
+          _boxBoneConfigs[node] = config;
+          scan(preview: true);
+        },
+        child: widget,
+      );
     } else if (node.isListTile) {
       final labeledNodes = <String, RenderObject>{
         for (final child in node.debugDescribeChildren())
@@ -537,10 +583,28 @@ class RenderSkeletonScanner extends RenderProxyBox {
     } else if (node is RenderObjectWithChildMixin) {
       final res = rebuildWidget(node.child);
       if (node.typeName == '_RenderColoredBox') {
-        widget = ColoredBox(
-          color: Colors.blue.withOpacity(.4),
-          child: res.widget,
+        final config = _boxBoneConfigs[node] ??= BoxBoneConfig(
+          canBeContainer: res.widget != null,
+          treatAsBone: res.widget == null,
         );
+        if (config.treatAsBone) {
+          widget = BoxBone(
+            width: double.infinity,
+            height: (node is RenderBox) ? (node as RenderBox).size.height : null,
+          );
+        } else {
+          widget = SkeletonContainer(child: res.widget);
+        }
+
+        widget = BoxBoneEditor(
+          initialConfig: config,
+          onChange: (config) {
+            _boxBoneConfigs[node] = config;
+            scan(preview: true);
+          },
+          child: widget,
+        );
+
         describer = SingleChildWidgetDescriber(
           name: 'ColoredBox',
           child: res.describer,
