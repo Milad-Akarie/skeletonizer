@@ -6,6 +6,7 @@ import 'package:skeleton_builder/src/builder/editors/box_bone_editor.dart';
 import 'package:skeleton_builder/src/builder/editors/editor_config.dart';
 import 'package:skeleton_builder/src/builder/editors/text_bone_editor.dart';
 import 'package:skeleton_builder/src/builder/widget_describer.dart';
+import 'package:collection/collection.dart';
 
 class SkeletonScanner extends SingleChildRenderObjectWidget {
   const SkeletonScanner({super.key, super.child, required this.onPreviewReady});
@@ -29,7 +30,7 @@ class RenderSkeletonScanner extends RenderProxyBox {
   final _textBoneConfigs = <RenderParagraph, TextBoneConfig>{};
   final _boxBoneConfigs = <RenderObject, BoxBoneConfig>{};
 
-  WidgetDescriber? scan({bool preview = false, bool reset = false}) {
+  WidgetDescriber? rebuild({bool preview = false, bool reset = false}) {
     if (reset) {
       _textBoneConfigs.clear();
       _boxBoneConfigs.clear();
@@ -43,9 +44,18 @@ class RenderSkeletonScanner extends RenderProxyBox {
     }
   }
 
+  List<DiagnosticsNode> debugProperties(RenderObject node) {
+    final builder = DiagnosticPropertiesBuilder();
+    node.debugFillProperties(builder);
+    return builder.properties;
+  }
+
+  T? debugValueOfType<T>(RenderObject node) {
+    return debugProperties(node).firstWhereOrNull((e) => e.value is T)?.value as T?;
+  }
+
   RebuildResult rebuildWidget(RenderObject? node) {
     if (node == null) return RebuildResult();
-    // print(node.runtimeType);
 
     Widget? widget;
     WidgetDescriber? describer;
@@ -54,6 +64,7 @@ class RenderSkeletonScanner extends RenderProxyBox {
       final res = rebuildWidget(node.child);
       widget = res.widget;
       describer = res.describer;
+
       final isEmpty = node.padding.vertical == 0 && node.padding.horizontal == 0;
       if (!isEmpty && node.child?.isListTile != true) {
         widget = Padding(
@@ -146,18 +157,17 @@ class RenderSkeletonScanner extends RenderProxyBox {
         child: res.describer,
       );
     } else if (node is RenderTransform) {
-      // todo handle matrix value
-      // print(node.debugDescribeChildren());
+      final matrix4 = debugValueOfType<Matrix4>(node);
       final res = rebuildWidget(node.child);
       widget = Transform(
-        transform: Matrix4.identity(),
+        transform: matrix4 ?? Matrix4.identity(),
         alignment: node.alignment,
         child: res.widget,
       );
       describer = SingleChildWidgetDescriber(
         name: 'Transform',
         properties: {
-          'transform': 'Matrix4.identity()',
+          'transform': matrix4 == null ? 'ReplaceWithMatrix()' : 'Matrix4.fromList(${matrix4!.storage.toList()})',
           'alignment': 'Alignment.center',
         },
         child: res.describer,
@@ -172,9 +182,8 @@ class RenderSkeletonScanner extends RenderProxyBox {
         children: List.of(children.map((e) => e.widget!)),
       );
       describer = MultiChildWidgetDescriber(
-        name: 'Flex',
+        name: node.direction.widgetName,
         properties: {
-          'direction': 'Axis.vertical',
           'mainAxisAlignment': 'MainAxisAlignment.center',
           'crossAxisAlignment': 'CrossAxisAlignment.center',
           'mainAxisSize': 'MainAxisSize.min',
@@ -182,21 +191,58 @@ class RenderSkeletonScanner extends RenderProxyBox {
         children: List.of(children.map((e) => e.describer!)),
       );
     } else if (node is RenderStack) {
-      final children = [for (final child in node.children) rebuildWidget(child)];
+      final effectiveChild = node.children.take(node.isWidget<IndexedStack>() ? 1 : node.childCount);
+      final children = [for (final child in effectiveChild) rebuildWidget(child)];
       widget = Stack(
         fit: node.fit,
         alignment: node.alignment,
         children: List.of(children.map((e) => e.widget!)),
       );
       describer = MultiChildWidgetDescriber(
-          name: 'Stack',
-          properties: {
-            'fit': 'node.fit',
-            'alignment': 'node.alignment',
-          },
-          children: List.of(
-            children.map((e) => e.describer!),
-          ));
+        name: 'Stack',
+        properties: {
+          'fit': 'node.fit',
+          'alignment': 'node.alignment',
+        },
+        children: List.of(
+          children.map((e) => e.describer!),
+        ),
+      );
+    } else if (node is RenderFlow) {
+      final children = [for (final child in node.children) rebuildWidget(child)];
+      widget = Flow(
+        delegate: node.delegate,
+        clipBehavior: node.clipBehavior,
+        children: List.of(
+          children.map((e) => e.widget!),
+        ),
+      );
+      describer = MultiChildWidgetDescriber(
+        name: 'Flow',
+        properties: {
+          'delegate': '${node.delegate.toString()}()',
+          'clipBehavior': 'node.clipBehavior',
+        },
+        children: List.of(
+          children.map((e) => e.describer!),
+        ),
+      );
+    } else if (node is RenderTable) {
+      // todo handle table
+      widget = Table(
+        border: node.border,
+        children: [
+          for (var i = 0; i < node.rows; i++)
+            TableRow(
+              children: List.of(
+                node.row(i).map(rebuildWidget).map((e) => e.widget!),
+              ),
+            ),
+        ],
+      );
+
+      // widget = SizedBox();
+      describer = SingleChildWidgetDescriber(name: 'name');
     } else if (node is RenderCustomMultiChildLayoutBox) {
       if (node.delegate.toString() == '_ScaffoldLayout') {
         final scaffoldSlots = <String, RenderObject>{
@@ -257,47 +303,92 @@ class RenderSkeletonScanner extends RenderProxyBox {
           );
         }
       }
-    } else if (node is RenderSliverList) {
-      final children = [for (final child in node.children) rebuildWidget(child)];
-      EdgeInsetsGeometry? padding;
-      if (node.parent is RenderSliverPadding) {
-        skipParent = true;
-        padding = (node.parent as RenderSliverPadding).padding;
+    } else if (node is RenderSliverList ||
+        node is RenderSliverFixedExtentList ||
+        node.typeName == '_RenderSliverPrototypeExtentList') {
+      final children = [for (final child in (node as ContainerRenderObjectMixin).children) rebuildWidget(child)];
+      if (children.isNotEmpty) {
+        EdgeInsetsGeometry? padding;
+        if (node.parent is RenderSliverPadding) {
+          skipParent = true;
+          padding = (node.parent as RenderSliverPadding).padding;
+        }
+
+        double? itemExtent;
+        List<RebuildResult> listItemWidgets = [children.first];
+        if (node is RenderSliverFixedExtentList || node.typeName == '_RenderSliverPrototypeExtentList') {
+          itemExtent = node.children.whereType<RenderBox>().firstOrNull?.size.height;
+        } else {
+          final itemsWithDiffHashes = <int, RebuildResult>{};
+          for (final c in children) {
+            itemsWithDiffHashes[c.describer.hashCode] = c;
+          }
+          listItemWidgets = List.of(itemsWithDiffHashes.values);
+        }
+
+        final scrollDirection = node.findParentOfType<RenderViewport>()?.axis ?? Axis.vertical;
+        widget = SkeletonList(
+          padding: padding,
+          itemExtent: itemExtent,
+          itemCount: 20,
+          scrollDirection: scrollDirection,
+          child: Column(
+            children: List.of(listItemWidgets.map((e) => e.widget!)),
+          ),
+        );
+        describer = SingleChildWidgetDescriber(
+          name: 'SkeletonList',
+          properties: {
+            if (padding != null) 'padding': padding.toString(),
+            if (scrollDirection != Axis.vertical) 'scrollDirection': 'Axis.horizontal',
+            if (itemExtent != null) 'itemExtent': '$itemExtent',
+          },
+          child: listItemWidgets.length == 1
+              ? listItemWidgets.first.describer
+              : MultiChildWidgetDescriber(
+                  name: scrollDirection.widgetName,
+                  children: List.of(
+                    listItemWidgets.map((e) => e.describer!),
+                  ),
+                ),
+        );
       }
-      widget = ListView(
-        padding: padding,
-        children: List.of(children.map((e) => e.widget!)),
-      );
-      describer = MultiChildWidgetDescriber(
-        name: 'ListView',
-        properties: {
-          if (padding != null) 'padding': padding.toString(),
-          'scrollDirection': 'Axis.vertical',
-        },
-        children: List.of(children.map((e) => e.describer!)),
-      );
     } else if (node is RenderSliverGrid) {
-      final children = [for (final child in node.children) rebuildWidget(child)];
+      final children = [for (final child in node.children.take(1)) rebuildWidget(child)];
+      final scrollDirection = node.findParentOfType<RenderViewport>()?.axis ?? Axis.vertical;
       EdgeInsetsGeometry? padding;
       if (node.parent is RenderSliverPadding) {
         skipParent = true;
         padding = (node.parent as RenderSliverPadding).padding;
       }
       final delegate = node.gridDelegate;
-      DiagnosticPropertiesBuilder builder = DiagnosticPropertiesBuilder();
-      node.debugFillProperties(builder);
-      widget = GridView(
-        gridDelegate: node.gridDelegate,
+      widget = SkeletonGrid(
+        gridDelegate: delegate,
         padding: padding,
-        children: List.of(children.map((e) => e.widget!)),
+        scrollDirection: scrollDirection,
+        child: children.first.widget!,
       );
-      describer = MultiChildWidgetDescriber(
-        name: 'GridView',
+      describer = SingleChildWidgetDescriber(
+        name: 'SkeletonGrid',
         properties: {
           if (padding != null) 'padding': padding.toString(),
-          'scrollDirection': 'Axis.vertical',
+          if (scrollDirection != Axis.vertical) 'scrollDirection': 'Axis.vertical',
         },
-        children: List.of(children.map((e) => e.describer!)),
+        child: children.first.describer,
+      );
+    } else if (node is RenderSliverFillViewport) {
+      final children = [for (final child in node.children.take(1)) rebuildWidget(child)];
+      final scrollDirection = node.findParentOfType<RenderViewport>()?.axis ?? Axis.horizontal;
+      var padEnds = true;
+      if (node.parentData is SliverPhysicalParentData) {
+        padEnds = (node.parentData as SliverPhysicalParentData).paintOffset.dx != 0;
+      }
+
+      widget = SkeletonPageView(
+        viewportFraction: node.viewportFraction,
+        scrollDirection: scrollDirection,
+        padEnds: padEnds,
+        child: children.first.widget!,
       );
     } else if (node is RenderViewport) {
       if (node.isWidget<CustomScrollView>()) {
@@ -401,7 +492,7 @@ class RenderSkeletonScanner extends RenderProxyBox {
         initialConfig: config,
         onChange: (config) {
           _boxBoneConfigs[node] = config;
-          scan(preview: true);
+          rebuild(preview: true);
         },
         child: widget,
       );
@@ -413,7 +504,7 @@ class RenderSkeletonScanner extends RenderProxyBox {
         initialConfig: config,
         onChange: (config) {
           _boxBoneConfigs[node] = config;
-          scan(preview: true);
+          rebuild(preview: true);
         },
         child: widget,
       );
@@ -463,7 +554,7 @@ class RenderSkeletonScanner extends RenderProxyBox {
         initialConfig: config,
         onChange: (config) {
           _textBoneConfigs[node] = config;
-          scan(preview: true);
+          rebuild(preview: true);
         },
         child: TextBone(
           lineHeight: painter.preferredLineHeight,
@@ -503,10 +594,10 @@ class RenderSkeletonScanner extends RenderProxyBox {
         );
       }
       final res = rebuildWidget(node.child);
-      final treatAsBone = node.isWidget<Divider>();
+
       final config = _boxBoneConfigs[node] ??= BoxBoneConfig(
         canBeContainer: res.widget != null && !node.isWidget<Divider>(),
-        treatAsBone: treatAsBone,
+        treatAsBone: node.isWidget<Divider>(),
       );
 
       if (config.treatAsBone || !config.includeBone) {
@@ -514,8 +605,6 @@ class RenderSkeletonScanner extends RenderProxyBox {
           borderRadius: boxDecoration.borderRadius?.resolve(textDirection),
           height: node.constraints.specificHeight ?? node.size.height,
           width: double.infinity,
-
-          // child: res.widget,
         );
         describer = const SingleChildWidgetDescriber(
           name: 'BoxBone',
@@ -543,7 +632,7 @@ class RenderSkeletonScanner extends RenderProxyBox {
         initialConfig: config,
         onChange: (config) {
           _boxBoneConfigs[node] = config;
-          scan(preview: true);
+          rebuild(preview: true);
         },
         child: widget,
       );
@@ -593,14 +682,17 @@ class RenderSkeletonScanner extends RenderProxyBox {
             height: (node is RenderBox) ? (node as RenderBox).size.height : null,
           );
         } else {
-          widget = SkeletonContainer(child: res.widget);
+          widget = SkeletonContainer(
+            color: Colors.green,
+            child: res.widget,
+          );
         }
 
         widget = BoxBoneEditor(
           initialConfig: config,
           onChange: (config) {
             _boxBoneConfigs[node] = config;
-            scan(preview: true);
+            rebuild(preview: true);
           },
           child: widget,
         );
@@ -776,4 +868,8 @@ extension BoxConstrainsX on BoxConstraints {
   double? get specificWidth => hasSpecificWidth ? maxWidth : null;
 
   double? get specificHeight => hasBoundedHeight ? maxHeight : null;
+}
+
+extension AxisX on Axis {
+  String get widgetName => this == Axis.vertical ? 'Column' : 'Row';
 }

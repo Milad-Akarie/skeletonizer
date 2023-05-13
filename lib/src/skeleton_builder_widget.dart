@@ -174,14 +174,14 @@ class SkeletonBuilderState extends State<SkeletonBuilder> {
   void preview() {
     final renderer = _skeletonRenderer;
     if (renderer != null) {
-      renderer.scan(preview: true, reset: true);
+      renderer.rebuild(preview: true, reset: true);
     }
   }
 
   String getSkeletonAsText() {
     final renderer = _skeletonRenderer;
     if (renderer != null) {
-      final describer = renderer.scan();
+      final describer = renderer.rebuild();
       if (describer != null) {
         if (widget.widgetName != null) {
           return WidgetTemplate.generate(

@@ -67,124 +67,177 @@ class _MyHomePageState extends State<MyHomePage> {
                   ),
                 ],
               )
-            : Column(
-                children: [
-                  // const Padding(
-                  //   padding: EdgeInsets.all(20.0),
-                  //   child: Text(
-                  //     "Lorem Ipsum is simply dummy text of the printing and typesetting industry. Lorem Ipsum has been the industry's standard dummy text ever since the 1500s, when an unknown printer took a galley of type and scrambled it to make a type specimen book.",
-                  //     style: TextStyle(fontSize: 20),
-                  //   ),
-                  // ),
-                  // Card(
-                  //   shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-                  //   child: const Text("Hello"),
-                  // ),
-                  // if (false)
-                  // Padding(
-                  //   padding: const EdgeInsets.all(8.0),
-                  //   child: ElevatedButton(onPressed: () {}, child: const Text('Hello')),
-                  // ),
-                  // Padding(
-                  //   padding: const EdgeInsets.all(8.0),
-                  //   child: DecoratedBox(
-                  //     decoration: BoxDecoration(
-                  //       border: Border.all(),
-                  //     ),
-                  //     child: Row(
-                  //       children: const [
-                  //         Text('Hello'),
-                  //         SizedBox(
-                  //           width: 20,
-                  //           height: 100,
-                  //         ),
-                  //         Text("World"),
-                  //       ],
-                  //     ),
-                  //   ),
-                  // ),
-                  // SizedBox(
-                  //   height: 20,
-                  // ),
-                  // ElevatedButton(
-                  //   onPressed: () {},
-                  //   child: Text('Click me'),
-                  // ),
+            : Padding(
+                padding: const EdgeInsets.only(top: 100),
+                child: Column(
+                  children: [
+                    // const Padding(
+                    //   padding: EdgeInsets.all(20.0),
+                    //   child: Text(
+                    //     "Lorem Ipsum is simply dummy text of the printing and typesetting industry. Lorem Ipsum has been the industry's standard dummy text ever since the 1500s, when an unknown printer took a galley of type and scrambled it to make a type specimen book.",
+                    //     style: TextStyle(fontSize: 20),
+                    //   ),
+                    // ),
+                    // Card(
+                    //   shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                    //   child: const Text("Hello"),
+                    // ),
+                    // if (false)
+                    // Padding(
+                    //   padding: const EdgeInsets.all(8.0),
+                    //   child: ElevatedButton(onPressed: () {}, child: const Text('Hello')),
+                    // ),
+                    // Padding(
+                    //   padding: const EdgeInsets.all(8.0),
+                    //   child: DecoratedBox(
+                    //     decoration: BoxDecoration(
+                    //       border: Border.all(),
+                    //     ),
+                    //     child: Row(
+                    //       children: const [
+                    //         Text('Hello'),
+                    //         SizedBox(
+                    //           width: 20,
+                    //           height: 100,
+                    //         ),
+                    //         Text("World"),
+                    //       ],
+                    //     ),
+                    //   ),
+                    // ),
+                    // SizedBox(
+                    //   height: 20,
+                    // ),
+                    // ElevatedButton(
+                    //   onPressed: () {},
+                    //   child: Text('Click me'),
+                    // ),
+                    // const Divider(thickness: 20,height: 32,color: Colors.redAccent,),
+                    // if(false)
 
-                  // if(false)
-                  Expanded(
-                    child: ListView.builder(
-                      padding: const EdgeInsets.all(20),
-                      itemCount: 1,
-                      itemBuilder: (ctx, index) {
-                        // return Container(
-                        //   color: Colors.grey.shade300,
-                        //   margin: const EdgeInsets.symmetric(vertical: 4),
-                        //   child:  ListTile(
-                        //     title: Text('Im a title'),
-                        //     subtitle: Text('Im a subtitle'),
-                        //     trailing: Container(
-                        //       width: 50,
-                        //       height: 50,
-                        //       color: Colors.green,
-                        //     ),
-                        //   ),
-                        // );
-                        return Card(
-                          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
-                          child: Column(
-                            children: [
-                              AspectRatio(
-                                aspectRatio: 2 / 1,
-                                child: ClipRRect(
-                                  borderRadius: BorderRadius.circular(16),
-                                  child: Image.network(
-                                    'https://images.unsplash.com/photo-1575936123452-b67c3203c357?ixlib=rb-4.0.3&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=1770&q=80',
-                                    fit: BoxFit.cover,
-                                  ),
-                                ),
-                              ),
-                              Padding(
-                                padding: const EdgeInsets.symmetric(vertical: 12),
-                                child: Row(
-                                  children: [
-                                    Padding(
-                                      padding: const EdgeInsets.symmetric(horizontal: 12),
-                                      child: Container(
-                                        width: 65,
-                                        height: 65,
-                                        decoration: const BoxDecoration(
-                                          shape: BoxShape.circle,
-                                          color: Colors.blueGrey,
-                                        ),
+                   const Baseline(
+                       baseline: 50,
+                       baselineType: TextBaseline.alphabetic,
+                       child: Text("hello")),
+                    // Table(
+                    //   border: TableBorder.all(),
+                    //   children: [
+                    //   TableRow(children: [Text('Tab1'), Text('Tab2')]),
+                    //   TableRow(children: [Text('Tab1'), Text('Tab2')])
+                    // ],),
+                    // // if (false)
+                    // SizedBox(
+                    //   height: 44,
+                    //   child: PageView(
+                    //     scrollDirection: Axis.horizontal,
+                    //     padEnds: false,
+                    //     controller: PageController(viewportFraction: .8),
+                    //     children: [
+                    //       for (final i in [0, 2, 3])
+                    //         Container(
+                    //           color: Colors.blue,
+                    //           margin: const EdgeInsets.symmetric(horizontal: 8),
+                    //         ),
+                    //     ],
+                    //   ),
+                    // ),
+
+                    if (false)
+                      Expanded(
+                        child: ListView.separated(
+                          padding: const EdgeInsets.all(20),
+                          itemCount: 3,
+                          separatorBuilder: (ctx, index) => const Divider(
+                            thickness: 20,
+                            height: 32,
+                            color: Colors.redAccent,
+                          ),
+                          itemBuilder: (ctx, index) {
+                            // return Container(
+                            //   color: Colors.grey.shade300,
+                            //   margin: const EdgeInsets.symmetric(vertical: 4),
+                            //   child:  ListTile(
+                            //     title: Text('Im a title'),
+                            //     subtitle: Text('Im a subtitle'),
+                            //     trailing: Container(
+                            //       width: 50,
+                            //       height: 50,
+                            //       color: Colors.green,
+                            //     ),
+                            //   ),
+                            // );
+                            return Card(
+                              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+                              child: Column(
+                                children: [
+                                  AspectRatio(
+                                    aspectRatio: 2 / 1,
+                                    child: ClipRRect(
+                                      borderRadius: BorderRadius.circular(16),
+                                      child: Image.network(
+                                        'https://images.unsplash.com/photo-1575936123452-b67c3203c357?ixlib=rb-4.0.3&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=1770&q=80',
+                                        fit: BoxFit.cover,
                                       ),
                                     ),
-                                    Expanded(
-                                        child: Column(
-                                      crossAxisAlignment: CrossAxisAlignment.start,
-                                      children: const [
-                                        Text(
-                                          'Hello there that is kinda long',
-                                          textAlign: TextAlign.end,
-                                          textDirection: TextDirection.rtl,
+                                  ),
+                                  Padding(
+                                    padding: const EdgeInsets.symmetric(vertical: 12),
+                                    child: Row(
+                                      children: [
+                                        Padding(
+                                          padding: const EdgeInsets.symmetric(horizontal: 12),
+                                          child: Container(
+                                            width: 65,
+                                            height: 65,
+                                            decoration: const BoxDecoration(
+                                              shape: BoxShape.circle,
+                                              color: Colors.blueGrey,
+                                            ),
+                                          ),
                                         ),
-                                        SizedBox(height: 8),
-                                        Text("Im a subtitle"),
+                                        Expanded(
+                                            child: Column(
+                                          crossAxisAlignment: CrossAxisAlignment.start,
+                                          children: const [
+                                            Text(
+                                              'Hello there that is kinda long',
+                                              textAlign: TextAlign.end,
+                                              textDirection: TextDirection.rtl,
+                                            ),
+                                            SizedBox(height: 8),
+                                            Text("Im a subtitle"),
+                                          ],
+                                        )),
+                                        const SizedBox(width: 20)
                                       ],
-                                    )),
-                                    const SizedBox(width: 20)
-                                  ],
-                                ),
-                              )
-                            ],
-                          ),
-                        );
-                      },
-                    ),
-                  ),
-                ],
+                                    ),
+                                  )
+                                ],
+                              ),
+                            );
+                          },
+                        ),
+                      ),
+                  ],
+                ),
               ),
       ),
     );
+  }
+}
+
+class MyFlowDelegate extends FlowDelegate {
+  @override
+  void paintChildren(FlowPaintingContext context) {
+
+    for (var i = 0; i < context.childCount; i++) {
+
+      context.paintChild(i);
+    }
+  }
+
+  @override
+  bool shouldRepaint(covariant FlowDelegate oldDelegate) {
+    return false;
   }
 }

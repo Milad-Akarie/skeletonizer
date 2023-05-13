@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:collection/collection.dart';
 
 class RebuildResult {
   final Widget? widget;
@@ -26,6 +27,15 @@ abstract class WidgetDescriber {
   String tabs(int depth) {
     return '  ' * depth;
   }
+
+  @override
+  int get hashCode => name.hashCode ^ const MapEquality().hash(properties);
+
+  @override
+  bool operator ==(Object other) {
+    return false;
+  }
+
 }
 
 class SingleChildWidgetDescriber extends WidgetDescriber {
@@ -43,6 +53,14 @@ class SingleChildWidgetDescriber extends WidgetDescriber {
     if (child == null && properties.isEmpty) return '$name(),';
     final childDesc = child == null ? '' : '\n${tabs(depth)}child: ${child!.bluePrint(depth + 1)}';
     return '$name(\n${properties.keys.map((k) => '${tabs(depth)}$k: ${properties[k]}').join(',\n')},$childDesc\n${tabs(depth)})';
+  }
+
+  @override
+  int get hashCode => super.hashCode ^ child.hashCode;
+
+  @override
+  bool operator ==(Object other) {
+    return false;
   }
 }
 
@@ -62,6 +80,14 @@ class MultiChildWidgetDescriber extends WidgetDescriber {
         '\n${tabs(depth)}children:[\n${children.map((e) => '${tabs(depth)}${e.bluePrint(depth + 1)}').toList().join(',\n')}\n${tabs(depth)}]';
     return '$name(\n${properties.keys.map((k) => '${tabs(depth)}$k: ${properties[k]}').join(',\n')},$childrenDes\n${tabs(depth)})';
   }
+
+  @override
+  int get hashCode => super.hashCode ^ const ListEquality().hash(children);
+
+  @override
+  bool operator ==(Object other) {
+    return false;
+  }
 }
 
 class SlottedWidgetDescriber extends WidgetDescriber {
@@ -80,5 +106,13 @@ class SlottedWidgetDescriber extends WidgetDescriber {
     final childrenDes =
         'children: ${slots.keys.map((k) => '$k: ${slots[k]!.bluePrint(depth + 1)}').toList().join(',\n')}';
     return '${' ' * depth}$name(${properties.keys.map((k) => '$k: ${properties[k]}').join(',\n')},$childrenDes\n)';
+  }
+
+  @override
+  int get hashCode => super.hashCode ^ const MapEquality().hash(slots);
+
+  @override
+  bool operator ==(Object other) {
+    return false;
   }
 }
