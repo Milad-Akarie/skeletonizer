@@ -27,4 +27,18 @@ class SkeletonGrid extends StatelessWidget {
       itemBuilder: (context, _) => child,
     );
   }
+
+  static SliverGrid sliver({
+    required Widget child,
+    int itemCount = 10,
+   required SliverGridDelegate gridDelegate
+  }) {
+    return SliverGrid(
+      delegate: SliverChildBuilderDelegate(
+        (context, _) => child,
+        childCount: itemCount,
+      ),
+      gridDelegate: gridDelegate,
+    );
+  }
 }

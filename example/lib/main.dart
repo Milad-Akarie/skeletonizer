@@ -1,5 +1,3 @@
-import 'dart:math';
-
 import 'package:flutter/material.dart';
 import 'package:skeleton_builder/skeleton_builder.dart';
 
@@ -42,30 +40,53 @@ class _MyHomePageState extends State<MyHomePage> {
     return Scaffold(
       appBar: AppBar(),
       body: SkeletonBuilder(
-        child: false
-            ? CustomScrollView(
-                slivers: [
-                  SliverList(
-                    delegate: SliverChildBuilderDelegate(
-                      (context, index) => Text('Hello'),
-                      childCount: 3,
+        child: true
+            ? Padding(
+                padding: const EdgeInsets.only(top: 100),
+                child: CustomScrollView(
+                  slivers: [
+                    const SliverAppBar(
+                      title: Text("Title"),
+                      expandedHeight: 120,
+                      flexibleSpace: FlexibleSpaceBar(
+                        background: Text('background'),
+                      ),
                     ),
-                  ),
-                  SliverPadding(
-                    padding: EdgeInsets.all(23),
-                    sliver: SliverAppBar(
-                      // backgroundColor: Colors.transparent,
-                      title: Text("Hello"),
+                    SliverList(
+                      delegate: SliverChildBuilderDelegate(
+                        (context, index) => ListTile(
+                          title: const Text("Hello"),
+                          subtitle: const Text("Hello I'm subitiel"),
+                          trailing: IconButton(onPressed: () {}, icon: const Icon(Icons.ac_unit)),
+                        ),
+                        childCount: 3,
+                      ),
                     ),
-                  ),
-                  SliverPadding(
-                    padding: EdgeInsets.all(23),
-                    sliver: SliverAppBar(
-                      // backgroundColor: Colors.transparent,
-                      title: Text("Hello"),
-                    ),
-                  ),
-                ],
+
+                    // SliverToBoxAdapter(
+                    //   child: SizedBox(
+                    //     height: 100,
+                    //     width: 100,
+                    //     // child: ColoredBox(color: Colors.redAccent,),
+                    //     // child: ListView(
+                    //     //   children: [Text("Hello World")],
+                    //     // ),
+                    //   ),
+                    // ),
+                    // const SliverPadding(
+                    //   padding: EdgeInsets.all(23),
+                    //   sliver: SliverAppBar(
+                    //     title: Text("Hello"),
+                    //   ),
+                    // ),
+                    // const SliverPadding(
+                    //   padding: EdgeInsets.all(23),
+                    //   sliver: SliverAppBar(
+                    //     title: Text("Hello"),
+                    //   ),
+                    // ),
+                  ],
+                ),
               )
             : Padding(
                 padding: const EdgeInsets.only(top: 100),
@@ -115,16 +136,6 @@ class _MyHomePageState extends State<MyHomePage> {
                     // const Divider(thickness: 20,height: 32,color: Colors.redAccent,),
                     // if(false)
 
-                    SizedBox(
-                      height: 100,
-                      child: Center(
-                        child: IntrinsicWidth(
-                          stepWidth: 10,
-                          stepHeight: 10,
-                          child: Container(color: Colors.redAccent),
-                        ),
-                      ),
-                    ),
                     // Table(
                     //   border: TableBorder.all(),
                     //   children: [
@@ -152,7 +163,7 @@ class _MyHomePageState extends State<MyHomePage> {
                       Expanded(
                         child: ListView.separated(
                           padding: const EdgeInsets.all(20),
-                          itemCount: 3,
+                          itemCount: 20,
                           separatorBuilder: (ctx, index) => const Divider(
                             thickness: 20,
                             height: 32,
@@ -229,19 +240,5 @@ class _MyHomePageState extends State<MyHomePage> {
               ),
       ),
     );
-  }
-}
-
-class MyFlowDelegate extends FlowDelegate {
-  @override
-  void paintChildren(FlowPaintingContext context) {
-    for (var i = 0; i < context.childCount; i++) {
-      context.paintChild(i);
-    }
-  }
-
-  @override
-  bool shouldRepaint(covariant FlowDelegate oldDelegate) {
-    return false;
   }
 }

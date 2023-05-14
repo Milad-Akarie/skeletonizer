@@ -26,7 +26,7 @@ class SkeletonBuilderState extends State<SkeletonBuilder> {
   Widget? _skeletonPreview;
   final _scannerKey = GlobalKey();
   bool _toolsBarExpanded = false;
-  double _skeletonOpacity = .7;
+  double _skeletonOpacity = .8;
 
   @override
   Widget build(BuildContext context) {
@@ -101,7 +101,7 @@ class SkeletonBuilderState extends State<SkeletonBuilder> {
                         IconButton(
                           onPressed: preview,
                           icon: const Icon(
-                            Icons.layers_outlined,
+                            Icons.dashboard_outlined,
                             color: Colors.white,
                           ),
                         ),

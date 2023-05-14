@@ -35,7 +35,7 @@ class TextBone extends StatelessWidget {
   Widget build(BuildContext context) {
     return LayoutBuilder(builder: (context, constrains) {
       final effectiveWidth = width ?? constrains.maxWidth;
-      final actualLineCount = math.max((lineLength / effectiveWidth).floor(), 1);
+      final actualLineCount = math.max((lineLength / effectiveWidth).round(), 1);
 
       var lineCount = maxLines == null ? actualLineCount : math.min(maxLines!, actualLineCount);
       final spacing = lineHeight - fontSize;
