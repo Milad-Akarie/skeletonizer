@@ -115,10 +115,16 @@ class _MyHomePageState extends State<MyHomePage> {
                     // const Divider(thickness: 20,height: 32,color: Colors.redAccent,),
                     // if(false)
 
-                   const Baseline(
-                       baseline: 50,
-                       baselineType: TextBaseline.alphabetic,
-                       child: Text("hello")),
+                    SizedBox(
+                      height: 100,
+                      child: Center(
+                        child: IntrinsicWidth(
+                          stepWidth: 10,
+                          stepHeight: 10,
+                          child: Container(color: Colors.redAccent),
+                        ),
+                      ),
+                    ),
                     // Table(
                     //   border: TableBorder.all(),
                     //   children: [
@@ -229,9 +235,7 @@ class _MyHomePageState extends State<MyHomePage> {
 class MyFlowDelegate extends FlowDelegate {
   @override
   void paintChildren(FlowPaintingContext context) {
-
     for (var i = 0; i < context.childCount; i++) {
-
       context.paintChild(i);
     }
   }

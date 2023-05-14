@@ -56,7 +56,7 @@ class RenderSkeletonScanner extends RenderProxyBox {
 
   RebuildResult rebuildWidget(RenderObject? node) {
     if (node == null) return RebuildResult();
-
+    print(node.runtimeType);
     Widget? widget;
     WidgetDescriber? describer;
     bool skipParent = false;
@@ -142,6 +142,109 @@ class RenderSkeletonScanner extends RenderProxyBox {
           'fit': 'BoxFit.fill',
           'alignment': 'Alignment.center',
           'clipBehavior': 'Clip.none',
+        },
+        child: res.describer,
+      );
+    } else if (node is RenderIntrinsicWidth) {
+      final res = rebuildWidget(node.child);
+      widget = IntrinsicWidth(
+        stepWidth: node.stepWidth,
+        stepHeight: node.stepHeight,
+        child: res.widget,
+      );
+      describer = SingleChildWidgetDescriber(
+        name: 'IntrinsicWidth',
+        properties: {
+          'stepWidth': 'node.stepWidth',
+          'stepHeight': 'node.stepHeight',
+        },
+        child: res.describer,
+      );
+    } else if (node is RenderIntrinsicHeight) {
+      final res = rebuildWidget(node.child);
+      widget = IntrinsicHeight(child: res.widget);
+      describer = SingleChildWidgetDescriber(
+        name: 'IntrinsicHeight',
+        child: res.describer,
+      );
+    } else if (node is RenderFractionallySizedOverflowBox) {
+      final res = rebuildWidget(node.child);
+      widget = FractionallySizedBox(
+        widthFactor: node.widthFactor,
+        heightFactor: node.heightFactor,
+        alignment: node.alignment,
+        child: res.widget,
+      );
+      describer = SingleChildWidgetDescriber(
+        name: 'FractionallySizedBox',
+        properties: {
+          'widthFactor': 'node.widthFactor',
+          'heightFactor': 'node.heightFactor',
+          'alignment': 'node.alignment',
+        },
+        child: res.describer,
+      );
+    } else if (node is RenderLimitedBox) {
+      final res = rebuildWidget(node.child);
+      widget = LimitedBox(
+        maxWidth: node.maxWidth,
+        maxHeight: node.maxHeight,
+        child: res.widget,
+      );
+      describer = SingleChildWidgetDescriber(
+        name: 'LimitedBox',
+        properties: {
+          'maxWidth': 'node.maxWidth',
+          'maxHeight': 'node.maxHeight',
+        },
+        child: res.describer,
+      );
+    } else if (node is RenderConstrainedOverflowBox) {
+      final res = rebuildWidget(node.child);
+      widget = OverflowBox(
+        maxWidth: node.maxWidth,
+        maxHeight: node.maxHeight,
+        minWidth: node.minWidth,
+        minHeight: node.minHeight,
+        child: res.widget,
+      );
+      describer = SingleChildWidgetDescriber(
+        name: 'OverflowBox',
+        properties: {
+          'maxWidth': 'node.maxWidth',
+          'maxHeight': 'node.maxHeight',
+          'minWidth': 'node.maxHeight',
+          'minHeight': 'node.maxHeight',
+        },
+        child: res.describer,
+      );
+    } else if (node is RenderConstrainedOverflowBox) {
+      final res = rebuildWidget(node.child);
+      widget = SizedOverflowBox(
+        alignment: node.alignment,
+        size: node.size,
+        child: res.widget,
+      );
+      describer = SingleChildWidgetDescriber(
+        name: 'SizedOverflowBox',
+        properties: {
+          'size': 'node.size',
+          'alignment': 'node.alignment',
+        },
+        child: res.describer,
+      );
+    } else if (node is RenderBaseline) {
+      final res = rebuildWidget(node.child);
+      widget = Baseline(
+        baseline: node.baseline,
+        baselineType: node.baselineType,
+        child: res.widget,
+      );
+      describer = SingleChildWidgetDescriber(
+        name: 'Baseline',
+        properties: {
+          'baseline': 'node.baseline',
+          'baselineType': 'node.baselineType',
         },
         child: res.describer,
       );
