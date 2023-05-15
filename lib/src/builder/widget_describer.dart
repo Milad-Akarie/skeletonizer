@@ -43,16 +43,17 @@ class SingleChildWidgetDescriber extends WidgetDescriber {
     Key? key,
     this.child,
     required super.name,
+    this.childName = 'child',
     super.properties,
   });
-
+  final String childName;
   final WidgetDescriber? child;
 
   @override
   String bluePrint([int depth = 0]) {
     if (child == null && properties.isEmpty) return '$name(),';
-    final childDesc = child == null ? '' : '\n${tabs(depth)}child: ${child!.bluePrint(depth + 1)}';
-    return '$name(\n${properties.keys.map((k) => '${tabs(depth)}$k: ${properties[k]}').join(',\n')},$childDesc\n${tabs(depth)})';
+    final childDesc = child == null ? '' : '\n${tabs(depth)}$childName: ${child!.bluePrint(depth + 1)}';
+    return '$name(\n${properties.keys.map((k) => '${tabs(depth)}$k: ${properties[k]},').join('\n')}$childDesc\n${tabs(depth)})';
   }
 
   @override
@@ -69,16 +70,17 @@ class MultiChildWidgetDescriber extends WidgetDescriber {
     Key? key,
     required this.children,
     required super.name,
+    this.childrenName = 'children',
     super.properties,
   });
 
   final List<WidgetDescriber> children;
-
+  final String childrenName;
   @override
   String bluePrint([int depth = 0]) {
     final childrenDes =
-        '\n${tabs(depth)}children:[\n${children.map((e) => '${tabs(depth)}${e.bluePrint(depth + 1)}').toList().join(',\n')}\n${tabs(depth)}]';
-    return '$name(\n${properties.keys.map((k) => '${tabs(depth)}$k: ${properties[k]}').join(',\n')},$childrenDes\n${tabs(depth)})';
+        '\n${tabs(depth)}$childrenName:[\n${children.map((e) => '${tabs(depth)}${e.bluePrint(depth + 1)}').toList().join(',\n')}\n${tabs(depth)}]';
+    return '$name(\n${properties.keys.map((k) => '${tabs(depth)}$k: ${properties[k]},').join('\n')}$childrenDes\n${tabs(depth)})';
   }
 
   @override
@@ -105,7 +107,7 @@ class SlottedWidgetDescriber extends WidgetDescriber {
     slots.removeWhere((key, value) => value == null);
     final childrenDes =
         'children: ${slots.keys.map((k) => '$k: ${slots[k]!.bluePrint(depth + 1)}').toList().join(',\n')}';
-    return '${' ' * depth}$name(${properties.keys.map((k) => '$k: ${properties[k]}').join(',\n')},$childrenDes\n)';
+    return '${' ' * depth}$name(${properties.keys.map((k) => '$k: ${properties[k]},').join('\n')},$childrenDes\n)';
   }
 
   @override
@@ -116,3 +118,4 @@ class SlottedWidgetDescriber extends WidgetDescriber {
     return false;
   }
 }
+

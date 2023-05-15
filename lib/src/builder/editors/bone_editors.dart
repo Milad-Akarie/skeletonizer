@@ -109,9 +109,8 @@ class _BoneConfigLayoutState<T extends BoneConfig> extends State<BoneConfigLayou
 
     final overlayState = Overlay.of(context);
 
-    final screenWidth = MediaQuery.of(context).size.width;
-    final xPos = (offset.dx > screenWidth / 2) ? (offset.dx - widget.contentWidth) + renderBox.size.width : offset.dx;
-
+    final screenSize = MediaQuery.of(context).size;
+    final inTopSection = (offset.dy + renderBox.size.height)/2 > screenSize.width/2;
     _overlayEntry = OverlayEntry(builder: (context) {
       return ValueListenableBuilder(
           valueListenable: _overlayStateNotifier,
@@ -125,12 +124,15 @@ class _BoneConfigLayoutState<T extends BoneConfig> extends State<BoneConfigLayou
                   ),
                 ),
                 Positioned(
-                  left: xPos,
-                  top: offset.dy + renderBox.size.height + 10,
-                  width: widget.contentWidth,
-                  child: DefaultTextStyle(
-                    style: const TextStyle(color: Colors.white70),
-                    child: widget.buildOverlay(context, _overlayStateNotifier),
+                  top: inTopSection? null : offset.dy + renderBox.size.height + 6,
+                  left: 0,
+                  right: 0,
+                  bottom: inTopSection ? screenSize.height - offset.dy + 6 : null,
+                  child: Center(
+                    child: SizedBox(
+                      width: widget.contentWidth,
+                      child: widget.buildOverlay(context, _overlayStateNotifier),
+                    ),
                   ),
                 ),
               ],
@@ -145,4 +147,3 @@ class _BoneConfigLayoutState<T extends BoneConfig> extends State<BoneConfigLayou
     _overlayEntry = null;
   }
 }
-

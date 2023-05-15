@@ -26,6 +26,7 @@ class TextBoneEditor extends StatelessWidget {
           child: Padding(
             padding: const EdgeInsets.symmetric(horizontal: 0, vertical: 4),
             child: Column(
+              mainAxisSize: MainAxisSize.min,
               children: [
                 CheckboxListTile(
                     title: const Text('Include'),

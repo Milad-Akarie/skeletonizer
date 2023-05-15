@@ -44,7 +44,7 @@ class RenderSkeletonScanner extends RenderProxyBox {
     }
   }
 
-  List<DiagnosticsNode> debugProperties(RenderObject node) {
+  List<DiagnosticsNode> debugProperties(Diagnosticable node) {
     final builder = DiagnosticPropertiesBuilder();
     node.debugFillProperties(builder);
     return builder.properties;
@@ -56,7 +56,6 @@ class RenderSkeletonScanner extends RenderProxyBox {
 
   RebuildResult rebuildWidget(RenderObject? node) {
     if (node == null) return RebuildResult();
-    // print(node.runtimeType);
 
     Widget? widget;
     WidgetDescriber? describer;
@@ -301,7 +300,7 @@ class RenderSkeletonScanner extends RenderProxyBox {
       describer = SingleChildWidgetDescriber(
         name: 'Transform',
         properties: {
-          'transform': matrix4 == null ? 'ReplaceWithMatrix()' : 'Matrix4.fromList(${matrix4!.storage.toList()})',
+          'transform': matrix4 == null ? 'ReplaceWithMatrix()' : 'Matrix4.fromList(${matrix4.storage.toList()})',
           'alignment': 'Alignment.center',
         },
         child: res.describer,
@@ -584,7 +583,6 @@ class RenderSkeletonScanner extends RenderProxyBox {
       );
     } else if (node is RenderSliverToBoxAdapter) {
       final res = rebuildWidget(node.child);
-
       widget = SliverToBoxAdapter(child: res.widget);
       describer = SingleChildWidgetDescriber(
         name: 'SliverToBoxAdapter',
@@ -592,24 +590,61 @@ class RenderSkeletonScanner extends RenderProxyBox {
       );
     } else if (node is RenderViewport) {
       if (node.isInside<CustomScrollView>()) {
-        final children = [for (final child in node.children) rebuildWidget(child)];
-        print(node.children.map((e) => e.runtimeType));
-        print(children.map((e) => e.widget));
+        final children = <RebuildResult>[];
+        for (final child in node.children) {
+          if (child.isInside<SliverAppBar>()) {
+            const sliverAppBar = Text("Hello") ;
+            final physicalModel = child.findChild((object) {
+              if (object.isInside<FlexibleSpaceBarSettings>()) {
+                return object;
+              }
+              return null;
+            });
+
+
+            // final titleRes = rebuildWidget(sliverAppBar)
+            //   final childWidth = SliverAppBar(
+            //      title: ,
+            //   );
+            //
+          }
+          children.add(rebuildWidget(child));
+        }
+
         widget = CustomScrollView(
           slivers: [
             for (final child in children.map((e) => e.widget!))
-              if (child is! SliverMultiBoxAdaptorWidget)
+              if (child is! SliverMultiBoxAdaptorWidget && child is! SliverToBoxAdapter)
                 SliverToBoxAdapter(
-                  child: SizedBox(
-                      height: 120,
-                      child: child),
+                  child: SizedBox(height: 120, child: child),
                 )
               else
                 child
           ],
         );
+
+        describer = MultiChildWidgetDescriber(
+          children: [
+            for (final child in children)
+              if (child.widget is! SliverMultiBoxAdaptorWidget && child.widget is! SliverToBoxAdapter)
+                SingleChildWidgetDescriber(
+                  name: 'SliverToBoxAdapter',
+                  child: SingleChildWidgetDescriber(
+                    name: 'SizedBox',
+                    properties: {'height': '120'},
+                    child: child.describer,
+                  ),
+                )
+              else
+                child.describer!
+          ],
+          name: 'CustomScrollView',
+          childrenName: 'slivers',
+        );
       } else {
-        widget = rebuildWidget(node.firstChild).widget;
+        final res = rebuildWidget(node.firstChild);
+        widget = res.widget;
+        describer = res.describer;
       }
     } else if (node is RenderClipPath) {
       final res = rebuildWidget(node.child);
@@ -664,8 +699,19 @@ class RenderSkeletonScanner extends RenderProxyBox {
         },
         child: res.describer,
       );
+    } else if (node is RenderPhysicalModel) {
+      final res = rebuildWidget(node.child);
+      widget = SkeletonContainer(
+        elevation: node.elevation,
+        child: res.widget,
+      );
+      describer = SingleChildWidgetDescriber(
+        name: 'SkeletonContainer',
+        child: res.describer,
+      );
     } else if (node is RenderPhysicalShape) {
       final isButton = node.findParentWithName('_RenderInputPadding') != null;
+
       final shape = (node.clipper as ShapeBorderClipper).shape;
 
       final config = _boxBoneConfigs[node] ??= BoxBoneConfig(
@@ -675,7 +721,7 @@ class RenderSkeletonScanner extends RenderProxyBox {
 
       if (config.treatAsBone || !config.includeBone) {
         widget = BoxBone(
-          width: double.infinity,
+          width: isButton ? node.size.width : double.infinity,
           height: node.size.height,
         );
       } else {
@@ -810,7 +856,7 @@ class RenderSkeletonScanner extends RenderProxyBox {
       if (config.treatAsBone || !config.includeBone) {
         widget = BoxBone(
           borderRadius: boxDecoration.borderRadius?.resolve(textDirection),
-          height: node.constraints.specificHeight ?? node.size.height,
+          height: node.constraints.hasTightHeight ? node.constraints.maxHeight : node.size.height,
           width: double.infinity,
         );
         describer = const SingleChildWidgetDescriber(
@@ -823,8 +869,8 @@ class RenderSkeletonScanner extends RenderProxyBox {
       } else {
         widget = SkeletonContainer(
           shape: shape,
-          width: node.constraints.specificWidth,
-          height: node.constraints.specificHeight,
+          width: node.assignableWidth,
+          height: node.assignableHeight,
           child: res.widget,
         );
         describer = const SingleChildWidgetDescriber(
@@ -1004,6 +1050,12 @@ extension ChildernIterator on ContainerRenderObjectMixin {
   }
 }
 
+extension RenderBoxX on RenderBox {
+  double get assignableHeight => constraints.hasTightHeight ? constraints.maxHeight : size.height;
+
+  double get assignableWidth => constraints.hasTightWidth ? constraints.maxWidth : size.width;
+}
+
 extension RenderObjectX on RenderObject {
   String get typeName => runtimeType.toString();
 
@@ -1020,6 +1072,23 @@ extension RenderObjectX on RenderObject {
     E? findType<E>(RenderObjectWithChildMixin box) {
       if (box is T) {
         return box as E;
+      } else if (box.child is RenderObjectWithChildMixin) {
+        return findType<E>(box.child as RenderObjectWithChildMixin);
+      }
+      return null;
+    }
+
+    if (this is RenderObjectWithChildMixin) {
+      return findType<T>(this as RenderObjectWithChildMixin);
+    }
+    return null;
+  }
+
+  T? findChild<T>(T? Function(RenderObject object) predicate) {
+    E? findType<E>(RenderObjectWithChildMixin box) {
+      final res = predicate(box);
+      if (res != null) {
+        return res as E;
       } else if (box.child is RenderObjectWithChildMixin) {
         return findType<E>(box.child as RenderObjectWithChildMixin);
       }
@@ -1061,22 +1130,16 @@ extension RenderObjectX on RenderObject {
   bool get treatAsSliver => isInside<CustomScrollView>() && !isInside<SliverToBoxAdapter>();
 
   bool isInside<T extends Widget>() {
-    if (debugCreator is! DebugCreator) return false;
+    return findAncestorWidget<T>() != null;
+  }
+
+  T? findAncestorWidget<T extends Widget>() {
+    if (debugCreator is! DebugCreator) return null;
     final element = (debugCreator as DebugCreator).element;
-    return element.findAncestorWidgetOfExactType<T>() != null;
+    return element.findAncestorWidgetOfExactType<T>();
   }
 
   bool get isListTile => typeName == '_RenderListTile';
-}
-
-extension BoxConstrainsX on BoxConstraints {
-  bool get hasSpecificWidth => maxWidth == minWidth;
-
-  bool get hasSpecificHeight => maxHeight == minHeight;
-
-  double? get specificWidth => hasSpecificWidth ? maxWidth : null;
-
-  double? get specificHeight => hasBoundedHeight ? maxHeight : null;
 }
 
 extension AxisX on Axis {
