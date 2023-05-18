@@ -1,3 +1,4 @@
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:collection/collection.dart';
 
@@ -5,11 +6,13 @@ class RebuildResult {
   final Widget? widget;
   final WidgetDescriber? describer;
   final bool skipParent;
+  final AbstractNode? node;
 
   RebuildResult({
     this.widget,
     this.describer,
     this.skipParent = false,
+    this.node,
   });
 }
 
@@ -22,7 +25,7 @@ abstract class WidgetDescriber {
   String bluePrint([int depth = 0]);
 
   final String name;
-  final Map<String, String> properties;
+  final Map<String, dynamic> properties;
 
   String tabs(int depth) {
     return '  ' * depth;
@@ -35,7 +38,6 @@ abstract class WidgetDescriber {
   bool operator ==(Object other) {
     return false;
   }
-
 }
 
 class SingleChildWidgetDescriber extends WidgetDescriber {
@@ -46,6 +48,7 @@ class SingleChildWidgetDescriber extends WidgetDescriber {
     this.childName = 'child',
     super.properties,
   });
+
   final String childName;
   final WidgetDescriber? child;
 
@@ -76,6 +79,7 @@ class MultiChildWidgetDescriber extends WidgetDescriber {
 
   final List<WidgetDescriber> children;
   final String childrenName;
+
   @override
   String bluePrint([int depth = 0]) {
     final childrenDes =
@@ -118,4 +122,3 @@ class SlottedWidgetDescriber extends WidgetDescriber {
     return false;
   }
 }
-

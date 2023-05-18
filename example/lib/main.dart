@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/rendering.dart';
 import 'package:skeleton_builder/skeleton_builder.dart';
 
 void main() {
@@ -14,8 +15,8 @@ class MyApp extends StatelessWidget {
     return MaterialApp(
       title: 'Flutter Demo',
       theme: ThemeData.light(
-        // primarySwatch: Colors.blue,
-      ),
+          // primarySwatch: Colors.blue,
+          ),
       home: const MyHomePage(title: 'Flutter Demo Home Page'),
     );
   }
@@ -41,217 +42,243 @@ class _MyHomePageState extends State<MyHomePage> {
       appBar: AppBar(),
       body: SkeletonBuilder(
         widgetName: 'DemoSkeleton',
-        child: false
-            ? const Padding(
-          padding: EdgeInsets.only(top: 100),
-          child: CustomScrollView(
-            slivers: [
-              SliverAppBar(
-                title: Text("Title"),
-                leading: BackButton(),
-                expandedHeight: 120,
-                flexibleSpace: FlexibleSpaceBar(
-                  background: ColoredBox(color: Colors.redAccent),
-                ),
-              ),
-              // SliverToBoxAdapter(
-              //   child: Text("Hello"),
-              // )
-              // SliverList(
-              //   delegate: SliverChildBuilderDelegate(
-              //     (context, index) => ListTile(
-              //       title: const Text("Hello"),
-              //       subtitle: const Text("Hello I'm subitiel"),
-              //       trailing: IconButton(onPressed: () {}, icon: const Icon(Icons.ac_unit)),
-              //     ),
-              //     childCount: 3,
-              //   ),
-              // ),
+        child: true
+            ? Padding(
+                padding: const EdgeInsets.only(top: 100),
+                child: CustomScrollView(slivers: [
+                  SliverPersistentHeader(delegate: Header()),
+                  SliverPersistentHeader(delegate: Header()),
+                  SliverAppBar(
+                    expandedHeight: 120,
+                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
+                    title: const Text('Title'),
+                    leading: const BackButton(),
+                    flexibleSpace: const FlexibleSpaceBar(
+                      // background: ColoredBox(color: Colors.blue.shade400),
+                      title: Text("Sub title"),
+                    ),
+                  ),
 
-              // SliverToBoxAdapter(
-              //   child: SizedBox(
-              //     height: 100,
-              //     width: 100,
-              //     // child: ColoredBox(color: Colors.redAccent,),
-              //     // child: ListView(
-              //     //   children: [Text("Hello World")],
-              //     // ),
-              //   ),
-              // ),
-              // const SliverPadding(
-              //   padding: EdgeInsets.all(23),
-              //   sliver: SliverAppBar(
-              //     title: Text("Hello"),
-              //   ),
-              // ),
-              // const SliverPadding(
-              //   padding: EdgeInsets.all(23),
-              //   sliver: SliverAppBar(
-              //     title: Text("Hello"),
-              //   ),
-              // ),
-            ],
-          ),
-        )
+                  SliverList(
+                    delegate: SliverChildBuilderDelegate(
+                          (context, index) => ListTile(
+                        title: const Text("Hello"),
+                        subtitle: const Text("Hello I'm subitiel"),
+                        trailing: IconButton(onPressed: () {}, icon: const Icon(Icons.ac_unit)),
+                      ),
+                      childCount: 3,
+                    ),
+                  ),
+
+
+                    // SliverToBoxAdapter(
+                    //   child: SizedBox(
+                    //     height: 100,
+                    //     width: 100,
+                    //     // child: ColoredBox(color: Colors.redAccent,),
+                    //     // child: ListView(
+                    //     //   children: [Text("Hello World")],
+                    //     // ),
+                    //   ),
+                    // ),
+                    // const SliverPadding(
+                    //   padding: EdgeInsets.all(23),
+                    //   sliver: SliverAppBar(
+                    //     title: Text("Hello"),
+                    //   ),
+                    // ),
+                    // const SliverPadding(
+                    //   padding: EdgeInsets.all(23),
+                    //   sliver: SliverAppBar(
+                    //     title: Text("Hello"),
+                    //   ),
+                    // ),
+                  // ),
+                ]),
+              )
             : Padding(
-          padding: const EdgeInsets.only(top: 100),
-          child: Column(
-            children: [
-              // const Padding(
-              //   padding: EdgeInsets.all(20.0),
-              //   child: Text(
-              //     "Lorem Ipsum is simply dummy text of the printing and typesetting industry. Lorem Ipsum has been the industry's standard dummy text ever since the 1500s, when an unknown printer took a galley of type and scrambled it to make a type specimen book.",
-              //     style: TextStyle(fontSize: 20),
-              //   ),
-              // ),
-              // Card(
-              //   shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-              //   child: const Text("Hello"),
-              // ),
-              // if (false)
-              // Padding(
-              //   padding: const EdgeInsets.all(8.0),
-              //   child: ElevatedButton(onPressed: () {}, child: const Text('Hello')),
-              // ),
-              // Padding(
-              //   padding: const EdgeInsets.all(8.0),
-              //   child: DecoratedBox(
-              //     decoration: BoxDecoration(
-              //       border: Border.all(),
-              //     ),
-              //     child: Row(
-              //       children: const [
-              //         Text('Hello'),
-              //         SizedBox(
-              //           width: 20,
-              //           height: 100,
-              //         ),
-              //         Text("World"),
-              //       ],
-              //     ),
-              //   ),
-              // ),
-              // SizedBox(
-              //   height: 20,
-              // ),
-              ElevatedButton(
-                onPressed: () {},
-                child: Text('Click me'),
-              ),
-              const Divider(thickness: 20,height: 32,color: Colors.redAccent,),
-              Spacer(),
-              ElevatedButton(
-                onPressed: () {},
-                child: Text('Click me'),
-              ),
-              Text('Click me '*10),
-              // if(false)
-
-              // Table(
-              //   border: TableBorder.all(),
-              //   children: [
-              //   TableRow(children: [Text('Tab1'), Text('Tab2')]),
-              //   TableRow(children: [Text('Tab1'), Text('Tab2')])
-              // ],),
-              // // if (false)
-              // SizedBox(
-              //   height: 44,
-              //   child: PageView(
-              //     scrollDirection: Axis.horizontal,
-              //     padEnds: false,
-              //     controller: PageController(viewportFraction: .8),
-              //     children: [
-              //       for (final i in [0, 2, 3])
-              //         Container(
-              //           color: Colors.blue,
-              //           margin: const EdgeInsets.symmetric(horizontal: 8),
-              //         ),
-              //     ],
-              //   ),
-              // ),
-
-              if (false)
-                Expanded(
-                  child: ListView.separated(
-                    padding: const EdgeInsets.all(20),
-                    itemCount: 20,
-                    separatorBuilder: (ctx, index) =>
+                padding: const EdgeInsets.only(top: 100),
+                child: Column(
+                  children: [
+                    // const Padding(
+                    //   padding: EdgeInsets.all(20.0),
+                    //   child: Text(
+                    //     "Lorem Ipsum is simply dummy text of the printing and typesetting industry. Lorem Ipsum has been the industry's standard dummy text ever since the 1500s, when an unknown printer took a galley of type and scrambled it to make a type specimen book.",
+                    //     style: TextStyle(fontSize: 20),
+                    //   ),
+                    // ),
+                    // Card(
+                    //   shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                    //   child: const Text("Hello"),
+                    // ),
+                    // if (false)
+                    // Padding(
+                    //   padding: const EdgeInsets.all(8.0),
+                    //   child: ElevatedButton(onPressed: () {}, child: const Text('Hello')),
+                    // ),
+                    // Padding(
+                    //   padding: const EdgeInsets.all(8.0),
+                    //   child: DecoratedBox(
+                    //     decoration: BoxDecoration(
+                    //       border: Border.all(),
+                    //     ),
+                    //     child: Row(
+                    //       children: const [
+                    //         Text('Hello'),
+                    //         SizedBox(
+                    //           width: 20,
+                    //           height: 100,
+                    //         ),
+                    //         Text("World"),
+                    //       ],
+                    //     ),
+                    //   ),
+                    // ),
+                    // SizedBox(
+                    //   height: 20,
+                    // ),
+                    ElevatedButton(
+                      onPressed: () {},
+                      child: Text('Click me'),
+                    ),
                     const Divider(
                       thickness: 20,
                       height: 32,
                       color: Colors.redAccent,
                     ),
-                    itemBuilder: (ctx, index) {
-                      // return Container(
-                      //   color: Colors.grey.shade300,
-                      //   margin: const EdgeInsets.symmetric(vertical: 4),
-                      //   child:  ListTile(
-                      //     title: Text('Im a title'),
-                      //     subtitle: Text('Im a subtitle'),
-                      //     trailing: Container(
-                      //       width: 50,
-                      //       height: 50,
-                      //       color: Colors.green,
-                      //     ),
-                      //   ),
-                      // );
-                      return Card(
-                        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
-                        child: Column(
-                          children: [
-                            AspectRatio(
-                              aspectRatio: 2 / 1,
-                              child: ClipRRect(
-                                borderRadius: BorderRadius.circular(16),
-                                child: Image.network(
-                                  'https://images.unsplash.com/photo-1575936123452-b67c3203c357?ixlib=rb-4.0.3&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=1770&q=80',
-                                  fit: BoxFit.cover,
-                                ),
-                              ),
-                            ),
-                            Padding(
-                              padding: const EdgeInsets.symmetric(vertical: 12),
-                              child: Row(
+                    Spacer(),
+                    ElevatedButton(
+                      onPressed: () {},
+                      child: Text('Click me'),
+                    ),
+                    Text('Click me ' * 10),
+                    // if(false)
+
+                    // Table(
+                    //   border: TableBorder.all(),
+                    //   children: [
+                    //   TableRow(children: [Text('Tab1'), Text('Tab2')]),
+                    //   TableRow(children: [Text('Tab1'), Text('Tab2')])
+                    // ],),
+                    // // if (false)
+                    // SizedBox(
+                    //   height: 44,
+                    //   child: PageView(
+                    //     scrollDirection: Axis.horizontal,
+                    //     padEnds: false,
+                    //     controller: PageController(viewportFraction: .8),
+                    //     children: [
+                    //       for (final i in [0, 2, 3])
+                    //         Container(
+                    //           color: Colors.blue,
+                    //           margin: const EdgeInsets.symmetric(horizontal: 8),
+                    //         ),
+                    //     ],
+                    //   ),
+                    // ),
+
+                    if (false)
+                      Expanded(
+                        child: ListView.separated(
+                          padding: const EdgeInsets.all(20),
+                          itemCount: 20,
+                          separatorBuilder: (ctx, index) => const Divider(
+                            thickness: 20,
+                            height: 32,
+                            color: Colors.redAccent,
+                          ),
+                          itemBuilder: (ctx, index) {
+                            // return Container(
+                            //   color: Colors.grey.shade300,
+                            //   margin: const EdgeInsets.symmetric(vertical: 4),
+                            //   child:  ListTile(
+                            //     title: Text('Im a title'),
+                            //     subtitle: Text('Im a subtitle'),
+                            //     trailing: Container(
+                            //       width: 50,
+                            //       height: 50,
+                            //       color: Colors.green,
+                            //     ),
+                            //   ),
+                            // );
+                            return Card(
+                              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+                              child: Column(
                                 children: [
-                                  Padding(
-                                    padding: const EdgeInsets.symmetric(horizontal: 12),
-                                    child: Container(
-                                      width: 65,
-                                      height: 65,
-                                      decoration: const BoxDecoration(
-                                        shape: BoxShape.circle,
-                                        color: Colors.blueGrey,
+                                  AspectRatio(
+                                    aspectRatio: 2 / 1,
+                                    child: ClipRRect(
+                                      borderRadius: BorderRadius.circular(16),
+                                      child: Image.network(
+                                        'https://images.unsplash.com/photo-1575936123452-b67c3203c357?ixlib=rb-4.0.3&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=1770&q=80',
+                                        fit: BoxFit.cover,
                                       ),
                                     ),
                                   ),
-                                  Expanded(
-                                      child: Column(
-                                        crossAxisAlignment: CrossAxisAlignment.start,
-                                        children: const [
-                                          Text(
-                                            'Hello there that is kinda long',
-                                            textAlign: TextAlign.end,
-                                            textDirection: TextDirection.rtl,
+                                  Padding(
+                                    padding: const EdgeInsets.symmetric(vertical: 12),
+                                    child: Row(
+                                      children: [
+                                        Padding(
+                                          padding: const EdgeInsets.symmetric(horizontal: 12),
+                                          child: Container(
+                                            width: 65,
+                                            height: 65,
+                                            decoration: const BoxDecoration(
+                                              shape: BoxShape.circle,
+                                              color: Colors.blueGrey,
+                                            ),
                                           ),
-                                          SizedBox(height: 8),
-                                          Text("Im a subtitle"),
-                                        ],
-                                      )),
-                                  const SizedBox(width: 20)
+                                        ),
+                                        Expanded(
+                                            child: Column(
+                                          crossAxisAlignment: CrossAxisAlignment.start,
+                                          children: const [
+                                            Text(
+                                              'Hello there that is kinda long',
+                                              textAlign: TextAlign.end,
+                                              textDirection: TextDirection.rtl,
+                                            ),
+                                            SizedBox(height: 8),
+                                            Text("Im a subtitle"),
+                                          ],
+                                        )),
+                                        const SizedBox(width: 20)
+                                      ],
+                                    ),
+                                  )
                                 ],
                               ),
-                            )
-                          ],
+                            );
+                          },
                         ),
-                      );
-                    },
-                  ),
+                      ),
+                  ],
                 ),
-            ],
-          ),
-        ),
+              ),
       ),
     );
   }
 }
 
+class Header extends SliverPersistentHeaderDelegate {
+  @override
+  Widget build(BuildContext context, double shrinkOffset, bool overlapsContent) {
+    return Container(
+      color: Colors.red,
+      height: 40,
+      child: const Text('Header'),
+    );
+  }
+
+  @override
+  double get maxExtent => 100;
+
+  @override
+  double get minExtent => 0;
+
+  @override
+  bool shouldRebuild(covariant SliverPersistentHeaderDelegate oldDelegate) {
+    return true;
+  }
+}

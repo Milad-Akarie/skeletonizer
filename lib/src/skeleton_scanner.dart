@@ -1,7 +1,10 @@
+import 'dart:developer';
+
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
 import 'package:skeleton_builder/skeleton_builder.dart';
+import 'package:skeleton_builder/src/bones/wrappers.dart';
 import 'package:skeleton_builder/src/builder/editors/box_bone_editor.dart';
 import 'package:skeleton_builder/src/builder/editors/editor_config.dart';
 import 'package:skeleton_builder/src/builder/editors/text_bone_editor.dart';
@@ -73,7 +76,7 @@ class RenderSkeletonScanner extends RenderProxyBox {
         );
         describer = SingleChildWidgetDescriber(
           name: 'Padding',
-          properties: {'padding': 'EdgeInsets.all(8)'},
+          properties: {'padding': '${node.padding}'},
           child: describer,
         );
       }
@@ -102,7 +105,7 @@ class RenderSkeletonScanner extends RenderProxyBox {
       );
       describer = SingleChildWidgetDescriber(
         name: 'Align',
-        properties: {'alignment': 'Alignment.center'},
+        properties: {'alignment': '${node.alignment}'},
         child: res.describer,
       );
     } else if (node is RenderConstrainedBox) {
@@ -273,8 +276,8 @@ class RenderSkeletonScanner extends RenderProxyBox {
       describer = SingleChildWidgetDescriber(
         name: 'Baseline',
         properties: {
-          'baseline': 'node.baseline',
-          'baselineType': 'node.baselineType',
+          'baseline': node.baseline,
+          'baselineType': node.baselineType,
         },
         child: res.describer,
       );
@@ -286,27 +289,31 @@ class RenderSkeletonScanner extends RenderProxyBox {
       );
       describer = SingleChildWidgetDescriber(
         name: 'RotatedBox',
-        properties: {'quarterTurns': '1'},
+        properties: {'quarterTurns': node.quarterTurns},
         child: res.describer,
       );
     } else if (node is RenderTransform) {
       final matrix4 = debugValueOfType<Matrix4>(node);
       final res = rebuildWidget(node.child);
+      widget = res.widget;
+      describer = res.describer;
       widget = Transform(
         transform: matrix4 ?? Matrix4.identity(),
         alignment: node.alignment,
+        origin: node.origin,
         child: res.widget,
       );
       describer = SingleChildWidgetDescriber(
         name: 'Transform',
         properties: {
           'transform': matrix4 == null ? 'ReplaceWithMatrix()' : 'Matrix4.fromList(${matrix4.storage.toList()})',
-          'alignment': 'Alignment.center',
+          'alignment': node.alignment,
         },
         child: res.describer,
       );
     } else if (node is RenderFlex) {
       final children = [for (final child in node.children) rebuildWidget(child)];
+
       widget = Flex(
         direction: node.direction,
         mainAxisAlignment: node.mainAxisAlignment,
@@ -317,15 +324,15 @@ class RenderSkeletonScanner extends RenderProxyBox {
       describer = MultiChildWidgetDescriber(
         name: node.direction.widgetName,
         properties: {
-          'mainAxisAlignment': 'MainAxisAlignment.center',
-          'crossAxisAlignment': 'CrossAxisAlignment.center',
-          'mainAxisSize': 'MainAxisSize.min',
+          'mainAxisAlignment': node.mainAxisAlignment,
+          'crossAxisAlignment': node.crossAxisAlignment,
+          'mainAxisSize': node.mainAxisSize,
         },
         children: List.of(children.map((e) => e.describer!)),
       );
     } else if (node is RenderStack) {
-      final effectiveChild = node.children.take(node.isInside<IndexedStack>() ? 1 : node.childCount);
-      final children = [for (final child in effectiveChild) rebuildWidget(child)];
+      final effectiveChildren = node.children.take(node.isInside<IndexedStack>() ? 1 : node.childCount);
+      final children = [for (final child in effectiveChildren) rebuildWidget(child)];
       widget = Stack(
         fit: node.fit,
         alignment: node.alignment,
@@ -334,8 +341,8 @@ class RenderSkeletonScanner extends RenderProxyBox {
       describer = MultiChildWidgetDescriber(
         name: 'Stack',
         properties: {
-          'fit': 'node.fit',
-          'alignment': 'node.alignment',
+          if (node.fit != StackFit.loose) 'fit': node.fit,
+          if (node.alignment != AlignmentDirectional.topStart) 'alignment': node.alignment,
         },
         children: List.of(
           children.map((e) => e.describer!),
@@ -438,28 +445,20 @@ class RenderSkeletonScanner extends RenderProxyBox {
           );
         }
       } else if (node.delegate.toString() == '_ToolbarLayout') {
-        final appBarSlots = <String, RenderObject>{
-          for (final c in node.children.where((e) => e.parentData is MultiChildLayoutParentData))
-            (c.parentData as MultiChildLayoutParentData).id.toString(): c,
-        };
-
-        final titleRes = rebuildWidget(appBarSlots['_ToolbarSlot.middle']);
-        final leadingRes = rebuildWidget(appBarSlots['_ToolbarSlot.leading']);
-        if (appBarSlots.isNotEmpty) {
-          widget = AppBar(
-            backgroundColor: Colors.transparent,
-            elevation: 0,
-            title: titleRes.widget,
-            leading: leadingRes.widget,
-          );
-          describer = SlottedWidgetDescriber(
-            name: 'AppBar',
-            slots: {
-              'title': titleRes.describer,
-              'leading': leadingRes.describer,
-            },
-          );
-        }
+        final appBarSlots = _rebuildAppBarSlots(node);
+        widget = AppBar(
+          backgroundColor: Colors.transparent,
+          elevation: 0,
+          title: appBarSlots.title?.widget,
+          leading: appBarSlots.leading?.widget,
+        );
+        describer = SlottedWidgetDescriber(
+          name: 'AppBar',
+          slots: {
+            'title': appBarSlots.title?.describer,
+            'leading': appBarSlots.leading?.describer,
+          },
+        );
       }
     } else if (node is RenderSliverList ||
         node is RenderSliverFixedExtentList ||
@@ -505,7 +504,9 @@ class RenderSkeletonScanner extends RenderProxyBox {
             itemExtent: itemExtent,
             protoTypeitem: protoType?.widget,
             scrollDirection: scrollDirection,
-            child: Column(
+            child: Flex(
+              direction: scrollDirection,
+              crossAxisAlignment: CrossAxisAlignment.stretch,
               children: List.of(listItemWidgets.map((e) => e.widget!)),
             ),
           );
@@ -589,44 +590,67 @@ class RenderSkeletonScanner extends RenderProxyBox {
         child: res.describer,
       );
     } else if (node is RenderViewport) {
-      if (node.isInside<CustomScrollView>()) {
+      if (node.treatAsSliver) {
         final children = <RebuildResult>[];
         for (final child in node.children) {
           if (child.isInside<SliverAppBar>()) {
-            const sliverAppBar = Text("Hello") ;
-            final physicalModel = child.findChild((object) {
-              if (object.isInside<FlexibleSpaceBarSettings>()) {
-                return object;
-              }
-              return null;
-            });
-
-
-            // final titleRes = rebuildWidget(sliverAppBar)
-            //   final childWidth = SliverAppBar(
-            //      title: ,
-            //   );
-            //
+            final rootStack = child.findFirstChildOf<RenderStack>();
+            final appBarLayout = rootStack?.findFirstChildOf<RenderCustomMultiChildLayoutBox>();
+            final flexSpaceStack = rootStack?.findFirstChildOf<RenderStack>();
+            final appBarSlots = appBarLayout == null ? null : _rebuildAppBarSlots(appBarLayout);
+            final flexSpaceRes = rebuildWidget(flexSpaceStack);
+            final expandedHeight = (child is RenderSliver) ? child.geometry!.layoutExtent : null;
+            final appBarWidget = SliverAppBar(
+              expandedHeight: expandedHeight,
+              backgroundColor: Colors.transparent,
+              title: appBarSlots?.title?.widget,
+              leading: appBarSlots?.leading?.widget,
+              flexibleSpace: flexSpaceRes.widget,
+            );
+            describer = SlottedWidgetDescriber(
+              name: 'SliverAppBar',
+              properties: {
+                if (expandedHeight != null) 'expandedHeight': expandedHeight,
+              },
+              slots: {
+                'title': appBarSlots?.title?.describer,
+                'leading': appBarSlots?.leading?.describer,
+                'flexibleSpace': flexSpaceRes.describer,
+              },
+            );
+            log(describer.bluePrint());
+            children.add(RebuildResult(
+              widget: appBarWidget,
+              describer: describer,
+              node: child,
+            ));
+          } else {
+            children.add(rebuildWidget(child));
           }
-          children.add(rebuildWidget(child));
         }
 
         widget = CustomScrollView(
+          scrollDirection: node.axis,
           slivers: [
-            for (final child in children.map((e) => e.widget!))
-              if (child is! SliverMultiBoxAdaptorWidget && child is! SliverToBoxAdapter)
-                SliverToBoxAdapter(
-                  child: SizedBox(height: 120, child: child),
+            for (final child in children)
+              if (child.widget is! SliverMultiBoxAdaptorWidget &&
+                  child.widget is! SliverToBoxAdapter &&
+                  child.widget is! SliverAppBar)
+                FixedExtentSliverHeader(
+                  maxExtent: (child.node is RenderSliver) ? (child.node as RenderSliver).geometry!.layoutExtent : 0,
+                  child: child.widget,
                 )
               else
-                child
+                child.widget!
           ],
         );
 
         describer = MultiChildWidgetDescriber(
           children: [
             for (final child in children)
-              if (child.widget is! SliverMultiBoxAdaptorWidget && child.widget is! SliverToBoxAdapter)
+              if (child.widget is! SliverMultiBoxAdaptorWidget &&
+                  child.widget is! SliverToBoxAdapter &&
+                  child.widget is! SliverAppBar)
                 SingleChildWidgetDescriber(
                   name: 'SliverToBoxAdapter',
                   child: SingleChildWidgetDescriber(
@@ -667,7 +691,10 @@ class RenderSkeletonScanner extends RenderProxyBox {
       );
       describer = SingleChildWidgetDescriber(
         name: 'ClipRect',
-        properties: {'clipBehavior': 'node.clipBehavior', if (node.clipper != null) 'clipper': 'ReplaceWithClipper()'},
+        properties: {
+          'clipBehavior': '${node.clipBehavior}',
+          if (node.clipper != null) 'clipper': 'ReplaceWithClipper()',
+        },
         child: res.describer,
       );
     } else if (node is RenderClipOval) {
@@ -699,16 +726,16 @@ class RenderSkeletonScanner extends RenderProxyBox {
         },
         child: res.describer,
       );
-    } else if (node is RenderPhysicalModel) {
-      final res = rebuildWidget(node.child);
-      widget = SkeletonContainer(
-        elevation: node.elevation,
-        child: res.widget,
-      );
-      describer = SingleChildWidgetDescriber(
-        name: 'SkeletonContainer',
-        child: res.describer,
-      );
+    } else if (node is String) {
+      // final res = rebuildWidget(node.child);
+      // widget = SkeletonContainer(
+      //   elevation: node.elevation,
+      //   child: res.widget,
+      // );
+      // describer = SingleChildWidgetDescriber(
+      //   name: 'SkeletonContainer',
+      //   child: res.describer,
+      // );
     } else if (node is RenderPhysicalShape) {
       final isButton = node.findParentWithName('_RenderInputPadding') != null;
 
@@ -822,11 +849,18 @@ class RenderSkeletonScanner extends RenderProxyBox {
         ),
       );
 
-      describer = const SingleChildWidgetDescriber(
+      describer = SingleChildWidgetDescriber(
         name: 'TextBone',
         properties: {
-          'width': '0',
-          'height': '0',
+          'lineHeight': painter.preferredLineHeight,
+          'textAlign': node.textAlign,
+          'textDirection': node.textDirection,
+          'fontSize': fontSize,
+          'lineLength': lineCount * painter.width,
+          'maxLines': node.maxLines,
+          'borderRadius': config.radius,
+          'indent': config.fixedWidth ? 0 : config.indent,
+          'width': config.fixedWidth ? config.width : null,
         },
       );
     } else if (node is RenderDecoratedBox) {
@@ -951,7 +985,7 @@ class RenderSkeletonScanner extends RenderProxyBox {
         );
 
         describer = SingleChildWidgetDescriber(
-          name: 'ColoredBox',
+          name: 'BoxBone',
           child: res.describer,
         );
       } else if (node.typeName == '_RenderInputPadding') {
@@ -1017,12 +1051,12 @@ class RenderSkeletonScanner extends RenderProxyBox {
           describer = SingleChildWidgetDescriber(
             name: 'Positioned',
             properties: {
-              'top': 'data.top',
-              'bottom': 'data.bottom',
-              'left': 'data.left',
-              'right': 'data.right',
-              'width': 'data.width',
-              'height': 'data.height',
+              // 'top': 'data.top',
+              // 'bottom': 'data.bottom',
+              // 'left': 'data.left',
+              // 'right': 'data.right',
+              // 'width': 'data.width',
+              // 'height': 'data.height',
             },
             child: describer,
           );
@@ -1034,8 +1068,33 @@ class RenderSkeletonScanner extends RenderProxyBox {
       widget: widget,
       describer: describer,
       skipParent: skipParent,
+      node: node,
     );
   }
+
+  _AppBarSlots _rebuildAppBarSlots(RenderCustomMultiChildLayoutBox node) {
+    final appBarSlots = <String, RenderObject>{
+      for (final c in node.children.where((e) => e.parentData is MultiChildLayoutParentData))
+        (c.parentData as MultiChildLayoutParentData).id.toString(): c,
+    };
+
+    final titleRes = rebuildWidget(appBarSlots['_ToolbarSlot.middle']);
+    final leadingRes = rebuildWidget(appBarSlots['_ToolbarSlot.leading']);
+
+    return _AppBarSlots(
+      title: titleRes,
+      leading: leadingRes,
+    );
+  }
+}
+
+class _AppBarSlots {
+  final RebuildResult? title, leading;
+
+  _AppBarSlots({
+    this.title,
+    this.leading,
+  });
 }
 
 extension ChildernIterator on ContainerRenderObjectMixin {
@@ -1068,37 +1127,49 @@ extension RenderObjectX on RenderObject {
         isInside<FilledButton>();
   }
 
-  T? findFirstChildOf<T extends RenderBox>() {
-    E? findType<E>(RenderObjectWithChildMixin box) {
-      if (box is T) {
+  T? findFirstChildOf<T>() {
+    E? findType<E>(RenderObject box) {
+      if (box is E && box != this) {
         return box as E;
-      } else if (box.child is RenderObjectWithChildMixin) {
-        return findType<E>(box.child as RenderObjectWithChildMixin);
+      } else if (box is RenderObjectWithChildMixin && box.child != null) {
+        return findType<E>(box.child!);
+      } else if (box is ContainerRenderObjectMixin) {
+        for (final child in box.children) {
+          final res = findType<E>(child);
+          if (res != null) {
+            return res;
+          }
+        }
+        return null;
+      } else {
+        return null;
       }
-      return null;
     }
 
-    if (this is RenderObjectWithChildMixin) {
-      return findType<T>(this as RenderObjectWithChildMixin);
-    }
-    return null;
+    return findType<T>(this);
   }
 
   T? findChild<T>(T? Function(RenderObject object) predicate) {
-    E? findType<E>(RenderObjectWithChildMixin box) {
+    E? findType<E>(RenderObject box) {
       final res = predicate(box);
       if (res != null) {
         return res as E;
-      } else if (box.child is RenderObjectWithChildMixin) {
-        return findType<E>(box.child as RenderObjectWithChildMixin);
+      } else if (box is RenderObjectWithChildMixin && box.child != null) {
+        return findType<E>(box.child!);
+      } else if (box is ContainerRenderObjectMixin) {
+        for (final child in box.children) {
+          final res = findType<E>(child);
+          if (res != null) {
+            return res;
+          }
+        }
+        return null;
+      } else {
+        return null;
       }
-      return null;
     }
 
-    if (this is RenderObjectWithChildMixin) {
-      return findType<T>(this as RenderObjectWithChildMixin);
-    }
-    return null;
+    return findType<T>(this);
   }
 
   T? findParentOfType<T extends RenderBox>() {
@@ -1137,6 +1208,12 @@ extension RenderObjectX on RenderObject {
     if (debugCreator is! DebugCreator) return null;
     final element = (debugCreator as DebugCreator).element;
     return element.findAncestorWidgetOfExactType<T>();
+  }
+
+  State<T>? findStateOfWidget<T extends StatefulWidget>() {
+    if (debugCreator is! DebugCreator) return null;
+    final element = (debugCreator as DebugCreator).element;
+    return element.findAncestorStateOfType<State<T>>();
   }
 
   bool get isListTile => typeName == '_RenderListTile';

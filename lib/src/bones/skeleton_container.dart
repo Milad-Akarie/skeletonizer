@@ -34,16 +34,17 @@ class SkeletonContainer extends StatelessWidget {
           clipBehavior: clipBehavior,
           elevation: elevation,
           shape: shape,
-          child: ShaderMask(
-            shaderCallback: (Rect bounds) {
-              return const LinearGradient(colors: [
-                Colors.red,
-                Colors.blue,
-              ], begin: Alignment.topRight, end: Alignment.bottomLeft)
-                  .createShader(Offset.zero & MediaQuery.of(context).size);
-            },
-            child: child,
-          ),
+          child: child,
+          // child: ShaderMask(
+          //   shaderCallback: (Rect bounds) {
+          //     return const LinearGradient(colors: [
+          //       Colors.red,
+          //       Colors.blue,
+          //     ], begin: Alignment.topRight, end: Alignment.bottomLeft)
+          //         .createShader(Offset.zero & MediaQuery.of(context).size);
+          //   },
+          //   child: child,
+          // ),
         ),
       ),
     );
