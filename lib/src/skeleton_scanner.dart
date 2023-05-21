@@ -37,6 +37,7 @@ class RenderSkeletonScanner extends RenderProxyBox {
     if (reset) {
       _textBoneConfigs.clear();
       _boxBoneConfigs.clear();
+      _debugCurrentComplexNodeDepth.clear();
     }
     final res = rebuildWidget(child!);
     if (preview) {
@@ -57,28 +58,130 @@ class RenderSkeletonScanner extends RenderProxyBox {
     return debugProperties(node).firstWhereOrNull((e) => e.value is T)?.value as T?;
   }
 
+  final List<(Type, RenderObject)> _debugCurrentComplexNodeDepth = [];
+
+  bool isChildOfCurrent<T>(RenderObject node) {
+    final current = _debugCurrentComplexNodeDepth.lastWhereOrNull((e) => e.$1 == T)?.$2;
+    if (current == null) {
+      _debugCurrentComplexNodeDepth.add((T, node));
+      return false;
+    }
+    return node.isChildOf(current);
+  }
+
   RebuildResult rebuildWidget(RenderObject? node) {
     if (node == null) return RebuildResult();
-
     Widget? widget;
     WidgetDescriber? describer;
     bool skipParent = false;
-    if (node is RenderPadding) {
+
+    // if (_shouldSetAsCurrentComplexNode<Scaffold>(node)) {
+    //   _debugCurrentComplexNodeDepth.add(node);
+    // }
+    // if (_shouldSetAsCurrentComplexNode<AppBar>(node)) {
+    //   _debugCurrentComplexNodeDepth.add(node);
+    // }
+    // print('_current${_debugCurrentComplexNodeDepth.lastOrNull?.depth}');
+    // print('ddd${node.depth}');
+
+    if (node.isInside<Scaffold>() && !isChildOfCurrent<Scaffold>(node)) {
+      print('Scaffold');
+      final layout = node.findFirstChildOf<RenderCustomMultiChildLayoutBox>()!;
+      final scaffoldSlots = <String, RenderObject>{
+        for (final c in layout.children.where((e) => e.parentData is MultiChildLayoutParentData))
+          (c.parentData as MultiChildLayoutParentData).id.toString(): c,
+      };
+      final appBarRes = rebuildWidget(scaffoldSlots['_ScaffoldSlot.appBar']);
+      final bodyRes = rebuildWidget(scaffoldSlots['_ScaffoldSlot.body']);
+      final appBar = appBarRes.widget;
+      if (scaffoldSlots.isNotEmpty) {
+        widget = Scaffold(
+          backgroundColor: Colors.transparent,
+          appBar: appBar == null
+              ? null
+              : PreferredSize(
+                  preferredSize: appBar is SizedBox ? Size.fromHeight(appBar.height!) : Size.zero,
+                  child: appBar,
+                ),
+          body: bodyRes.widget,
+        );
+
+        describer = SlottedWidgetDescriber(
+          name: 'Scaffold',
+          properties: {
+            'backgroundColor': 'Colors.transparent',
+          },
+          slots: {
+            'appBar': appBarRes.describer,
+            'body': bodyRes.describer,
+          },
+        );
+      }
+      _debugCurrentComplexNodeDepth.removeLast();
+    } else if (node.isInside<AppBar>() && !isChildOfCurrent<AppBar>(node)) {
+      print('AppBar');
+      final layout = node.findFirstChildOf<RenderCustomMultiChildLayoutBox>();
+      final appBarSlots = _rebuildAppBarSlots(layout!);
+      widget = AppBar(
+        backgroundColor: Colors.transparent,
+        elevation: 0,
+        title: appBarSlots.title?.widget,
+        leading: appBarSlots.leading?.widget,
+        actions: List.of(appBarSlots.actions.map((e) => e.widget!)),
+      );
+      describer = SlottedWidgetDescriber(name: 'AppBar', slots: {
+        'title': appBarSlots.title?.describer,
+        'leading': appBarSlots.leading?.describer,
+      }, multiChildrenSlots: {
+        if (appBarSlots.actions.isNotEmpty) 'actions': List.of(appBarSlots.actions.map((e) => e.describer!))
+      });
+      _debugCurrentComplexNodeDepth.removeLast();
+    } else if (node.isInside<IconButton>()) {
+      final size = findFirstChildOf<RenderConstrainedBox>()?.size ?? const Size(48, 48);
+      final icon = findFirstChildOf<RenderParagraph>();
+      widget = SizedBox(
+        width: size.width,
+        height: size.height,
+        child: BoxBone(
+          alignment: Alignment.center,
+          width: icon?.size.width ?? 24,
+          height: icon?.size.height ?? 24,
+          borderRadius: BorderRadius.circular(8),
+        ),
+      );
+      describer = SingleChildWidgetDescriber(
+        name: 'SizedBox',
+        properties: {
+          'width': size.width.safeString,
+          'height': size.height.safeString,
+        },
+        child: SingleChildWidgetDescriber(
+          name: 'BoxBone',
+          properties: {
+            'alignment': Alignment.center,
+            'borderRadius': 'BorderRadius.circular(8)',
+            'width': (icon?.size.width ?? 24).safeString,
+            'height': (icon?.size.height ?? 24).safeString,
+          },
+        ),
+      );
+    } else if (node is RenderPadding) {
       final res = rebuildWidget(node.child);
       widget = res.widget;
       describer = res.describer;
-
-      final isEmpty = node.padding.vertical == 0 && node.padding.horizontal == 0;
-      if (!isEmpty && node.child?.isListTile != true) {
-        widget = Padding(
-          padding: node.padding,
-          child: widget,
-        );
-        describer = SingleChildWidgetDescriber(
-          name: 'Padding',
-          properties: {'padding': '${node.padding}'},
-          child: describer,
-        );
+      if (!res.skipParent) {
+        final isEmpty = node.padding.vertical == 0 && node.padding.horizontal == 0;
+        if (!isEmpty && node.child?.isListTile != true) {
+          widget = Padding(
+            padding: node.padding,
+            child: widget,
+          );
+          describer = SingleChildWidgetDescriber(
+            name: 'Padding',
+            properties: {'padding': '${node.padding}'},
+            child: describer,
+          );
+        }
       }
     } else if (node is RenderSliverPadding) {
       final res = rebuildWidget(node.child);
@@ -99,56 +202,63 @@ class RenderSkeletonScanner extends RenderProxyBox {
       final res = rebuildWidget(node.child);
       widget = res.widget;
       describer = res.describer;
-      widget = Align(
-        alignment: node.alignment,
-        child: res.widget,
-      );
-      describer = SingleChildWidgetDescriber(
-        name: 'Align',
-        properties: {'alignment': '${node.alignment}'},
-        child: res.describer,
-      );
+
+      if (!res.skipParent) {
+        widget = Align(
+          alignment: node.alignment,
+          child: res.widget,
+        );
+        describer = SingleChildWidgetDescriber(
+          name: 'Align',
+          properties: {'alignment': '${node.alignment}'},
+          child: res.describer,
+        );
+      }
     } else if (node is RenderConstrainedBox) {
       final res = rebuildWidget(node.child);
-      final constraints = node.additionalConstraints;
+      widget = res.widget;
+      describer = res.describer;
 
-      if (constraints.isTight ||
-          (constraints.hasTightWidth && !constraints.hasBoundedHeight) ||
-          (constraints.hasTightHeight && !constraints.hasBoundedWidth)) {
-        final width = constraints.hasTightWidth ? constraints.maxWidth : null;
-        final height = constraints.hasTightHeight ? constraints.maxHeight : null;
-        widget = SizedBox(
-          height: height,
-          width: width,
-          child: res.widget,
-        );
-        describer = SingleChildWidgetDescriber(
-          name: 'SizedBox',
-          properties: {
-            if (width != null) 'width': width.safeString,
-            if (height != null) 'height': height.safeString,
-          },
-          child: res.describer,
-        );
-      } else {
-        final maxWidth = constraints.maxWidth == double.infinity ? null : constraints.maxWidth;
-        final maxHeight = constraints.maxHeight == double.infinity ? null : constraints.maxHeight;
-        final minHeight = constraints.minHeight == 0 ? null : constraints.minHeight;
-        final minWidth = constraints.minWidth == 0 ? null : constraints.minWidth;
-        widget = ConstrainedBox(
-          constraints: node.additionalConstraints,
-          child: res.widget,
-        );
-        describer = SingleChildWidgetDescriber(
-          name: 'ConstrainedBox',
-          properties: {
-            if (maxWidth != null) 'maxWidth': maxWidth.safeString,
-            if (maxHeight != null) 'maxHeight': maxHeight.safeString,
-            if (minWidth != null) 'minWidth': minWidth.safeString,
-            if (minHeight != null) 'minHeight': minHeight.safeString,
-          },
-          child: res.describer,
-        );
+      if (!res.skipParent) {
+        final constraints = node.additionalConstraints;
+        if (constraints.isTight ||
+            (constraints.hasTightWidth && !constraints.hasBoundedHeight) ||
+            (constraints.hasTightHeight && !constraints.hasBoundedWidth)) {
+          final width = constraints.hasTightWidth ? constraints.maxWidth : null;
+          final height = constraints.hasTightHeight ? constraints.maxHeight : null;
+          widget = SizedBox(
+            height: height,
+            width: width,
+            child: res.widget,
+          );
+          describer = SingleChildWidgetDescriber(
+            name: 'SizedBox',
+            properties: {
+              if (width != null) 'width': width.safeString,
+              if (height != null) 'height': height.safeString,
+            },
+            child: res.describer,
+          );
+        } else {
+          final maxWidth = constraints.maxWidth == double.infinity ? null : constraints.maxWidth;
+          final maxHeight = constraints.maxHeight == double.infinity ? null : constraints.maxHeight;
+          final minHeight = constraints.minHeight == 0 ? null : constraints.minHeight;
+          final minWidth = constraints.minWidth == 0 ? null : constraints.minWidth;
+          widget = ConstrainedBox(
+            constraints: node.additionalConstraints,
+            child: res.widget,
+          );
+          describer = SingleChildWidgetDescriber(
+            name: 'ConstrainedBox',
+            properties: {
+              if (maxWidth != null) 'maxWidth': maxWidth.safeString,
+              if (maxHeight != null) 'maxHeight': maxHeight.safeString,
+              if (minWidth != null) 'minWidth': minWidth.safeString,
+              if (minHeight != null) 'minHeight': minHeight.safeString,
+            },
+            child: res.describer,
+          );
+        }
       }
     } else if (node is RenderAspectRatio) {
       final res = rebuildWidget(node.child);
@@ -413,53 +523,6 @@ class RenderSkeletonScanner extends RenderProxyBox {
       // widget = SizedBox();
       describer = const SingleChildWidgetDescriber(name: 'name');
     } else if (node is RenderCustomMultiChildLayoutBox) {
-      if (node.delegate.toString() == '_ScaffoldLayout') {
-        final scaffoldSlots = <String, RenderObject>{
-          for (final c in node.children.where((e) => e.parentData is MultiChildLayoutParentData))
-            (c.parentData as MultiChildLayoutParentData).id.toString(): c,
-        };
-        final appBarRes = rebuildWidget(scaffoldSlots['_ScaffoldSlot.appBar']);
-        final bodyRes = rebuildWidget(scaffoldSlots['_ScaffoldSlot.body']);
-        final appBar = appBarRes.widget;
-        if (scaffoldSlots.isNotEmpty) {
-          widget = Scaffold(
-            backgroundColor: Colors.transparent,
-            appBar: appBar == null
-                ? null
-                : PreferredSize(
-                    preferredSize: appBar is SizedBox ? Size.fromHeight(appBar.height!) : Size.zero,
-                    child: appBar,
-                  ),
-            body: bodyRes.widget,
-          );
-
-          describer = SlottedWidgetDescriber(
-            name: 'Scaffold',
-            properties: {
-              'backgroundColor': 'Colors.transparent',
-            },
-            slots: {
-              'appBar': appBarRes.describer,
-              'body': bodyRes.describer,
-            },
-          );
-        }
-      } else if (node.delegate.toString() == '_ToolbarLayout') {
-        final appBarSlots = _rebuildAppBarSlots(node);
-        widget = AppBar(
-          backgroundColor: Colors.transparent,
-          elevation: 0,
-          title: appBarSlots.title?.widget,
-          leading: appBarSlots.leading?.widget,
-        );
-        describer = SlottedWidgetDescriber(
-          name: 'AppBar',
-          slots: {
-            'title': appBarSlots.title?.describer,
-            'leading': appBarSlots.leading?.describer,
-          },
-        );
-      }
     } else if (node is RenderSliverList ||
         node is RenderSliverFixedExtentList ||
         node.typeName == '_RenderSliverPrototypeExtentList') {
@@ -726,16 +789,46 @@ class RenderSkeletonScanner extends RenderProxyBox {
         },
         child: res.describer,
       );
-    } else if (node is String) {
-      // final res = rebuildWidget(node.child);
-      // widget = SkeletonContainer(
-      //   elevation: node.elevation,
-      //   child: res.widget,
-      // );
-      // describer = SingleChildWidgetDescriber(
-      //   name: 'SkeletonContainer',
-      //   child: res.describer,
-      // );
+    } else if (node is RenderCustomPaint) {
+      final res = rebuildWidget(node.child);
+      if (res.widget != null) {
+        widget = CustomPaint(
+          painter: node.painter,
+          foregroundPainter: node.painter,
+          child: res.widget,
+        );
+        describer = SingleChildWidgetDescriber(name: 'CustomPaint', child: res.describer, properties: {
+          if (node.painter != null) 'painter': 'ReplaceWithPainter()',
+          if (node.foregroundPainter != null) 'foregroundPainter': 'ReplaceWithPainter()',
+        });
+      } else {
+        final config = _boxBoneConfigs[node] ??= BoxBoneConfig();
+        widget = BoxBoneEditor(
+          initialConfig: config,
+          onChange: (config) {
+            _boxBoneConfigs[node] = config;
+            rebuild(preview: true);
+          },
+          child: BoxBone(
+            width: node.size.width,
+            height: node.size.height,
+          ),
+        );
+        describer = SingleChildWidgetDescriber(name: 'BoxBone', properties: {
+          'width': node.size.width,
+          'height': node.size.height,
+        });
+      }
+    } else if (node is RenderPhysicalModel) {
+      final res = rebuildWidget(node.child);
+      widget = SkeletonContainer(
+        elevation: node.elevation,
+        child: res.widget,
+      );
+      describer = SingleChildWidgetDescriber(
+        name: 'SkeletonContainer',
+        child: res.describer,
+      );
     } else if (node is RenderPhysicalShape) {
       final isButton = node.findParentWithName('_RenderInputPadding') != null;
 
@@ -747,9 +840,18 @@ class RenderSkeletonScanner extends RenderProxyBox {
       );
 
       if (config.treatAsBone || !config.includeBone) {
+        final width = isButton ? node.size.width : double.infinity;
+        skipParent = true;
         widget = BoxBone(
-          width: isButton ? node.size.width : double.infinity,
+          width: width,
           height: node.size.height,
+        );
+        describer = SingleChildWidgetDescriber(
+          name: 'BoxBone',
+          properties: {
+            'width': width.safeString,
+            'height': node.size.height.safeString,
+          },
         );
       } else {
         final res = rebuildWidget(node.child);
@@ -830,6 +932,15 @@ class RenderSkeletonScanner extends RenderProxyBox {
         canHaveFixedWidth: lineCount <= 1,
       );
 
+      final indent = config.fixedWidth ? 0.0 : config.indent;
+      final fixedWith = config.fixedWidth ? config.width : null;
+
+      EdgeInsetsGeometry? padding;
+      if (node.parent is RenderPadding) {
+        skipParent = true;
+        padding = (node.parent as RenderPadding).padding;
+      }
+
       widget = TextBoneEditor(
         initialConfig: config,
         onChange: (config) {
@@ -837,6 +948,7 @@ class RenderSkeletonScanner extends RenderProxyBox {
           rebuild(preview: true);
         },
         child: TextBone(
+          padding: padding ?? EdgeInsets.zero,
           lineHeight: painter.preferredLineHeight,
           textAlign: node.textAlign,
           textDirection: node.textDirection,
@@ -844,23 +956,24 @@ class RenderSkeletonScanner extends RenderProxyBox {
           lineLength: lineCount * painter.width,
           maxLines: node.maxLines,
           borderRadius: config.radius,
-          indent: config.fixedWidth ? 0 : config.indent,
-          width: config.fixedWidth ? config.width : null,
+          indent: indent,
+          width: fixedWith,
         ),
       );
-
+      final textDirection = node.widget is RichText ? (node.widget as RichText).textDirection : null;
       describer = SingleChildWidgetDescriber(
         name: 'TextBone',
         properties: {
           'lineHeight': painter.preferredLineHeight,
-          'textAlign': node.textAlign,
-          'textDirection': node.textDirection,
+          if (node.textAlign != TextAlign.start) 'textAlign': node.textAlign,
+          if (textDirection != null) 'textDirection': textDirection,
+          if (padding != null) 'padding': padding,
           'fontSize': fontSize,
           'lineLength': lineCount * painter.width,
-          'maxLines': node.maxLines,
+          if (node.maxLines != null) 'maxLines': node.maxLines,
           'borderRadius': config.radius,
-          'indent': config.fixedWidth ? 0 : config.indent,
-          'width': config.fixedWidth ? config.width : null,
+          if (indent != 0) 'indent': indent,
+          if (fixedWith != null) 'width': fixedWith,
         },
       );
     } else if (node is RenderDecoratedBox) {
@@ -1000,7 +1113,12 @@ class RenderSkeletonScanner extends RenderProxyBox {
           );
           describer = SingleChildWidgetDescriber(
             name: 'Padding',
-            properties: {'padding': 'EdgeInsets.zero'},
+            properties: {
+              'padding': EdgeInsets.symmetric(
+                vertical: boxData.offset.dy,
+                horizontal: boxData.offset.dx,
+              )
+            },
             child: res.describer,
           );
         }
@@ -1080,20 +1198,22 @@ class RenderSkeletonScanner extends RenderProxyBox {
 
     final titleRes = rebuildWidget(appBarSlots['_ToolbarSlot.middle']);
     final leadingRes = rebuildWidget(appBarSlots['_ToolbarSlot.leading']);
+    final actionsObject = appBarSlots['_ToolbarSlot.trailing'];
+    final actions = actionsObject is RenderFlex ? actionsObject.children : <RenderObject>[];
 
     return _AppBarSlots(
-      title: titleRes,
-      leading: leadingRes,
-    );
+        title: titleRes, leading: leadingRes, actions: [for (final action in actions) rebuildWidget(action)]);
   }
 }
 
 class _AppBarSlots {
   final RebuildResult? title, leading;
+  final List<RebuildResult> actions;
 
   _AppBarSlots({
     this.title,
     this.leading,
+    this.actions = const [],
   });
 }
 
@@ -1183,6 +1303,19 @@ extension RenderObjectX on RenderObject {
     }
 
     return findType<T>(this);
+  }
+
+  bool isChildOf(AbstractNode parent) {
+    bool findType(AbstractNode box) {
+      if (box == parent) {
+        return true;
+      } else if (box.parent != null) {
+        return findType(box.parent!);
+      }
+      return false;
+    }
+
+    return findType(this);
   }
 
   AbstractNode? findParentWithName(String name) {

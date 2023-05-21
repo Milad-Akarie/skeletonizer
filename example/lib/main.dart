@@ -42,26 +42,25 @@ class _MyHomePageState extends State<MyHomePage> {
       appBar: AppBar(),
       body: SkeletonBuilder(
         widgetName: 'DemoSkeleton',
-        child: true
+        child: false
             ? Padding(
                 padding: const EdgeInsets.only(top: 100),
                 child: CustomScrollView(slivers: [
-                  SliverPersistentHeader(delegate: Header()),
-                  SliverPersistentHeader(delegate: Header()),
                   SliverAppBar(
                     expandedHeight: 120,
                     shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
-                    title: const Text('Title'),
                     leading: const BackButton(),
-                    flexibleSpace: const FlexibleSpaceBar(
-                      // background: ColoredBox(color: Colors.blue.shade400),
+                    flexibleSpace: FlexibleSpaceBar(
+                      background: Image.network(
+                        'https://images.unsplash.com/photo-1575936123452-b67c3203c357?ixlib=rb-4.0.3&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=1770&q=80',
+                        fit: BoxFit.cover,
+                      ),
                       title: Text("Sub title"),
                     ),
                   ),
-
                   SliverList(
                     delegate: SliverChildBuilderDelegate(
-                          (context, index) => ListTile(
+                      (context, index) => ListTile(
                         title: const Text("Hello"),
                         subtitle: const Text("Hello I'm subitiel"),
                         trailing: IconButton(onPressed: () {}, icon: const Icon(Icons.ac_unit)),
@@ -70,29 +69,28 @@ class _MyHomePageState extends State<MyHomePage> {
                     ),
                   ),
 
-
-                    // SliverToBoxAdapter(
-                    //   child: SizedBox(
-                    //     height: 100,
-                    //     width: 100,
-                    //     // child: ColoredBox(color: Colors.redAccent,),
-                    //     // child: ListView(
-                    //     //   children: [Text("Hello World")],
-                    //     // ),
-                    //   ),
-                    // ),
-                    // const SliverPadding(
-                    //   padding: EdgeInsets.all(23),
-                    //   sliver: SliverAppBar(
-                    //     title: Text("Hello"),
-                    //   ),
-                    // ),
-                    // const SliverPadding(
-                    //   padding: EdgeInsets.all(23),
-                    //   sliver: SliverAppBar(
-                    //     title: Text("Hello"),
-                    //   ),
-                    // ),
+                  // SliverToBoxAdapter(
+                  //   child: SizedBox(
+                  //     height: 100,
+                  //     width: 100,
+                  //     // child: ColoredBox(color: Colors.redAccent,),
+                  //     // child: ListView(
+                  //     //   children: [Text("Hello World")],
+                  //     // ),
+                  //   ),
+                  // ),
+                  // const SliverPadding(
+                  //   padding: EdgeInsets.all(23),
+                  //   sliver: SliverAppBar(
+                  //     title: Text("Hello"),
+                  //   ),
+                  // ),
+                  // const SliverPadding(
+                  //   padding: EdgeInsets.all(23),
+                  //   sliver: SliverAppBar(
+                  //     title: Text("Hello"),
+                  //   ),
+                  // ),
                   // ),
                 ]),
               )
@@ -137,21 +135,37 @@ class _MyHomePageState extends State<MyHomePage> {
                     // SizedBox(
                     //   height: 20,
                     // ),
-                    ElevatedButton(
-                      onPressed: () {},
-                      child: Text('Click me'),
-                    ),
-                    const Divider(
-                      thickness: 20,
-                      height: 32,
-                      color: Colors.redAccent,
-                    ),
-                    Spacer(),
-                    ElevatedButton(
-                      onPressed: () {},
-                      child: Text('Click me'),
-                    ),
-                    Text('Click me ' * 10),
+                    // IconButton.outlined(
+                    //   onPressed: () {},
+                    //   icon: Icon(Icons.ac_unit),
+                    // ),
+                    Expanded(
+                        child: Scaffold(
+                      appBar: AppBar(title: const Text("Hello")),
+                      body: Center(
+                        child: Text("Body"),
+                      ),
+                    )),
+
+                    // const Padding(
+                    //   padding: EdgeInsets.all(8.0),
+                    //   child: Text('Hello'),
+                    // ),
+                    // ElevatedButton(
+                    //   onPressed: () {},
+                    //   child: Text('Click me'),
+                    // ),
+                    // const Divider(
+                    //   thickness: 20,
+                    //   height: 32,
+                    //   color: Colors.redAccent,
+                    // ),
+                    // Spacer(),
+                    // ElevatedButton(
+                    //   onPressed: () {},
+                    //   child: Text('Click me'),
+                    // ),
+                    // Text('Click me ' * 10),
                     // if(false)
 
                     // Table(
@@ -176,7 +190,6 @@ class _MyHomePageState extends State<MyHomePage> {
                     //     ],
                     //   ),
                     // ),
-
                     if (false)
                       Expanded(
                         child: ListView.separated(
@@ -258,27 +271,5 @@ class _MyHomePageState extends State<MyHomePage> {
               ),
       ),
     );
-  }
-}
-
-class Header extends SliverPersistentHeaderDelegate {
-  @override
-  Widget build(BuildContext context, double shrinkOffset, bool overlapsContent) {
-    return Container(
-      color: Colors.red,
-      height: 40,
-      child: const Text('Header'),
-    );
-  }
-
-  @override
-  double get maxExtent => 100;
-
-  @override
-  double get minExtent => 0;
-
-  @override
-  bool shouldRebuild(covariant SliverPersistentHeaderDelegate oldDelegate) {
-    return true;
   }
 }

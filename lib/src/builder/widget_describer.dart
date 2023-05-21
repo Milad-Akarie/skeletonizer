@@ -101,17 +101,21 @@ class SlottedWidgetDescriber extends WidgetDescriber {
     Key? key,
     required this.slots,
     required super.name,
+    this.multiChildrenSlots = const {},
     super.properties,
   });
 
   final Map<String, WidgetDescriber?> slots;
+  final Map<String, List<WidgetDescriber>> multiChildrenSlots;
 
   @override
   String bluePrint([int depth = 0]) {
     slots.removeWhere((key, value) => value == null);
-    final childrenDes =
-        'children: ${slots.keys.map((k) => '$k: ${slots[k]!.bluePrint(depth + 1)}').toList().join(',\n')}';
-    return '${' ' * depth}$name(${properties.keys.map((k) => '$k: ${properties[k]},').join('\n')},$childrenDes\n)';
+    final slotsRes =
+        slots.keys.map((k) => '$k: ${slots[k]!.bluePrint(depth + 1)}').toList().join(',\n');
+    final multiChildrenSlotsRes =
+    multiChildrenSlots.keys.map((k) => '$k: ${multiChildrenSlots[k]!.map((e) => e.bluePrint(depth+1)).toList()}').toList().join(',\n');
+    return '${' ' * depth}$name(${properties.keys.map((k) => '$k: ${properties[k]},').join('\n')},$slotsRes$multiChildrenSlotsRes\n)';
   }
 
   @override
@@ -122,3 +126,4 @@ class SlottedWidgetDescriber extends WidgetDescriber {
     return false;
   }
 }
+

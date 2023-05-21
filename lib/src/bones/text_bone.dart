@@ -16,6 +16,7 @@ class TextBone extends StatelessWidget {
       this.textDirection,
       this.indent = 0.0,
       this.borderRadius = 0.0,
+      this.padding = EdgeInsets.zero,
       this.textScaleFactor})
       : super(key: key);
 
@@ -30,6 +31,7 @@ class TextBone extends StatelessWidget {
   final TextDirection? textDirection;
   final double indent;
   final double borderRadius;
+  final EdgeInsetsGeometry padding;
 
   @override
   Widget build(BuildContext context) {
@@ -39,29 +41,32 @@ class TextBone extends StatelessWidget {
 
       var lineCount = maxLines == null ? actualLineCount : math.min(maxLines!, actualLineCount);
       final spacing = lineHeight - fontSize;
-      return Text.rich(
-        TextSpan(
-          children: [
-            for (var i = 0; i < lineCount; i++)
-              WidgetSpan(
-                child: SizedBox(
-                  width: _calcWidth(i, lineCount, effectiveWidth),
-                  height: lineHeight,
-                  child: Center(
-                    child: BoxBone(
-                      height: fontSize,
-                      width: _calcWidth(i, lineCount, effectiveWidth),
-                      padding: EdgeInsetsDirectional.only(top: spacing * .6, end: indent),
-                      borderRadius: BorderRadius.circular(borderRadius),
+      return Padding(
+        padding: padding,
+        child: Text.rich(
+          TextSpan(
+            children: [
+              for (var i = 0; i < lineCount; i++)
+                WidgetSpan(
+                  child: SizedBox(
+                    width: _calcWidth(i, lineCount, effectiveWidth),
+                    height: lineHeight,
+                    child: Center(
+                      child: BoxBone(
+                        height: fontSize,
+                        width: _calcWidth(i, lineCount, effectiveWidth),
+                        padding: EdgeInsetsDirectional.only(top: spacing * .6, end: indent),
+                        borderRadius: BorderRadius.circular(borderRadius),
+                      ),
                     ),
                   ),
-                ),
-              )
-          ],
+                )
+            ],
+          ),
+          textAlign: textAlign,
+          textDirection: textDirection,
+          maxLines: maxLines,
         ),
-        textAlign: textAlign,
-        textDirection: textDirection,
-        maxLines: maxLines,
       );
     });
   }

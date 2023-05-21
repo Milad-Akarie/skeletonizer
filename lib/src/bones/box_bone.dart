@@ -10,6 +10,7 @@ class BoxBone extends StatelessWidget {
     this.child,
     this.shape = BoxShape.rectangle,
     this.padding = EdgeInsets.zero,
+    this.alignment,
   }) : super(key: key);
 
   final BorderRadius? borderRadius;
@@ -19,10 +20,11 @@ class BoxBone extends StatelessWidget {
   final Widget? child;
   final BoxShape shape;
   final EdgeInsetsGeometry padding;
+  final AlignmentGeometry? alignment;
 
   @override
   Widget build(BuildContext context) {
-    return Padding(
+    final box = Padding(
       padding: padding,
       child: SizedBox(
         width: width,
@@ -37,5 +39,12 @@ class BoxBone extends StatelessWidget {
         ),
       ),
     );
+    if(alignment != null){
+      return Align(
+        alignment: alignment!,
+        child: box,
+      );
+    }
+    return box;
   }
 }
