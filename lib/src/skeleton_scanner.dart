@@ -37,7 +37,6 @@ class RenderSkeletonScanner extends RenderProxyBox {
     if (reset) {
       _textBoneConfigs.clear();
       _boxBoneConfigs.clear();
-      _debugCurrentComplexNodeDepth.clear();
     }
     final res = rebuildWidget(child!);
     if (preview) {
@@ -58,87 +57,21 @@ class RenderSkeletonScanner extends RenderProxyBox {
     return debugProperties(node).firstWhereOrNull((e) => e.value is T)?.value as T?;
   }
 
-  final List<(Type, RenderObject)> _debugCurrentComplexNodeDepth = [];
-
-  bool isChildOfCurrent<T>(RenderObject node) {
-    final current = _debugCurrentComplexNodeDepth.lastWhereOrNull((e) => e.$1 == T)?.$2;
-    if (current == null) {
-      _debugCurrentComplexNodeDepth.add((T, node));
-      return false;
-    }
-    return node.isChildOf(current);
-  }
-
   RebuildResult rebuildWidget(RenderObject? node) {
     if (node == null) return RebuildResult();
+
     Widget? widget;
     WidgetDescriber? describer;
     bool skipParent = false;
+    // print(node.runtimeType);
 
-    // if (_shouldSetAsCurrentComplexNode<Scaffold>(node)) {
-    //   _debugCurrentComplexNodeDepth.add(node);
-    // }
-    // if (_shouldSetAsCurrentComplexNode<AppBar>(node)) {
-    //   _debugCurrentComplexNodeDepth.add(node);
-    // }
-    // print('_current${_debugCurrentComplexNodeDepth.lastOrNull?.depth}');
-    // print('ddd${node.depth}');
-
-    if (node.isInside<Scaffold>() && !isChildOfCurrent<Scaffold>(node)) {
-      print('Scaffold');
-      final layout = node.findFirstChildOf<RenderCustomMultiChildLayoutBox>()!;
-      final scaffoldSlots = <String, RenderObject>{
-        for (final c in layout.children.where((e) => e.parentData is MultiChildLayoutParentData))
-          (c.parentData as MultiChildLayoutParentData).id.toString(): c,
-      };
-      final appBarRes = rebuildWidget(scaffoldSlots['_ScaffoldSlot.appBar']);
-      final bodyRes = rebuildWidget(scaffoldSlots['_ScaffoldSlot.body']);
-      final appBar = appBarRes.widget;
-      if (scaffoldSlots.isNotEmpty) {
-        widget = Scaffold(
-          backgroundColor: Colors.transparent,
-          appBar: appBar == null
-              ? null
-              : PreferredSize(
-                  preferredSize: appBar is SizedBox ? Size.fromHeight(appBar.height!) : Size.zero,
-                  child: appBar,
-                ),
-          body: bodyRes.widget,
-        );
-
-        describer = SlottedWidgetDescriber(
-          name: 'Scaffold',
-          properties: {
-            'backgroundColor': 'Colors.transparent',
-          },
-          slots: {
-            'appBar': appBarRes.describer,
-            'body': bodyRes.describer,
-          },
-        );
+    if (node.isInside<IconButton>()) {
+      final renderConstrains = node.findFirstChildOf<RenderConstrainedBox>();
+      final size = renderConstrains?.size ?? const Size(48, 48);
+      final icon = node.findFirstChildOf<RenderParagraph>();
+      if (node.parent is RenderConstrainedBox) {
+        skipParent = true;
       }
-      _debugCurrentComplexNodeDepth.removeLast();
-    } else if (node.isInside<AppBar>() && !isChildOfCurrent<AppBar>(node)) {
-      print('AppBar');
-      final layout = node.findFirstChildOf<RenderCustomMultiChildLayoutBox>();
-      final appBarSlots = _rebuildAppBarSlots(layout!);
-      widget = AppBar(
-        backgroundColor: Colors.transparent,
-        elevation: 0,
-        title: appBarSlots.title?.widget,
-        leading: appBarSlots.leading?.widget,
-        actions: List.of(appBarSlots.actions.map((e) => e.widget!)),
-      );
-      describer = SlottedWidgetDescriber(name: 'AppBar', slots: {
-        'title': appBarSlots.title?.describer,
-        'leading': appBarSlots.leading?.describer,
-      }, multiChildrenSlots: {
-        if (appBarSlots.actions.isNotEmpty) 'actions': List.of(appBarSlots.actions.map((e) => e.describer!))
-      });
-      _debugCurrentComplexNodeDepth.removeLast();
-    } else if (node.isInside<IconButton>()) {
-      final size = findFirstChildOf<RenderConstrainedBox>()?.size ?? const Size(48, 48);
-      final icon = findFirstChildOf<RenderParagraph>();
       widget = SizedBox(
         width: size.width,
         height: size.height,
@@ -218,9 +151,8 @@ class RenderSkeletonScanner extends RenderProxyBox {
       final res = rebuildWidget(node.child);
       widget = res.widget;
       describer = res.describer;
-
-      if (!res.skipParent) {
-        final constraints = node.additionalConstraints;
+      final constraints = node.additionalConstraints;
+      if (!res.skipParent && !constraints.isUnconstrained) {
         if (constraints.isTight ||
             (constraints.hasTightWidth && !constraints.hasBoundedHeight) ||
             (constraints.hasTightHeight && !constraints.hasBoundedWidth)) {
@@ -244,6 +176,7 @@ class RenderSkeletonScanner extends RenderProxyBox {
           final maxHeight = constraints.maxHeight == double.infinity ? null : constraints.maxHeight;
           final minHeight = constraints.minHeight == 0 ? null : constraints.minHeight;
           final minWidth = constraints.minWidth == 0 ? null : constraints.minWidth;
+
           widget = ConstrainedBox(
             constraints: node.additionalConstraints,
             child: res.widget,
@@ -520,9 +453,75 @@ class RenderSkeletonScanner extends RenderProxyBox {
         ],
       );
 
-      // widget = SizedBox();
       describer = const SingleChildWidgetDescriber(name: 'name');
     } else if (node is RenderCustomMultiChildLayoutBox) {
+      if (node.delegate.toString() == '_ScaffoldLayout') {
+        final scaffoldSlots = <String, RenderObject>{
+          for (final c in node.children.where((e) => e.parentData is MultiChildLayoutParentData))
+            (c.parentData as MultiChildLayoutParentData).id.toString(): c,
+        };
+
+        var appBarRes = rebuildWidget(scaffoldSlots['_ScaffoldSlot.appBar']);
+        var fabRes = rebuildWidget(scaffoldSlots['_ScaffoldSlot.floatingActionButton']);
+
+        if (appBarRes.widget is ConstrainedBox) {
+          appBarRes = RebuildResult(
+            widget: (appBarRes.widget as ConstrainedBox).child,
+            describer: (appBarRes.describer as SingleChildWidgetDescriber).child,
+          );
+        }
+
+        final bodyRes = rebuildWidget(scaffoldSlots['_ScaffoldSlot.body']);
+        var appBar = appBarRes.widget;
+        if (scaffoldSlots.isNotEmpty) {
+          widget = Scaffold(
+            backgroundColor: Colors.transparent,
+            floatingActionButton: fabRes.widget,
+            appBar: appBar == null
+                ? null
+                : appBar is AppBar
+                    ? appBar
+                    : PreferredSize(
+                        preferredSize: Size.fromHeight(node.size.height),
+                        child: appBar,
+                      ),
+            body: bodyRes.widget,
+          );
+          describer = SlottedWidgetDescriber(
+            name: 'Scaffold',
+            properties: {
+              'backgroundColor': 'Colors.transparent',
+            },
+            slots: {
+              'appBar': appBarRes.describer,
+              'body': bodyRes.describer,
+              'floatingActionButton': fabRes.describer,
+            },
+          );
+        }
+      } else if (node.delegate.toString() == '_ToolbarLayout') {
+        final appBarSlots = _rebuildAppBarSlots(node);
+        widget = AppBar(
+          backgroundColor: Colors.transparent,
+          elevation: 0,
+          title: appBarSlots.title?.widget,
+          leading: appBarSlots.leading?.widget,
+          actions: List.of(appBarSlots.actions.map((e) => e.widget!)),
+        );
+        describer = SlottedWidgetDescriber(
+          name: 'AppBar',
+          slots: {
+            'title': appBarSlots.title?.describer,
+            'leading': appBarSlots.leading?.describer,
+          },
+          multiChildrenSlots: {
+            if (appBarSlots.actions.isNotEmpty)
+              'actions': List.of(
+                appBarSlots.actions.map((e) => e.describer!),
+              )
+          },
+        );
+      }
     } else if (node is RenderSliverList ||
         node is RenderSliverFixedExtentList ||
         node.typeName == '_RenderSliverPrototypeExtentList') {
@@ -820,31 +819,48 @@ class RenderSkeletonScanner extends RenderProxyBox {
         });
       }
     } else if (node is RenderPhysicalModel) {
-      final res = rebuildWidget(node.child);
-      widget = SkeletonContainer(
-        elevation: node.elevation,
-        child: res.widget,
-      );
-      describer = SingleChildWidgetDescriber(
-        name: 'SkeletonContainer',
-        child: res.describer,
-      );
+      final layout = node.findFirstChildOf<RenderCustomMultiChildLayoutBox>();
+      if (layout != null && (layout.buildsAppBar(node) || layout.buildsAScaffold(node))) {
+        final res = rebuildWidget(layout);
+        widget = res.widget;
+        describer = res.describer;
+      } else {
+        final res = rebuildWidget(node.child);
+        widget = SkeletonContainer(
+          elevation: node.elevation,
+          child: res.widget,
+        );
+        describer = SingleChildWidgetDescriber(
+          name: 'SkeletonContainer',
+          child: res.describer,
+        );
+      }
     } else if (node is RenderPhysicalShape) {
       final isButton = node.findParentWithName('_RenderInputPadding') != null;
 
       final shape = (node.clipper as ShapeBorderClipper).shape;
+      BoxShape? boxShape;
+      BorderRadiusGeometry? borderRadius;
+      if (shape is RoundedRectangleBorder) {
+        borderRadius = shape.borderRadius;
+      } else {
+        boxShape = BoxShape.circle;
+      }
 
       final config = _boxBoneConfigs[node] ??= BoxBoneConfig(
         canBeContainer: !isButton,
         treatAsBone: isButton,
       );
 
+      print(node.parent);
       if (config.treatAsBone || !config.includeBone) {
         final width = isButton ? node.size.width : double.infinity;
         skipParent = true;
         widget = BoxBone(
           width: width,
           height: node.size.height,
+          shape: boxShape ?? BoxShape.rectangle,
+          borderRadius: borderRadius,
         );
         describer = SingleChildWidgetDescriber(
           name: 'BoxBone',
@@ -994,10 +1010,10 @@ class RenderSkeletonScanner extends RenderProxyBox {
         );
       }
       final res = rebuildWidget(node.child);
-
+      final canBeContainer = res.widget != null && !node.isInside<Divider>();
       final config = _boxBoneConfigs[node] ??= BoxBoneConfig(
-        canBeContainer: res.widget != null && !node.isInside<Divider>(),
-        treatAsBone: node.isInside<Divider>(),
+        canBeContainer: canBeContainer,
+        treatAsBone: !canBeContainer || node.isInside<Divider>(),
       );
 
       if (config.treatAsBone || !config.includeBone) {
@@ -1028,6 +1044,7 @@ class RenderSkeletonScanner extends RenderProxyBox {
           },
         );
       }
+
       widget = BoxBoneEditor(
         initialConfig: config,
         onChange: (config) {
@@ -1071,6 +1088,8 @@ class RenderSkeletonScanner extends RenderProxyBox {
       }
     } else if (node is RenderObjectWithChildMixin) {
       final res = rebuildWidget(node.child);
+      widget = res.widget;
+      describer = res.describer;
       if (node.typeName == '_RenderColoredBox') {
         final config = _boxBoneConfigs[node] ??= BoxBoneConfig(
           canBeContainer: res.widget != null,
@@ -1103,28 +1122,27 @@ class RenderSkeletonScanner extends RenderProxyBox {
         );
       } else if (node.typeName == '_RenderInputPadding') {
         if (node.child?.parentData is BoxParentData) {
-          final boxData = node.child!.parentData as BoxParentData;
-          widget = Padding(
-            padding: EdgeInsets.symmetric(
-              vertical: boxData.offset.dy,
-              horizontal: boxData.offset.dx,
-            ),
-            child: res.widget,
-          );
-          describer = SingleChildWidgetDescriber(
-            name: 'Padding',
-            properties: {
-              'padding': EdgeInsets.symmetric(
-                vertical: boxData.offset.dy,
-                horizontal: boxData.offset.dx,
-              )
-            },
-            child: res.describer,
-          );
+          final offset = (node.child!.parentData as BoxParentData).offset;
+          if (offset.dy != 0 && offset.dx != 0) {
+            widget = Padding(
+              padding: EdgeInsets.symmetric(
+                vertical: offset.dy,
+                horizontal: offset.dx,
+              ),
+              child: res.widget,
+            );
+            describer = SingleChildWidgetDescriber(
+              name: 'Padding',
+              properties: {
+                'padding': EdgeInsets.symmetric(
+                  vertical: offset.dy,
+                  horizontal: offset.dx,
+                )
+              },
+              child: res.describer,
+            );
+          }
         }
-      } else {
-        widget = res.widget;
-        describer = res.describer;
       }
     } else if (node is ContainerRenderObjectMixin) {
       final res = rebuildWidget(node.firstChild);
@@ -1233,6 +1251,11 @@ extension RenderBoxX on RenderBox {
   double get assignableHeight => constraints.hasTightHeight ? constraints.maxHeight : size.height;
 
   double get assignableWidth => constraints.hasTightWidth ? constraints.maxWidth : size.width;
+}
+
+extension BoxConstrainsX on BoxConstraints {
+  bool get isUnconstrained =>
+      (minWidth == 0 && maxWidth == double.infinity && minHeight == 0 && maxHeight == double.infinity);
 }
 
 extension RenderObjectX on RenderObject {
@@ -1358,4 +1381,12 @@ extension AxisX on Axis {
 
 extension NumX on num {
   String get safeString => isInfinite ? 'double.infinity' : toString();
+}
+
+extension RenderCustomMultiChildLayoutBoxX on RenderCustomMultiChildLayoutBox {
+  bool buildsAppBar(RenderObject parentNode) =>
+      delegate.toString() == '_ToolbarLayout' && (depth - parentNode.depth) == 7;
+
+  bool buildsAScaffold(RenderObject parentNode) =>
+      delegate.toString() == '_ScaffoldLayout' && (depth - parentNode.depth) == 2;
 }

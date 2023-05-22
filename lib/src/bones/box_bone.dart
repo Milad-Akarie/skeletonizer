@@ -13,7 +13,7 @@ class BoxBone extends StatelessWidget {
     this.alignment,
   }) : super(key: key);
 
-  final BorderRadius? borderRadius;
+  final BorderRadiusGeometry? borderRadius;
   final double? width;
   final double? height;
   final Color? color;

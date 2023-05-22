@@ -46,24 +46,26 @@ class _MyHomePageState extends State<MyHomePage> {
             ? Padding(
                 padding: const EdgeInsets.only(top: 100),
                 child: CustomScrollView(slivers: [
-                  SliverAppBar(
-                    expandedHeight: 120,
-                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
-                    leading: const BackButton(),
-                    flexibleSpace: FlexibleSpaceBar(
-                      background: Image.network(
-                        'https://images.unsplash.com/photo-1575936123452-b67c3203c357?ixlib=rb-4.0.3&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=1770&q=80',
-                        fit: BoxFit.cover,
-                      ),
-                      title: Text("Sub title"),
-                    ),
-                  ),
+                  // SliverAppBar(
+                  //   expandedHeight: 120,
+                  //   shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
+                  //   leading: const BackButton(),
+                  //   flexibleSpace: FlexibleSpaceBar(
+                  //     background: Image.network(
+                  //       'https://images.unsplash.com/photo-1575936123452-b67c3203c357?ixlib=rb-4.0.3&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=1770&q=80',
+                  //       fit: BoxFit.cover,
+                  //     ),
+                  //     title: Text("Sub title"),
+                  //   ),
+                  // ),
                   SliverList(
                     delegate: SliverChildBuilderDelegate(
-                      (context, index) => ListTile(
-                        title: const Text("Hello"),
-                        subtitle: const Text("Hello I'm subitiel"),
-                        trailing: IconButton(onPressed: () {}, icon: const Icon(Icons.ac_unit)),
+                      (context, index) =>  ListTile(
+                        title: Text("Hello"),
+                        subtitle: Text("Hello I'm subitiel"),
+                        trailing: ClipRRect(
+                            borderRadius: BorderRadius.circular(8),
+                            child: FlutterLogo(size: 56,)),
                       ),
                       childCount: 3,
                     ),
@@ -141,7 +143,14 @@ class _MyHomePageState extends State<MyHomePage> {
                     // ),
                     Expanded(
                         child: Scaffold(
-                      appBar: AppBar(title: const Text("Hello")),
+                          floatingActionButton: FloatingActionButton(onPressed: () {  },),
+                      appBar: AppBar(
+                        leading: BackButton(),
+                        title: const Text("Hello"),
+                        actions: [
+                          BackButton(),
+                        ],
+                      ),
                       body: Center(
                         child: Text("Body"),
                       ),
@@ -273,3 +282,5 @@ class _MyHomePageState extends State<MyHomePage> {
     );
   }
 }
+
+
