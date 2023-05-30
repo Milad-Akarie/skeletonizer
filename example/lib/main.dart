@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:flutter/rendering.dart';
 import 'package:skeleton_builder/skeleton_builder.dart';
 
 void main() {
@@ -41,7 +40,7 @@ class _MyHomePageState extends State<MyHomePage> {
     return Scaffold(
       appBar: AppBar(),
       body: SkeletonBuilder(
-        widgetName: 'DemoSkeleton',
+        // widgetName: 'DemoSkeleton',
         child: false
             ? Padding(
                 padding: const EdgeInsets.only(top: 100),
@@ -60,12 +59,14 @@ class _MyHomePageState extends State<MyHomePage> {
                   // ),
                   SliverList(
                     delegate: SliverChildBuilderDelegate(
-                      (context, index) =>  ListTile(
+                      (context, index) => ListTile(
                         title: Text("Hello"),
                         subtitle: Text("Hello I'm subitiel"),
                         trailing: ClipRRect(
                             borderRadius: BorderRadius.circular(8),
-                            child: FlutterLogo(size: 56,)),
+                            child: FlutterLogo(
+                              size: 56,
+                            )),
                       ),
                       childCount: 3,
                     ),
@@ -97,7 +98,7 @@ class _MyHomePageState extends State<MyHomePage> {
                 ]),
               )
             : Padding(
-                padding: const EdgeInsets.only(top: 100),
+                padding: const EdgeInsets.only(top: 50),
                 child: Column(
                   children: [
                     // const Padding(
@@ -141,20 +142,20 @@ class _MyHomePageState extends State<MyHomePage> {
                     //   onPressed: () {},
                     //   icon: Icon(Icons.ac_unit),
                     // ),
-                    Expanded(
-                        child: Scaffold(
-                          floatingActionButton: FloatingActionButton(onPressed: () {  },),
-                      appBar: AppBar(
-                        leading: BackButton(),
-                        title: const Text("Hello"),
-                        actions: [
-                          BackButton(),
-                        ],
-                      ),
-                      body: Center(
-                        child: Text("Body"),
-                      ),
-                    )),
+                    // Expanded(
+                    //     child: Scaffold(
+                    //       floatingActionButton: FloatingActionButton(onPressed: () {  },),
+                    //   appBar: AppBar(
+                    //     leading: BackButton(),
+                    //     title: const Text("Hello"),
+                    //     actions: [
+                    //       BackButton(),
+                    //     ],
+                    //   ),
+                    //   body: Center(
+                    //     child: Text("Body"),
+                    //   ),
+                    // )),
 
                     // const Padding(
                     //   padding: EdgeInsets.all(8.0),
@@ -199,13 +200,31 @@ class _MyHomePageState extends State<MyHomePage> {
                     //     ],
                     //   ),
                     // ),
+
+                    const Expanded(
+                      child: Directionality(
+                        textDirection: TextDirection.ltr,
+                        child: Stack(
+                          children: [
+                            Positioned(
+                              left: 30,
+                              child: Text("hello"),
+                            ),
+                            PositionedDirectional(
+                              start: 40,
+                              child: Text("World"),
+                            )
+                          ],
+                        ),
+                      ),
+                    ),
+
                     if (false)
                       Expanded(
                         child: ListView.separated(
                           padding: const EdgeInsets.all(20),
-                          itemCount: 20,
+                          itemCount: 2,
                           separatorBuilder: (ctx, index) => const Divider(
-                            thickness: 20,
                             height: 32,
                             color: Colors.redAccent,
                           ),
@@ -252,10 +271,10 @@ class _MyHomePageState extends State<MyHomePage> {
                                             ),
                                           ),
                                         ),
-                                        Expanded(
+                                        const Expanded(
                                             child: Column(
                                           crossAxisAlignment: CrossAxisAlignment.start,
-                                          children: const [
+                                          children: [
                                             Text(
                                               'Hello there that is kinda long',
                                               textAlign: TextAlign.end,
@@ -282,5 +301,3 @@ class _MyHomePageState extends State<MyHomePage> {
     );
   }
 }
-
-

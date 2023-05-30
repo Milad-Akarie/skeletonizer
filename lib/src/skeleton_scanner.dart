@@ -8,8 +8,10 @@ import 'package:skeleton_builder/src/bones/wrappers.dart';
 import 'package:skeleton_builder/src/builder/editors/box_bone_editor.dart';
 import 'package:skeleton_builder/src/builder/editors/editor_config.dart';
 import 'package:skeleton_builder/src/builder/editors/text_bone_editor.dart';
+import 'package:skeleton_builder/src/builder/value_describers.dart';
 import 'package:skeleton_builder/src/builder/widget_describer.dart';
 import 'package:collection/collection.dart';
+import 'package:skeleton_builder/src/helper_utils.dart';
 
 class SkeletonScanner extends SingleChildRenderObjectWidget {
   const SkeletonScanner({super.key, super.child, required this.onPreviewReady});
@@ -21,14 +23,21 @@ class SkeletonScanner extends SingleChildRenderObjectWidget {
     return RenderSkeletonScanner(
       onPreviewReady,
       textDirection: Directionality.of(context),
+      theme: Theme.of(context),
     );
   }
 }
 
 class RenderSkeletonScanner extends RenderProxyBox {
   /// Creates a repaint boundary around [child].
-  RenderSkeletonScanner(this.onPreview, {required this.textDirection, RenderBox? child}) : super(child);
+  RenderSkeletonScanner(
+    this.onPreview, {
+    required this.textDirection,
+    required this.theme,
+    RenderBox? child,
+  }) : super(child);
   final TextDirection textDirection;
+  final ThemeData theme;
   final ValueChanged<Widget?> onPreview;
   final _textBoneConfigs = <RenderParagraph, TextBoneConfig>{};
   final _boxBoneConfigs = <RenderObject, BoxBoneConfig>{};
@@ -63,9 +72,39 @@ class RenderSkeletonScanner extends RenderProxyBox {
     Widget? widget;
     WidgetDescriber? describer;
     bool skipParent = false;
-    // print(node.runtimeType);
 
-    if (node.isInside<IconButton>()) {
+    if (node is RenderBox && node.isInside<Divider>()) {
+      final divider = node.findAncestorWidget<Divider>()!;
+      final height = divider.thickness ?? theme.dividerTheme.thickness ?? 1;
+      final padding = EdgeInsetsDirectional.only(
+        start: divider.indent ?? 0,
+        end: divider.endIndent ?? 0,
+      );
+      widget = SizedBox(
+        height: node.size.height,
+        child: BoxBone(
+          alignment: Alignment.center,
+          height: height,
+          width: double.infinity,
+          padding: padding,
+        ),
+      );
+      describer = SingleChildWidgetDescriber(
+        name: 'SizedBox',
+        properties: {
+          'height': node.size.height.describe,
+        },
+        child: SingleChildWidgetDescriber(
+          name: 'BoxBone',
+          properties: {
+            'alignment': Alignment.center,
+            'width': double.infinity.describe,
+            'height': height.describe,
+            if (padding.horizontal > 0) 'padding': padding.describe,
+          },
+        ),
+      );
+    } else if (node.isInside<IconButton>()) {
       final renderConstrains = node.findFirstChildOf<RenderConstrainedBox>();
       final size = renderConstrains?.size ?? const Size(48, 48);
       final icon = node.findFirstChildOf<RenderParagraph>();
@@ -85,16 +124,16 @@ class RenderSkeletonScanner extends RenderProxyBox {
       describer = SingleChildWidgetDescriber(
         name: 'SizedBox',
         properties: {
-          'width': size.width.safeString,
-          'height': size.height.safeString,
+          'width': size.width.describe,
+          'height': size.height.describe,
         },
         child: SingleChildWidgetDescriber(
           name: 'BoxBone',
           properties: {
             'alignment': Alignment.center,
             'borderRadius': 'BorderRadius.circular(8)',
-            'width': (icon?.size.width ?? 24).safeString,
-            'height': (icon?.size.height ?? 24).safeString,
+            'width': (icon?.size.width ?? 24).describe,
+            'height': (icon?.size.height ?? 24).describe,
           },
         ),
       );
@@ -111,7 +150,7 @@ class RenderSkeletonScanner extends RenderProxyBox {
           );
           describer = SingleChildWidgetDescriber(
             name: 'Padding',
-            properties: {'padding': '${node.padding}'},
+            properties: {'padding': node.padding.describe},
             child: describer,
           );
         }
@@ -137,13 +176,14 @@ class RenderSkeletonScanner extends RenderProxyBox {
       describer = res.describer;
 
       if (!res.skipParent) {
+        final isCenter = node.alignment == Alignment.center;
         widget = Align(
           alignment: node.alignment,
           child: res.widget,
         );
         describer = SingleChildWidgetDescriber(
-          name: 'Align',
-          properties: {'alignment': '${node.alignment}'},
+          name: isCenter ? 'Center' : 'Align',
+          properties: {if (!isCenter) 'alignment': '${node.alignment}'},
           child: res.describer,
         );
       }
@@ -157,7 +197,8 @@ class RenderSkeletonScanner extends RenderProxyBox {
             (constraints.hasTightWidth && !constraints.hasBoundedHeight) ||
             (constraints.hasTightHeight && !constraints.hasBoundedWidth)) {
           final width = constraints.hasTightWidth ? constraints.maxWidth : null;
-          final height = constraints.hasTightHeight ? constraints.maxHeight : null;
+          var height = constraints.hasTightHeight ? constraints.maxHeight : null;
+
           widget = SizedBox(
             height: height,
             width: width,
@@ -166,8 +207,8 @@ class RenderSkeletonScanner extends RenderProxyBox {
           describer = SingleChildWidgetDescriber(
             name: 'SizedBox',
             properties: {
-              if (width != null) 'width': width.safeString,
-              if (height != null) 'height': height.safeString,
+              if (width != null) 'width': width.describe,
+              if (height != null) 'height': height.describe,
             },
             child: res.describer,
           );
@@ -184,10 +225,10 @@ class RenderSkeletonScanner extends RenderProxyBox {
           describer = SingleChildWidgetDescriber(
             name: 'ConstrainedBox',
             properties: {
-              if (maxWidth != null) 'maxWidth': maxWidth.safeString,
-              if (maxHeight != null) 'maxHeight': maxHeight.safeString,
-              if (minWidth != null) 'minWidth': minWidth.safeString,
-              if (minHeight != null) 'minHeight': minHeight.safeString,
+              if (maxWidth != null) 'maxWidth': maxWidth.describe,
+              if (maxHeight != null) 'maxHeight': maxHeight.describe,
+              if (minWidth != null) 'minWidth': minWidth.describe,
+              if (minHeight != null) 'minHeight': minHeight.describe,
             },
             child: res.describer,
           );
@@ -577,7 +618,7 @@ class RenderSkeletonScanner extends RenderProxyBox {
           name: node.treatAsSliver ? 'SkeletonList.sliver' : 'SkeletonList',
           properties: {
             if (!node.treatAsSliver) ...{
-              if (padding != null) 'padding': padding.toString(),
+              if (padding != null) 'padding': padding.describe,
               if (scrollDirection != Axis.vertical) 'scrollDirection': 'Axis.horizontal',
             },
             if (itemExtent != null) 'itemExtent': '$itemExtent',
@@ -623,7 +664,7 @@ class RenderSkeletonScanner extends RenderProxyBox {
         name: node.treatAsSliver ? 'SkeletonGrid.sliver' : 'SkeletonGrid',
         properties: {
           if (!node.treatAsSliver) ...{
-            if (padding != null) 'padding': padding.toString(),
+            if (padding != null) 'padding': padding.describe,
             if (scrollDirection != Axis.vertical) 'scrollDirection': 'Axis.vertical',
           },
           'gridDelegate': 'GridDelegate()',
@@ -852,7 +893,6 @@ class RenderSkeletonScanner extends RenderProxyBox {
         treatAsBone: isButton,
       );
 
-      print(node.parent);
       if (config.treatAsBone || !config.includeBone) {
         final width = isButton ? node.size.width : double.infinity;
         skipParent = true;
@@ -865,8 +905,8 @@ class RenderSkeletonScanner extends RenderProxyBox {
         describer = SingleChildWidgetDescriber(
           name: 'BoxBone',
           properties: {
-            'width': width.safeString,
-            'height': node.size.height.safeString,
+            'width': width.describe,
+            'height': node.size.height.describe,
           },
         );
       } else {
@@ -983,7 +1023,7 @@ class RenderSkeletonScanner extends RenderProxyBox {
           'lineHeight': painter.preferredLineHeight,
           if (node.textAlign != TextAlign.start) 'textAlign': node.textAlign,
           if (textDirection != null) 'textDirection': textDirection,
-          if (padding != null) 'padding': padding,
+          if (padding != null) 'padding': padding.describe,
           'fontSize': fontSize,
           'lineLength': lineCount * painter.width,
           if (node.maxLines != null) 'maxLines': node.maxLines,
@@ -1010,21 +1050,24 @@ class RenderSkeletonScanner extends RenderProxyBox {
         );
       }
       final res = rebuildWidget(node.child);
-      final canBeContainer = res.widget != null && !node.isInside<Divider>();
+      final canBeContainer = res.widget != null;
       final config = _boxBoneConfigs[node] ??= BoxBoneConfig(
         canBeContainer: canBeContainer,
-        treatAsBone: !canBeContainer || node.isInside<Divider>(),
+        treatAsBone: !canBeContainer,
       );
 
       if (config.treatAsBone || !config.includeBone) {
         widget = BoxBone(
-          borderRadius: boxDecoration.borderRadius?.resolve(textDirection),
+          borderRadius: boxDecoration.borderRadius,
           height: node.constraints.hasTightHeight ? node.constraints.maxHeight : node.size.height,
           width: double.infinity,
+          shape: boxDecoration.shape,
         );
-        describer = const SingleChildWidgetDescriber(
+
+        describer = SingleChildWidgetDescriber(
           name: 'BoxBone',
           properties: {
+            if (boxDecoration.borderRadius != null) 'borderRadius': boxDecoration.borderRadius,
             'width': '0',
             'height': '0',
           },
@@ -1106,7 +1149,6 @@ class RenderSkeletonScanner extends RenderProxyBox {
             child: res.widget,
           );
         }
-
         widget = BoxBoneEditor(
           initialConfig: config,
           onChange: (config) {
@@ -1174,6 +1216,7 @@ class RenderSkeletonScanner extends RenderProxyBox {
         }
       } else if (node.parentData is StackParentData) {
         final data = node.parentData as StackParentData;
+        final positionedDir = node.findAncestorWidget<PositionedDirectional>();
         if (data.isPositioned) {
           widget = Positioned(
               top: data.top,
@@ -1185,14 +1228,19 @@ class RenderSkeletonScanner extends RenderProxyBox {
               child: widget);
 
           describer = SingleChildWidgetDescriber(
-            name: 'Positioned',
+            name: positionedDir != null ? 'PositionedDirectional' : 'Positioned',
             properties: {
-              // 'top': 'data.top',
-              // 'bottom': 'data.bottom',
-              // 'left': 'data.left',
-              // 'right': 'data.right',
-              // 'width': 'data.width',
-              // 'height': 'data.height',
+              if (data.top != null) 'top': data.top!.describe,
+              if (data.bottom != null) 'bottom': data.bottom!.describe,
+              if (data.width != null) 'width': data.width!.describe,
+              if (data.height != null) 'height': data.height!.describe,
+              if (positionedDir != null) ...{
+                if (positionedDir.start != null) 'start': positionedDir.start!.describe,
+                if (positionedDir.end != null) 'end': positionedDir.end!.describe,
+              } else ...{
+                if (data.left != null) 'left': data.left!.describe,
+                if (data.right != null) 'right': data.right!.describe,
+              },
             },
             child: describer,
           );
@@ -1235,158 +1283,3 @@ class _AppBarSlots {
   });
 }
 
-extension ChildernIterator on ContainerRenderObjectMixin {
-  List<RenderObject> get children {
-    final childrenList = <RenderObject>[];
-    var child = firstChild;
-    while (child != null) {
-      childrenList.add(child);
-      child = childAfter(child);
-    }
-    return childrenList;
-  }
-}
-
-extension RenderBoxX on RenderBox {
-  double get assignableHeight => constraints.hasTightHeight ? constraints.maxHeight : size.height;
-
-  double get assignableWidth => constraints.hasTightWidth ? constraints.maxWidth : size.width;
-}
-
-extension BoxConstrainsX on BoxConstraints {
-  bool get isUnconstrained =>
-      (minWidth == 0 && maxWidth == double.infinity && minHeight == 0 && maxHeight == double.infinity);
-}
-
-extension RenderObjectX on RenderObject {
-  String get typeName => runtimeType.toString();
-
-  Widget? get widget => debugCreator is DebugCreator ? (debugCreator as DebugCreator).element.widget : null;
-
-  bool get isMaterialButton {
-    return isInside<ElevatedButton>() ||
-        isInside<TextButton>() ||
-        isInside<OutlinedButton>() ||
-        isInside<FilledButton>();
-  }
-
-  T? findFirstChildOf<T>() {
-    E? findType<E>(RenderObject box) {
-      if (box is E && box != this) {
-        return box as E;
-      } else if (box is RenderObjectWithChildMixin && box.child != null) {
-        return findType<E>(box.child!);
-      } else if (box is ContainerRenderObjectMixin) {
-        for (final child in box.children) {
-          final res = findType<E>(child);
-          if (res != null) {
-            return res;
-          }
-        }
-        return null;
-      } else {
-        return null;
-      }
-    }
-
-    return findType<T>(this);
-  }
-
-  T? findChild<T>(T? Function(RenderObject object) predicate) {
-    E? findType<E>(RenderObject box) {
-      final res = predicate(box);
-      if (res != null) {
-        return res as E;
-      } else if (box is RenderObjectWithChildMixin && box.child != null) {
-        return findType<E>(box.child!);
-      } else if (box is ContainerRenderObjectMixin) {
-        for (final child in box.children) {
-          final res = findType<E>(child);
-          if (res != null) {
-            return res;
-          }
-        }
-        return null;
-      } else {
-        return null;
-      }
-    }
-
-    return findType<T>(this);
-  }
-
-  T? findParentOfType<T extends RenderBox>() {
-    E? findType<E>(AbstractNode box) {
-      if (box is T) {
-        return box as E;
-      } else if (box.parent != null) {
-        return findType<E>(box.parent!);
-      }
-      return null;
-    }
-
-    return findType<T>(this);
-  }
-
-  bool isChildOf(AbstractNode parent) {
-    bool findType(AbstractNode box) {
-      if (box == parent) {
-        return true;
-      } else if (box.parent != null) {
-        return findType(box.parent!);
-      }
-      return false;
-    }
-
-    return findType(this);
-  }
-
-  AbstractNode? findParentWithName(String name) {
-    AbstractNode? find(AbstractNode box) {
-      if (box.runtimeType.toString() == name) {
-        return box;
-      } else if (box.parent != null) {
-        return find(box.parent!);
-      }
-      return null;
-    }
-
-    return find(this);
-  }
-
-  bool get treatAsSliver => isInside<CustomScrollView>() && !isInside<SliverToBoxAdapter>();
-
-  bool isInside<T extends Widget>() {
-    return findAncestorWidget<T>() != null;
-  }
-
-  T? findAncestorWidget<T extends Widget>() {
-    if (debugCreator is! DebugCreator) return null;
-    final element = (debugCreator as DebugCreator).element;
-    return element.findAncestorWidgetOfExactType<T>();
-  }
-
-  State<T>? findStateOfWidget<T extends StatefulWidget>() {
-    if (debugCreator is! DebugCreator) return null;
-    final element = (debugCreator as DebugCreator).element;
-    return element.findAncestorStateOfType<State<T>>();
-  }
-
-  bool get isListTile => typeName == '_RenderListTile';
-}
-
-extension AxisX on Axis {
-  String get widgetName => this == Axis.vertical ? 'Column' : 'Row';
-}
-
-extension NumX on num {
-  String get safeString => isInfinite ? 'double.infinity' : toString();
-}
-
-extension RenderCustomMultiChildLayoutBoxX on RenderCustomMultiChildLayoutBox {
-  bool buildsAppBar(RenderObject parentNode) =>
-      delegate.toString() == '_ToolbarLayout' && (depth - parentNode.depth) == 7;
-
-  bool buildsAScaffold(RenderObject parentNode) =>
-      delegate.toString() == '_ScaffoldLayout' && (depth - parentNode.depth) == 2;
-}
