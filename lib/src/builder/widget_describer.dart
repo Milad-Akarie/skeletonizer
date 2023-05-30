@@ -27,6 +27,8 @@ abstract class WidgetDescriber {
   final String name;
   final Map<String, dynamic> properties;
 
+  bool get hasProps => properties.isNotEmpty;
+
   String tabs(int depth) {
     return '  ' * depth;
   }
@@ -54,9 +56,9 @@ class SingleChildWidgetDescriber extends WidgetDescriber {
 
   @override
   String bluePrint([int depth = 0]) {
-    if (child == null && properties.isEmpty) return '$name(),';
+    if (child == null && hasProps) return '$name(),';
     final childDesc = child == null ? '' : '\n${tabs(depth)}$childName: ${child!.bluePrint(depth + 1)}';
-    return '$name(\n${properties.keys.map((k) => '${tabs(depth)}$k: ${properties[k]},').join('\n')}$childDesc\n${tabs(depth)})';
+    return '$name(${hasProps ? '\n' : ''}${properties.keys.map((k) => '${tabs(depth)}$k: ${properties[k]},').join('\n')}$childDesc\n${tabs(depth)})';
   }
 
   @override
@@ -84,7 +86,7 @@ class MultiChildWidgetDescriber extends WidgetDescriber {
   String bluePrint([int depth = 0]) {
     final childrenDes =
         '\n${tabs(depth)}$childrenName:[\n${children.map((e) => '${tabs(depth)}${e.bluePrint(depth + 1)}').toList().join(',\n')}\n${tabs(depth)}]';
-    return '$name(\n${properties.keys.map((k) => '${tabs(depth)}$k: ${properties[k]},').join('\n')}$childrenDes\n${tabs(depth)})';
+    return '$name(${hasProps ? '\n' : ''}${properties.keys.map((k) => '${tabs(depth)}$k: ${properties[k]},').join('\n')}$childrenDes\n${tabs(depth)})';
   }
 
   @override
@@ -111,11 +113,13 @@ class SlottedWidgetDescriber extends WidgetDescriber {
   @override
   String bluePrint([int depth = 0]) {
     slots.removeWhere((key, value) => value == null);
-    final slotsRes =
-        slots.keys.map((k) => '$k: ${slots[k]!.bluePrint(depth + 1)}').toList().join(',\n');
-    final multiChildrenSlotsRes =
-    multiChildrenSlots.keys.map((k) => '$k: ${multiChildrenSlots[k]!.map((e) => e.bluePrint(depth+1)).toList()}').toList().join(',\n');
-    return '${' ' * depth}$name(${properties.keys.map((k) => '$k: ${properties[k]},').join('\n')},$slotsRes$multiChildrenSlotsRes\n)';
+    final slotsRes = slots.keys.map((k) => '${tabs(depth)}$k: ${slots[k]!.bluePrint(depth + 1)},\n').join();
+
+    final multiChildrenSlotsRes = multiChildrenSlots.keys
+        .map((k) =>
+            '${tabs(depth)}$k: ${multiChildrenSlots[k]!.map((e) => '\n${tabs(depth + 1)}${e.bluePrint(depth + 1)}').toList()}')
+        .join(',\n');
+    return '$name(${hasProps ? '\n' : ''}${properties.keys.map((k) => '${tabs(depth)}$k: ${properties[k]},\n').join()}$slotsRes$multiChildrenSlotsRes)';
   }
 
   @override
@@ -126,4 +130,3 @@ class SlottedWidgetDescriber extends WidgetDescriber {
     return false;
   }
 }
-

@@ -48,6 +48,7 @@ class RenderSkeletonScanner extends RenderProxyBox {
       _boxBoneConfigs.clear();
     }
     final res = rebuildWidget(child!);
+    // print(res.describer?.bluePrint(4));
     if (preview) {
       onPreview(res.widget);
       return null;
@@ -381,20 +382,23 @@ class RenderSkeletonScanner extends RenderProxyBox {
       final res = rebuildWidget(node.child);
       widget = res.widget;
       describer = res.describer;
-      widget = Transform(
-        transform: matrix4 ?? Matrix4.identity(),
-        alignment: node.alignment,
-        origin: node.origin,
-        child: res.widget,
-      );
-      describer = SingleChildWidgetDescriber(
-        name: 'Transform',
-        properties: {
-          'transform': matrix4 == null ? 'ReplaceWithMatrix()' : 'Matrix4.fromList(${matrix4.storage.toList()})',
-          'alignment': node.alignment,
-        },
-        child: res.describer,
-      );
+      print(widget);
+      if (widget != null) {
+        widget = Transform(
+          transform: matrix4 ?? Matrix4.identity(),
+          alignment: node.alignment,
+          origin: node.origin,
+          child: res.widget,
+        );
+        describer = SingleChildWidgetDescriber(
+          name: 'Transform',
+          properties: {
+            'transform': matrix4 == null ? 'ReplaceWithMatrix()' : 'Matrix4.fromList(${matrix4.storage.toList()})',
+            'alignment': node.alignment,
+          },
+          child: res.describer,
+        );
+      }
     } else if (node is RenderFlex) {
       final children = [for (final child in node.children) rebuildWidget(child)];
 
@@ -417,21 +421,24 @@ class RenderSkeletonScanner extends RenderProxyBox {
     } else if (node is RenderStack) {
       final effectiveChildren = node.children.take(node.isInside<IndexedStack>() ? 1 : node.childCount);
       final children = [for (final child in effectiveChildren) rebuildWidget(child)];
-      widget = Stack(
-        fit: node.fit,
-        alignment: node.alignment,
-        children: List.of(children.map((e) => e.widget!)),
-      );
-      describer = MultiChildWidgetDescriber(
-        name: 'Stack',
-        properties: {
-          if (node.fit != StackFit.loose) 'fit': node.fit,
-          if (node.alignment != AlignmentDirectional.topStart) 'alignment': node.alignment,
-        },
-        children: List.of(
-          children.map((e) => e.describer!),
-        ),
-      );
+      final validChildren = children.where((e) => e.widget != null);
+      if (validChildren.isNotEmpty) {
+        widget = Stack(
+          fit: node.fit,
+          alignment: node.alignment,
+          children: List.of(validChildren.map((e) => e.widget!)),
+        );
+        describer = MultiChildWidgetDescriber(
+          name: 'Stack',
+          properties: {
+            if (node.fit != StackFit.loose) 'fit': node.fit,
+            if (node.alignment != AlignmentDirectional.topStart) 'alignment': node.alignment,
+          },
+          children: List.of(
+            validChildren.map((e) => e.describer!),
+          ),
+        );
+      }
     } else if (node is RenderWrap) {
       final children = [for (final child in node.children) rebuildWidget(child)];
       widget = Wrap(
@@ -865,6 +872,7 @@ class RenderSkeletonScanner extends RenderProxyBox {
         final res = rebuildWidget(layout);
         widget = res.widget;
         describer = res.describer;
+        print(describer!.bluePrint(4));
       } else {
         final res = rebuildWidget(node.child);
         widget = SkeletonContainer(
@@ -1207,12 +1215,31 @@ class RenderSkeletonScanner extends RenderProxyBox {
       if (node.parentData is FlexParentData) {
         final data = node.parentData as FlexParentData;
         if (data.flex != null) {
-          widget = Expanded(flex: data.flex!, child: widget);
-          describer = SingleChildWidgetDescriber(
-            name: 'Expanded',
-            properties: {'flex': 'data.flex!'},
-            child: describer,
-          );
+          if (data.fit == FlexFit.tight) {
+            widget = Expanded(flex: data.flex!, child: widget);
+            describer = SingleChildWidgetDescriber(
+              name: 'Expanded',
+              properties: {
+                if(data.flex != null && data.flex != 1)
+                'flex': data.flex!.describe,
+              },
+              child: describer,
+            );
+          } else {
+            final fit = data.fit ?? FlexFit.loose;
+            widget = Flexible(flex: data.flex!, fit: fit, child: widget);
+            describer = SingleChildWidgetDescriber(
+              name: 'Flexible',
+              properties: {
+                if(data.flex != null && data.flex != 1)
+                  'flex': data.flex!.describe,
+                if(data.fit != FlexFit.loose)
+                  'fit': data.fit,
+              },
+              child: describer,
+            );
+          }
+          print(describer.bluePrint(4));
         }
       } else if (node.parentData is StackParentData) {
         final data = node.parentData as StackParentData;
@@ -1282,4 +1309,3 @@ class _AppBarSlots {
     this.actions = const [],
   });
 }
-
