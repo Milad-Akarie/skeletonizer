@@ -11,10 +11,13 @@ dependencies:
   collection: ^1.17.1
   flutter:
     sdk: flutter
+  vector_math: ^2.1.4
+  gap: ^3.0.0
 
 dev_dependencies:
   flutter_test:
     sdk: flutter
   flutter_lints: ^2.0.0
+
 
 flutter:

@@ -7,7 +7,7 @@ class TextBone extends StatelessWidget {
   const TextBone(
       {Key? key,
       required this.lineHeight,
-      required this.lineLength,
+       this.lineLength,
       required this.fontSize,
       this.width,
       this.height,
@@ -18,12 +18,13 @@ class TextBone extends StatelessWidget {
       this.borderRadius = 0.0,
       this.padding = EdgeInsets.zero,
       this.textScaleFactor})
-      : super(key: key);
+      : assert(lineLength != null || width != null),
+        super(key: key);
 
   final double lineHeight;
   final double? textScaleFactor;
   final double fontSize;
-  final double lineLength;
+  final double? lineLength;
   final double? width;
   final double? height;
   final int? maxLines;
@@ -37,7 +38,7 @@ class TextBone extends StatelessWidget {
   Widget build(BuildContext context) {
     return LayoutBuilder(builder: (context, constrains) {
       final effectiveWidth = width ?? constrains.maxWidth;
-      final actualLineCount = math.max((lineLength / effectiveWidth).round(), 1);
+      final actualLineCount = lineLength == null ? 1 : math.max((lineLength! / effectiveWidth).round(), 1);
 
       var lineCount = maxLines == null ? actualLineCount : math.min(maxLines!, actualLineCount);
       final spacing = lineHeight - fontSize;

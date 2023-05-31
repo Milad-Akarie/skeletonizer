@@ -23,7 +23,7 @@ extension PaddingX on EdgeInsetsGeometry {
         constructor = 'fromSTEB(${p.start.describe},${p.top.describe},${p.end.describe},${p.bottom.describe},)';
       }
       return 'EdgeInsetsDirectional.$constructor';
-    }else{
+    } else {
       final String constructor;
       final p = this as EdgeInsets;
       if (p.left == p.right && p.right == p.top && p.top == p.bottom) {
@@ -45,19 +45,30 @@ extension PaddingX on EdgeInsetsGeometry {
       }
       return 'EdgeInsets.$constructor';
     }
-
   }
 }
 
+extension OffestX on Offset {
+  String get describe {
+    if (dx == 0 && dy == 0) {
+      return 'Offset.zero';
+    }
+    return 'Offset(${dx.describe},${dy.describe})';
+  }
+}
 
-extension BorderRadiusGeometryX on BorderRadiusGeometry{
+extension BorderRadiusGeometryX on BorderRadiusGeometry {
   String get describe {
     return toString();
   }
 }
 
 extension NumX on num {
-  String get describe => isInfinite ? 'double.infinity' : toString();
+  String get describe => isInfinite
+      ? 'double.infinity'
+      : (this - toInt() == 0)
+          ? toStringAsFixed(0)
+          : toString();
 }
 
 extension AxisX on Axis {

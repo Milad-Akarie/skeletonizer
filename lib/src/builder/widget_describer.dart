@@ -48,17 +48,19 @@ class SingleChildWidgetDescriber extends WidgetDescriber {
     this.child,
     required super.name,
     this.childName = 'child',
+    this.posProperties = const [],
     super.properties,
   });
-
+  final List<Object> posProperties;
   final String childName;
   final WidgetDescriber? child;
 
   @override
   String bluePrint([int depth = 0]) {
-    if (child == null && hasProps) return '$name(),';
+    if (child == null && !hasProps && posProperties.isEmpty) return '$name(),';
+    final posProps = posProperties.isNotEmpty ? posProperties.map((e) => '$e,').join() : '';
     final childDesc = child == null ? '' : '\n${tabs(depth)}$childName: ${child!.bluePrint(depth + 1)}';
-    return '$name(${hasProps ? '\n' : ''}${properties.keys.map((k) => '${tabs(depth)}$k: ${properties[k]},').join('\n')}$childDesc\n${tabs(depth)})';
+    return '$name(${hasProps ? '\n' : ''}$posProps${properties.keys.map((k) => '${tabs(depth)}$k: ${properties[k]},').join('\n')}$childDesc\n${tabs(depth)})';
   }
 
   @override

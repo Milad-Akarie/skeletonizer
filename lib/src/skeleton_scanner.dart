@@ -12,6 +12,7 @@ import 'package:skeleton_builder/src/builder/value_describers.dart';
 import 'package:skeleton_builder/src/builder/widget_describer.dart';
 import 'package:collection/collection.dart';
 import 'package:skeleton_builder/src/helper_utils.dart';
+import 'package:gap/gap.dart';
 
 class SkeletonScanner extends SingleChildRenderObjectWidget {
   const SkeletonScanner({super.key, super.child, required this.onPreviewReady});
@@ -55,6 +56,14 @@ class RenderSkeletonScanner extends RenderProxyBox {
     } else {
       return res.describer;
     }
+  }
+
+  Map<String, Object?> debugPropertiesMap(Diagnosticable node) {
+    return Map.fromEntries(
+      debugProperties(node).where((e) => e.name != null).map(
+            (e) => MapEntry(e.name!, e.value),
+          ),
+    );
   }
 
   List<DiagnosticsNode> debugProperties(Diagnosticable node) {
@@ -263,6 +272,49 @@ class RenderSkeletonScanner extends RenderProxyBox {
         },
         child: res.describer,
       );
+    } else if (node.typeName == 'RenderGap') {
+      final props = debugPropertiesMap(node);
+      final mainAxisExt = props['mainAxisExtent'] as double;
+      final crossAxisExt = props['crossAxisExtent'] as double?;
+      if (props['color'] != null) {
+        double? height = mainAxisExt;
+        double? width = crossAxisExt;
+        var dir = Axis.vertical;
+        if (node.parent is RenderFlex) {
+          dir = (node.parent as RenderFlex).direction;
+        }
+        if (dir == Axis.horizontal) {
+          height = crossAxisExt;
+          width = mainAxisExt;
+        }
+        widget = BoxBone(
+          height: height,
+          width: width,
+        );
+        describer = SingleChildWidgetDescriber(
+          name: 'BoxBone',
+          properties: {
+            if (width != null) 'width': width.describe,
+            if (height != null) 'height': height.describe,
+          },
+        );
+      } else {
+        widget = node.widget;
+        describer = SingleChildWidgetDescriber(
+          name: 'Gap',
+          posProperties: [mainAxisExt],
+          properties: {
+            if (crossAxisExt != null) 'crossAxisExtent': crossAxisExt.describe,
+          },
+        );
+      }
+    } else if (node.typeName == 'RenderSliverGap') {
+      widget = node.widget;
+      final props = debugPropertiesMap(node);
+      describer = describer = SingleChildWidgetDescriber(
+        name: 'SliverGap',
+        posProperties: [props['mainAxisExtent'] as double],
+      );
     } else if (node is RenderIntrinsicWidth) {
       final res = rebuildWidget(node.child);
       widget = IntrinsicWidth(
@@ -382,7 +434,7 @@ class RenderSkeletonScanner extends RenderProxyBox {
       final res = rebuildWidget(node.child);
       widget = res.widget;
       describer = res.describer;
-      print(widget);
+
       if (widget != null) {
         widget = Transform(
           transform: matrix4 ?? Matrix4.identity(),
@@ -393,31 +445,44 @@ class RenderSkeletonScanner extends RenderProxyBox {
         describer = SingleChildWidgetDescriber(
           name: 'Transform',
           properties: {
-            'transform': matrix4 == null ? 'ReplaceWithMatrix()' : 'Matrix4.fromList(${matrix4.storage.toList()})',
-            'alignment': node.alignment,
+            'transform': matrix4 == null
+                ? 'ReplaceWithMatrix()'
+                : 'Matrix4.columns(${[
+                    matrix4.row0,
+                    matrix4.row1,
+                    matrix4.row2,
+                    matrix4.row3,
+                  ].map((r) {
+                    return 'Vector(${r.x.describe},${r.y.describe},${r.z.describe},${r.w.describe}),';
+                  }).join()},)',
+            if (node.alignment != null) 'alignment': node.alignment,
+            if (node.origin != null) 'origin': node.origin,
           },
           child: res.describer,
         );
       }
     } else if (node is RenderFlex) {
       final children = [for (final child in node.children) rebuildWidget(child)];
+      final validChildren = children.where((e) => e.widget != null);
+      if (validChildren.isNotEmpty) {
+        widget = Flex(
+          direction: node.direction,
+          mainAxisAlignment: node.mainAxisAlignment,
+          crossAxisAlignment: node.crossAxisAlignment,
+          mainAxisSize: node.mainAxisSize,
+          children: List.of(validChildren.map((e) => e.widget!)),
+        );
 
-      widget = Flex(
-        direction: node.direction,
-        mainAxisAlignment: node.mainAxisAlignment,
-        crossAxisAlignment: node.crossAxisAlignment,
-        mainAxisSize: node.mainAxisSize,
-        children: List.of(children.map((e) => e.widget!)),
-      );
-      describer = MultiChildWidgetDescriber(
-        name: node.direction.widgetName,
-        properties: {
-          'mainAxisAlignment': node.mainAxisAlignment,
-          'crossAxisAlignment': node.crossAxisAlignment,
-          'mainAxisSize': node.mainAxisSize,
-        },
-        children: List.of(children.map((e) => e.describer!)),
-      );
+        describer = MultiChildWidgetDescriber(
+          name: node.direction.widgetName,
+          properties: {
+            if (node.mainAxisAlignment != MainAxisAlignment.start) 'mainAxisAlignment': node.mainAxisAlignment,
+            if (node.crossAxisAlignment != CrossAxisAlignment.center) 'crossAxisAlignment': node.crossAxisAlignment,
+            if (node.mainAxisSize != MainAxisSize.max) 'mainAxisSize': node.mainAxisSize,
+          },
+          children: List.of(validChildren.map((e) => e.describer!)),
+        );
+      }
     } else if (node is RenderStack) {
       final effectiveChildren = node.children.take(node.isInside<IndexedStack>() ? 1 : node.childCount);
       final children = [for (final child in effectiveChildren) rebuildWidget(child)];
@@ -739,41 +804,39 @@ class RenderSkeletonScanner extends RenderProxyBox {
           }
         }
 
+        final slivers = <Widget>[];
+        final describers = <WidgetDescriber>[];
+        for (final child in children) {
+          if (child.widget is! SliverMultiBoxAdaptorWidget &&
+              child.widget is! SliverToBoxAdapter &&
+              child.widget is! SliverAppBar &&
+              child.widget is! SliverGap) {
+            final maxExtent = (child.node is RenderSliver) ? (child.node as RenderSliver).geometry!.layoutExtent : 0.0;
+            slivers.add(
+              FixedExtentSliverHeader(
+                maxExtent: maxExtent,
+                child: child.widget,
+              ),
+            );
+            describers.add(SingleChildWidgetDescriber(
+              name: 'FixedExtentSliverHeader',
+              properties: {'maxExtent': maxExtent.describe},
+              child: child.describer,
+            ));
+          } else {
+            slivers.add(child.widget!);
+            describers.add(child.describer!);
+          }
+        }
+
         widget = CustomScrollView(
           scrollDirection: node.axis,
-          slivers: [
-            for (final child in children)
-              if (child.widget is! SliverMultiBoxAdaptorWidget &&
-                  child.widget is! SliverToBoxAdapter &&
-                  child.widget is! SliverAppBar)
-                FixedExtentSliverHeader(
-                  maxExtent: (child.node is RenderSliver) ? (child.node as RenderSliver).geometry!.layoutExtent : 0,
-                  child: child.widget,
-                )
-              else
-                child.widget!
-          ],
+          slivers: slivers,
         );
-
         describer = MultiChildWidgetDescriber(
-          children: [
-            for (final child in children)
-              if (child.widget is! SliverMultiBoxAdaptorWidget &&
-                  child.widget is! SliverToBoxAdapter &&
-                  child.widget is! SliverAppBar)
-                SingleChildWidgetDescriber(
-                  name: 'SliverToBoxAdapter',
-                  child: SingleChildWidgetDescriber(
-                    name: 'SizedBox',
-                    properties: {'height': '120'},
-                    child: child.describer,
-                  ),
-                )
-              else
-                child.describer!
-          ],
           name: 'CustomScrollView',
           childrenName: 'slivers',
+          children: describers,
         );
       } else {
         final res = rebuildWidget(node.firstChild);
@@ -789,7 +852,10 @@ class RenderSkeletonScanner extends RenderProxyBox {
       );
       describer = SingleChildWidgetDescriber(
         name: 'ClipPath',
-        properties: {'clipBehavior': 'node.clipBehavior', if (node.clipper != null) 'clipper': 'ReplaceWithClipper()'},
+        properties: {
+          'clipBehavior': node.clipBehavior,
+          if (node.clipper != null) 'clipper': 'ReplaceWithClipper()',
+        },
         child: res.describer,
       );
     } else if (node is RenderClipRect) {
@@ -816,7 +882,10 @@ class RenderSkeletonScanner extends RenderProxyBox {
       );
       describer = SingleChildWidgetDescriber(
         name: 'ClipOval',
-        properties: {'clipBehavior': 'node.clipBehavior', if (node.clipper != null) 'clipper': 'ReplaceWithClipper()'},
+        properties: {
+          'clipBehavior': node.clipBehavior,
+          if (node.clipper != null) 'clipper': 'ReplaceWithClipper()',
+        },
         child: res.describer,
       );
     } else if (node is RenderClipRRect) {
@@ -830,8 +899,8 @@ class RenderSkeletonScanner extends RenderProxyBox {
       describer = SingleChildWidgetDescriber(
         name: 'ClipRRect',
         properties: {
-          'borderRadius': 'BorderRadius()',
-          'clipBehavior': 'node.clipBehavior',
+          'borderRadius': node.borderRadius.describe,
+          'clipBehavior': node.clipBehavior,
           if (node.clipper != null) 'clipper': 'ReplaceWithClipper()'
         },
         child: res.describer,
@@ -872,7 +941,6 @@ class RenderSkeletonScanner extends RenderProxyBox {
         final res = rebuildWidget(layout);
         widget = res.widget;
         describer = res.describer;
-        print(describer!.bluePrint(4));
       } else {
         final res = rebuildWidget(node.child);
         widget = SkeletonContainer(
@@ -1032,12 +1100,12 @@ class RenderSkeletonScanner extends RenderProxyBox {
           if (node.textAlign != TextAlign.start) 'textAlign': node.textAlign,
           if (textDirection != null) 'textDirection': textDirection,
           if (padding != null) 'padding': padding.describe,
-          'fontSize': fontSize,
-          'lineLength': lineCount * painter.width,
-          if (node.maxLines != null) 'maxLines': node.maxLines,
-          'borderRadius': config.radius,
-          if (indent != 0) 'indent': indent,
-          if (fixedWith != null) 'width': fixedWith,
+          'fontSize': fontSize.describe,
+          if ((lineCount * painter.width) != fixedWith) 'lineLength': (lineCount * painter.width).describe,
+          if (node.maxLines != null) 'maxLines': node.maxLines!.describe,
+          'borderRadius': config.radius.describe,
+          if (indent != 0) 'indent': indent.describe,
+          if (fixedWith != null) 'width': fixedWith.describe,
         },
       );
     } else if (node is RenderDecoratedBox) {
@@ -1127,7 +1195,7 @@ class RenderSkeletonScanner extends RenderProxyBox {
         describer = SlottedWidgetDescriber(
           name: 'ListTile',
           properties: {
-            'contentPadding': 'contentPadding',
+            if (contentPadding != null) 'contentPadding': contentPadding.describe,
           },
           slots: {
             'title': titleRes.describer,
@@ -1220,8 +1288,7 @@ class RenderSkeletonScanner extends RenderProxyBox {
             describer = SingleChildWidgetDescriber(
               name: 'Expanded',
               properties: {
-                if(data.flex != null && data.flex != 1)
-                'flex': data.flex!.describe,
+                if (data.flex != null && data.flex != 1) 'flex': data.flex!.describe,
               },
               child: describer,
             );
@@ -1231,10 +1298,8 @@ class RenderSkeletonScanner extends RenderProxyBox {
             describer = SingleChildWidgetDescriber(
               name: 'Flexible',
               properties: {
-                if(data.flex != null && data.flex != 1)
-                  'flex': data.flex!.describe,
-                if(data.fit != FlexFit.loose)
-                  'fit': data.fit,
+                if (data.flex != null && data.flex != 1) 'flex': data.flex!.describe,
+                if (data.fit != FlexFit.loose) 'fit': data.fit,
               },
               child: describer,
             );
