@@ -302,7 +302,7 @@ class RenderSkeletonScanner extends RenderProxyBox {
         widget = node.widget;
         describer = SingleChildWidgetDescriber(
           name: 'Gap',
-          posProperties: [mainAxisExt],
+          posProperties: [mainAxisExt.describe],
           properties: {
             if (crossAxisExt != null) 'crossAxisExtent': crossAxisExt.describe,
           },
@@ -313,7 +313,7 @@ class RenderSkeletonScanner extends RenderProxyBox {
       final props = debugPropertiesMap(node);
       describer = describer = SingleChildWidgetDescriber(
         name: 'SliverGap',
-        posProperties: [props['mainAxisExtent'] as double],
+        posProperties: [(props['mainAxisExtent'] as double).describe],
       );
     } else if (node is RenderIntrinsicWidth) {
       final res = rebuildWidget(node.child);

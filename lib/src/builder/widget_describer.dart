@@ -58,7 +58,7 @@ class SingleChildWidgetDescriber extends WidgetDescriber {
   @override
   String bluePrint([int depth = 0]) {
     if (child == null && !hasProps && posProperties.isEmpty) return '$name(),';
-    final posProps = posProperties.isNotEmpty ? posProperties.map((e) => '$e,').join() : '';
+    final posProps = posProperties.isNotEmpty ? posProperties.join(',') : '';
     final childDesc = child == null ? '' : '\n${tabs(depth)}$childName: ${child!.bluePrint(depth + 1)}';
     return '$name(${hasProps ? '\n' : ''}$posProps${properties.keys.map((k) => '${tabs(depth)}$k: ${properties[k]},').join('\n')}$childDesc\n${tabs(depth)})';
   }
