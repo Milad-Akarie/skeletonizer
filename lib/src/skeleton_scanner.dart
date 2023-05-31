@@ -4,7 +4,6 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
 import 'package:skeleton_builder/skeleton_builder.dart';
-import 'package:skeleton_builder/src/bones/wrappers.dart';
 import 'package:skeleton_builder/src/builder/editors/box_bone_editor.dart';
 import 'package:skeleton_builder/src/builder/editors/editor_config.dart';
 import 'package:skeleton_builder/src/builder/editors/text_bone_editor.dart';
