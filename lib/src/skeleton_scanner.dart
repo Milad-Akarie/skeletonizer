@@ -82,6 +82,7 @@ class RenderSkeletonScanner extends RenderProxyBox {
     WidgetDescriber? describer;
     bool skipParent = false;
 
+    // print(node.runtimeType);
     if (node is RenderBox && node.isInside<Divider>()) {
       final divider = node.findAncestorWidget<Divider>()!;
       final height = divider.thickness ?? theme.dividerTheme.thickness ?? 1;
@@ -1132,10 +1133,22 @@ class RenderSkeletonScanner extends RenderProxyBox {
       );
 
       if (config.treatAsBone || !config.includeBone) {
+        Size boneSize = Size(
+          double.infinity,
+          node.constraints.hasTightHeight ? node.constraints.maxHeight : node.size.height,
+        );
+        if (node.parent is RenderConstrainedBox) {
+          final box = node.parent as RenderConstrainedBox;
+          if (box.additionalConstraints.isTight) {
+            boneSize = box.additionalConstraints.biggest;
+            skipParent = true;
+          }
+        }
+
         widget = BoxBone(
           borderRadius: boxDecoration.borderRadius,
-          height: node.constraints.hasTightHeight ? node.constraints.maxHeight : node.size.height,
-          width: double.infinity,
+          height: boneSize.height,
+          width: boneSize.width,
           shape: boxDecoration.shape,
         );
 
@@ -1143,8 +1156,8 @@ class RenderSkeletonScanner extends RenderProxyBox {
           name: 'BoxBone',
           properties: {
             if (boxDecoration.borderRadius != null) 'borderRadius': boxDecoration.borderRadius,
-            'width': '0',
-            'height': '0',
+             'width': boneSize.width.describe,
+            'height': boneSize.height.describe,
           },
         );
       } else {

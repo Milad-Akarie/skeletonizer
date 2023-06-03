@@ -271,34 +271,30 @@ class _MyHomePageState extends State<MyHomePage> {
 }
 
 final x = Padding(
-    padding: const EdgeInsets.only(top: 100),
-    child: CustomScrollView(slivers: [
-      const SliverGap(100.0),
-      SkeletonList.sliver(
-        child: ListTile(
-          contentPadding: const EdgeInsets.symmetric(horizontal: 32),
-          title: const TextBone(
-            lineHeight: 19.0,
-            fontSize: 16,
-            borderRadius: 8,
-            width: 39,
-          ),
-          subtitle: const TextBone(
-            lineHeight: 17.0,
-            fontSize: 14,
-            borderRadius: 8,
-            width: 108,
-          ),
-          trailing: ClipRRect(
-              borderRadius: BorderRadius.circular(8.0),
-              clipBehavior: Clip.antiAlias,
-              child: const SizedBox(
-                  width: 56,
-                  height: 56,
-                  child: BoxBone(
-                    width: 0,
-                    height: 0,
-                  ))),
+  padding: const EdgeInsets.only(top: 100),
+  child: CustomScrollView(slivers: [
+    const SliverGap(100),
+    SkeletonList.sliver(
+      child: ListTile(
+        contentPadding: const EdgeInsets.symmetric(horizontal: 32),
+        title: const TextBone(
+          lineHeight: 19.0,
+          fontSize: 16,
+          borderRadius: 8,
+          width: 39,
         ),
-      )
-    ]));
+        subtitle: const TextBone(
+          lineHeight: 17.0,
+          fontSize: 14,
+          borderRadius: 8,
+          width: 108,
+        ),
+        trailing: BoxBone(
+          width: 56,
+          height: 56,
+          borderRadius: BorderRadius.circular(8.0),
+        ),
+      ),
+    )
+  ]),
+);
