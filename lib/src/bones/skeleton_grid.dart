@@ -23,6 +23,7 @@ class SkeletonGrid extends StatelessWidget {
       itemCount: itemCount,
       gridDelegate: gridDelegate,
       scrollDirection: scrollDirection,
+      shrinkWrap: true,
       physics: const NeverScrollableScrollPhysics(),
       itemBuilder: (context, _) => child,
     );
@@ -38,7 +39,9 @@ class SkeletonGrid extends StatelessWidget {
         (context, _) => child,
         childCount: itemCount,
       ),
+
       gridDelegate: gridDelegate,
+
     );
   }
 }

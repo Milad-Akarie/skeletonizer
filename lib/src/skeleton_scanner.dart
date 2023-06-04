@@ -42,6 +42,17 @@ class RenderSkeletonScanner extends RenderProxyBox {
   final _textBoneConfigs = <RenderParagraph, TextBoneConfig>{};
   final _boxBoneConfigs = <RenderObject, BoxBoneConfig>{};
 
+
+  @override
+  void performLayout() {
+    super.performLayout();
+    WidgetsBinding.instance.addPostFrameCallback((timeStamp) {
+      rebuild(preview: true);
+    });
+  }
+
+
+
   WidgetDescriber? rebuild({bool preview = false, bool reset = false}) {
     if (reset) {
       _textBoneConfigs.clear();
@@ -304,7 +315,7 @@ class RenderSkeletonScanner extends RenderProxyBox {
           name: 'Gap',
           posProperties: [mainAxisExt.describe],
           properties: {
-            if (crossAxisExt != null) 'crossAxisExtent': crossAxisExt.describe,
+            if (crossAxisExt != null && crossAxisExt != 0) 'crossAxisExtent': crossAxisExt.describe,
           },
         );
       }
@@ -659,7 +670,7 @@ class RenderSkeletonScanner extends RenderProxyBox {
           for (final c in children) {
             itemsWithDiffHashes[c.describer.hashCode] = c;
           }
-          listItemWidgets = List.of(itemsWithDiffHashes.values);
+          listItemWidgets = List.of(itemsWithDiffHashes.values.take(1));
         }
 
         final scrollDirection = node.findParentOfType<RenderViewport>()?.axis ?? Axis.vertical;
@@ -838,7 +849,10 @@ class RenderSkeletonScanner extends RenderProxyBox {
           childrenName: 'slivers',
           children: describers,
         );
+      } else if (node.firstChild?.typeName == '_RenderSingleChildViewport') {
+        print('ScrollView');
       } else {
+        print(node.firstChild);
         final res = rebuildWidget(node.firstChild);
         widget = res.widget;
         describer = res.describer;
@@ -953,14 +967,16 @@ class RenderSkeletonScanner extends RenderProxyBox {
         );
       }
     } else if (node is RenderPhysicalShape) {
-      final isButton = node.findParentWithName('_RenderInputPadding') != null;
-
+      final isChip = node.isInside<RawChip>();
+      final isButton = node.findParentWithName('_RenderInputPadding') != null || isChip;
       final shape = (node.clipper as ShapeBorderClipper).shape;
       BoxShape? boxShape;
       BorderRadiusGeometry? borderRadius;
       if (shape is RoundedRectangleBorder) {
         borderRadius = shape.borderRadius;
-      } else {
+      } else if (shape is StadiumBorder) {
+        borderRadius = BorderRadius.circular(node.size.height);
+      } else if (shape is CircleBorder) {
         boxShape = BoxShape.circle;
       }
 
@@ -977,6 +993,7 @@ class RenderSkeletonScanner extends RenderProxyBox {
           height: node.size.height,
           shape: boxShape ?? BoxShape.rectangle,
           borderRadius: borderRadius,
+          // alignment: isChip ? Alignment.center : null,
         );
         describer = SingleChildWidgetDescriber(
           name: 'BoxBone',
@@ -1156,7 +1173,7 @@ class RenderSkeletonScanner extends RenderProxyBox {
           name: 'BoxBone',
           properties: {
             if (boxDecoration.borderRadius != null) 'borderRadius': boxDecoration.borderRadius,
-             'width': boneSize.width.describe,
+            'width': boneSize.width.describe,
             'height': boneSize.height.describe,
           },
         );
@@ -1253,7 +1270,7 @@ class RenderSkeletonScanner extends RenderProxyBox {
       } else if (node.typeName == '_RenderInputPadding') {
         if (node.child?.parentData is BoxParentData) {
           final offset = (node.child!.parentData as BoxParentData).offset;
-          if (offset.dy != 0 && offset.dx != 0) {
+          if (offset.dy != 0 || offset.dx != 0) {
             widget = Padding(
               padding: EdgeInsets.symmetric(
                 vertical: offset.dy,
@@ -1273,6 +1290,22 @@ class RenderSkeletonScanner extends RenderProxyBox {
             );
           }
         }
+      } else if (node.typeName == '_RenderSingleChildViewport') {
+        final scrollDirection = node.findParentOfType<RenderViewport>()?.axis ?? Axis.vertical;
+        widget = SingleChildScrollView(
+          physics: const NeverScrollableScrollPhysics(),
+          scrollDirection: scrollDirection,
+          child: widget,
+        );
+
+        describer = SingleChildWidgetDescriber(
+          name: 'SingleChildScrollView',
+          properties: {
+            if (scrollDirection != Axis.vertical) 'scrollDirection': scrollDirection,
+            'physics': 'const NeverScrollableScrollPhysics()',
+          },
+          child: describer,
+        );
       }
     } else if (node is ContainerRenderObjectMixin) {
       final res = rebuildWidget(node.firstChild);
@@ -1316,7 +1349,6 @@ class RenderSkeletonScanner extends RenderProxyBox {
               child: describer,
             );
           }
-          print(describer.bluePrint(4));
         }
       } else if (node.parentData is StackParentData) {
         final data = node.parentData as StackParentData;

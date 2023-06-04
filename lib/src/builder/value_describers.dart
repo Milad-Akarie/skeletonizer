@@ -23,8 +23,9 @@ extension PaddingX on EdgeInsetsGeometry {
         constructor = 'fromSTEB(${p.start.describe},${p.top.describe},${p.end.describe},${p.bottom.describe},)';
       }
       return 'EdgeInsetsDirectional.$constructor';
-    } else {
+    } else if(this is EdgeInsets){
       final String constructor;
+
       final p = this as EdgeInsets;
       if (p.left == p.right && p.right == p.top && p.top == p.bottom) {
         constructor = 'all(${p.left.describe})';
@@ -44,6 +45,8 @@ extension PaddingX on EdgeInsetsGeometry {
         constructor = 'fromLTRB(${p.left.describe},${p.top.describe},${p.right.describe},${p.bottom.describe},)';
       }
       return 'EdgeInsets.$constructor';
+    }else{
+     return resolve(TextDirection.ltr).describe;
     }
   }
 }
