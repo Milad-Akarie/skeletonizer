@@ -31,7 +31,7 @@ class MyHomePage extends StatefulWidget {
 }
 
 class _MyHomePageState extends State<MyHomePage> {
-  bool _loading = false;
+  bool _loading = true;
   final _scannerKey = GlobalKey();
 
   @override
@@ -49,23 +49,23 @@ class _MyHomePageState extends State<MyHomePage> {
       body: Skeletonizer(
         key: _scannerKey,
         loading: _loading,
-        child: Column(
+        child: ListView(
           children: [
-            ListTile(
-              title: const Text('A bit long Title Why is it'),
-              subtitle: const Text('Subtitle'),
-              trailing: ClipRRect(
-                borderRadius: BorderRadius.circular(20),
-                child: Container(
-                  width: 50,
-                  height: 50,
-                  decoration: const BoxDecoration(
-                    color: Colors.green,
-                    // borderRadius: BorderRadius.circular(12)
-                  ),
+            for (final i in List.generate(10, (index) => null))
+              Card(
+                elevation: .3,
+               shape: RoundedRectangleBorder(
+                 borderRadius: BorderRadius.circular(20)
+               ),
+                child: const ListTile(
+                  title: Text('A bit long Title Why is it'),
+                  subtitle: Text('Subtitle here'),
+                  trailing: Padding(
+                    padding: EdgeInsets.all(8.0),
+                    child: Icon(Icons.ac_unit),
+                  )
                 ),
-              ),
-            )
+              )
           ],
         ),
       ),
