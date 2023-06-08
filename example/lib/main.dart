@@ -51,28 +51,46 @@ class _MyHomePageState extends State<MyHomePage> {
         loading: _loading,
         // ignore: prefer_const_constructors
         child: false
-            ? const Column(
-                children: [
-                  Text('Hello Title'),
-                  Icon(Icons.ac_unit),
-                  SizedBox(height: 100),
-                  Text("Hello"),
-                  Card(child: SizedBox(height: 100,width: 200,),)
+            ? CustomScrollView(
+                slivers: [
+                  SliverAppBar(
+                    title: Text('Title'),
+                    leading: BackButton(),
+                  ),
+                  SliverPadding(
+                    padding: const EdgeInsets.all(20.0),
+                    sliver: SliverList(
+                      delegate: SliverChildBuilderDelegate((context, index) {
+                        return Card(
+                          elevation: .3,
+                          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
+                          child: ListTile(
+                              title: const Text('A bit long Title Why is it'),
+                              subtitle: const Text('Subtitle here'),
+                              trailing: Padding(
+                                padding: const EdgeInsets.all(8.0),
+                                child: ElevatedButton(onPressed: () {}, child: const Text("Click")),
+                              )),
+                        );
+                      }, childCount: 10),
+                    ),
+                  )
                 ],
               )
             : ListView(
                 children: [
-                  for (final i in List.generate(1, (index) => null))
+                  for (final i in List.generate(40, (index) => null))
                     Card(
-                      elevation: .3,
+                      elevation: 4,
                       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
                       child: ListTile(
-                          title: const Text('A bit long Title Why is it'),
-                          subtitle: const Text('Subtitle here'),
-                          trailing: Padding(
-                            padding: EdgeInsets.all(8.0),
-                            child: ElevatedButton(onPressed: () {}, child: const Text("Click")),
-                          )),
+                        title: const Text('A bit long Title Why is it'),
+                        subtitle: const Text('Subtitle here'),
+                        trailing: Padding(
+                          padding: const EdgeInsets.all(8.0),
+                          child: ElevatedButton(onPressed: () {}, child: const Text("Click")),
+                        ),
+                      ),
                     )
                 ],
               ),

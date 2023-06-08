@@ -64,15 +64,19 @@ class RenderSkeletonizer extends RenderProxyBox {
     skeletonize(this, _bones, Offset.zero);
     // onSkeletonReady(Stack(children: _bones));
 
-    // print(_bones.map((e) => e));
+    // e_bones.map((e) => e));
     // print(_clippers.map((e) => e.paintBounds));
   }
 
   final _bones = <PaintableElement>[];
 
   void skeletonize(RenderObject node, List<PaintableElement> bones, Offset offset) {
-
     node.visitChildren((child) {
+      if (child is RenderSkeletonAnnotation) {
+        if (child.annotation is IgnoreDescendants) {
+          return;
+        }
+      }
       var childOffset = offset;
       final transform = Matrix4.identity();
       if (node is! RenderTransformX) {
@@ -127,17 +131,17 @@ class RenderSkeletonizer extends RenderProxyBox {
           );
           return;
         } else if (child is RenderParagraph) {
-          print(childOffset);
+          // print(childOffset);
 
           // Offset(200.1, 351.9)
           // Offset(184.5, 356.5)
           // print(offset);
           // child.globalOffset(this);
           // print(offset);
-         // print(childOffset);
+          // print(childOffset);
           bones.add(_buildTextBone(child, childOffset));
         } else if (child is RenderPhysicalShape) {
-          bones.add(_handlePhysicalShape(child, childOffset));
+          return bones.add(_handlePhysicalShape(child, childOffset));
         }
       }
       skeletonize(child, bones, childOffset);
@@ -254,7 +258,9 @@ class RenderSkeletonizer extends RenderProxyBox {
     }
     if (_bones.isEmpty || _lastSkeletonizedWidth != size.width) {
       _lastSkeletonizedWidth = size.width;
+      final watch = Stopwatch()..start();
       _skeletonize();
+      print('Skeletonized in : ${watch.elapsedMilliseconds}');
     }
 
     // super.paint(context, offset);
@@ -455,29 +461,25 @@ class RenderSkeletonizer extends RenderProxyBox {
     return widget;
   }
 
-  PaintableElement _handlePhysicalShape(RenderPhysicalShape node, Offset offset) {
+  ContainerElement _handlePhysicalShape(RenderPhysicalShape node, Offset offset) {
     final isChip = node.isInside<RawChip>();
     final isButton = node.findParentWithName('_RenderInputPadding') != null || isChip;
     final shape = (node.clipper as ShapeBorderClipper).shape;
-    BoxShape? boxShape;
     BorderRadiusGeometry? borderRadius;
     if (shape is RoundedRectangleBorder) {
       borderRadius = shape.borderRadius;
     } else if (shape is StadiumBorder) {
       borderRadius = BorderRadius.circular(node.size.height);
-    } else if (shape is CircleBorder) {
-      boxShape = BoxShape.circle;
-    }
+    } else if (shape is CircleBorder) {}
 
-    if (isButton) {
-      return BoneElement(
-        rect: offset & node.size,
-        borderRadius: borderRadius?.resolve(textDirection),
-      );
+    final descendents = <PaintableElement>[];
+    if (!isButton) {
+      skeletonize(node, descendents, offset);
     }
     return ContainerElement(
       rect: offset & node.size,
       elevation: node.elevation,
+      descendents: descendents,
       borderRadius: borderRadius?.resolve(textDirection),
     );
   }
@@ -510,21 +512,26 @@ class BoneElement extends PaintableElement {
   final Rect rect;
   final BorderRadius? borderRadius;
 
-  BoneElement({required this.rect, this.borderRadius});
+  BoneElement({
+    required this.rect,
+    this.borderRadius,
+  });
+
+  RRect addBorderRadius(Rect rect, BorderRadius borderRadius) {
+    return RRect.fromRectAndCorners(
+      rect,
+      topLeft: borderRadius.topLeft,
+      topRight: borderRadius.topRight,
+      bottomLeft: borderRadius.bottomLeft,
+      bottomRight: borderRadius.bottomRight,
+    );
+  }
 
   @override
   void paint(PaintingContext context, Offset offset, Paint shaderPaint) {
-    // MatrixUtils.transformPoint(getTransformTo(this).multiply(arg), point)
-
     final shiftedRect = rect.shift(offset);
     if (borderRadius != null) {
-      final rRect = RRect.fromRectAndCorners(
-        shiftedRect,
-        topLeft: borderRadius!.topLeft,
-        topRight: borderRadius!.topRight,
-        bottomLeft: borderRadius!.bottomLeft,
-        bottomRight: borderRadius!.bottomRight,
-      );
+      final rRect = addBorderRadius(shiftedRect, borderRadius!);
       context.canvas.drawRRect(rRect, shaderPaint);
     } else {
       context.canvas.drawRect(shiftedRect, shaderPaint);
@@ -532,37 +539,37 @@ class BoneElement extends PaintableElement {
   }
 }
 
-class ContainerElement extends PaintableElement {
-  final Rect rect;
-  final BorderRadius? borderRadius;
+class ContainerElement extends BoneElement {
+  final List<PaintableElement> descendents;
   final double? elevation;
 
   ContainerElement({
-    required this.rect,
-    this.borderRadius,
+    this.descendents = const [],
     this.elevation,
+    required super.rect,
+    super.borderRadius,
   });
 
   @override
   void paint(PaintingContext context, Offset offset, Paint shaderPaint) {
     final shiftedRect = rect.shift(offset);
+    final surfacePaint = Paint()..color = Colors.white;
+    final drawShadow = descendents.isNotEmpty && elevation != null && elevation! > 0;
+    final treatAsBone = descendents.isEmpty;
     if (borderRadius != null) {
-      final rRect = RRect.fromRectAndCorners(
-        shiftedRect,
-        topLeft: borderRadius!.topLeft,
-        topRight: borderRadius!.topRight,
-        bottomLeft: borderRadius!.bottomLeft,
-        bottomRight: borderRadius!.bottomRight,
-      );
-      if (elevation != null && elevation! > 0) {
+      final rRect = addBorderRadius(shiftedRect, borderRadius!);
+      if (drawShadow) {
         context.canvas.drawShadow(Path()..addRRect(rRect), Colors.black, elevation!, false);
       }
-      context.canvas.drawRRect(rRect, Paint()..color = Colors.white);
+      context.canvas.drawRRect(rRect, treatAsBone ? shaderPaint : surfacePaint);
     } else {
-      if (elevation != null && elevation! > 0) {
+      if (drawShadow) {
         context.canvas.drawShadow(Path()..addRect(shiftedRect), Colors.black, elevation!, false);
       }
-      context.canvas.drawRect(shiftedRect, Paint()..color = Colors.white);
+      context.canvas.drawRect(shiftedRect, treatAsBone ? shaderPaint : surfacePaint);
+    }
+    for (final descendent in descendents) {
+      descendent.paint(context, offset, shaderPaint);
     }
   }
 }
