@@ -61,7 +61,7 @@ class RenderSkeletonizer extends RenderProxyBox {
 
   void _skeletonize() {
     _bones.clear();
-    skeletonize(child!, _bones);
+    skeletonize(this, _bones, Offset.zero);
     // onSkeletonReady(Stack(children: _bones));
 
     // print(_bones.map((e) => e));
@@ -70,8 +70,16 @@ class RenderSkeletonizer extends RenderProxyBox {
 
   final _bones = <PaintableElement>[];
 
-  void skeletonize(RenderObject node, List<PaintableElement> bones) {
+  void skeletonize(RenderObject node, List<PaintableElement> bones, Offset offset) {
+
     node.visitChildren((child) {
+      var childOffset = offset;
+      final transform = Matrix4.identity();
+      if (node is! RenderTransformX) {
+        node.applyPaintTransform(child, transform);
+        childOffset = MatrixUtils.transformPoint(transform, offset);
+      }
+
       // Widget? widget;
       if (child is RenderBox) {
         // if (child is RenderParagraph) {
@@ -79,7 +87,9 @@ class RenderSkeletonizer extends RenderProxyBox {
         // } else if (child is RenderDecoratedBox) {
         //   widget = _buildDecoratedBox(child);
         // }
-        final offset = child.localToGlobal(Offset.zero, ancestor: this);
+
+        // final offset = ;
+
         if (child is RenderClipRRect) {
           final borderRadius = child.borderRadius.resolve(textDirection);
           final rect = offset & child.size;
@@ -91,7 +101,8 @@ class RenderSkeletonizer extends RenderProxyBox {
             bottomRight: borderRadius.bottomRight,
           );
           final descendents = <PaintableElement>[];
-          skeletonize(child, descendents);
+          skeletonize(child, descendents, childOffset);
+          // child.applyPaintTransform(child, transform)
           bones.add(
             RRectClipElement(
               clip: rRect,
@@ -99,29 +110,37 @@ class RenderSkeletonizer extends RenderProxyBox {
             ),
           );
           return;
-        } else if (child is RenderTransform) {
-          final matrix = debugValueOfType<Matrix4>(child);
+        } else if (child is RenderTransformX) {
+          final matrix = debugValueOfType<Matrix4>(child)!.clone();
           final descendents = <PaintableElement>[];
-          skeletonize(child, descendents);
+          skeletonize(child, descendents, childOffset);
           bones.add(
             TransformElement(
-              matrix4: matrix!,
+              matrix4: matrix,
               size: child.size,
               textDirection: textDirection,
               origin: child.origin,
               alignment: child.alignment,
               descendents: descendents,
-              offset: child.localToGlobal(Offset.zero),
+              globalOffset: offset,
             ),
           );
           return;
         } else if (child is RenderParagraph) {
-          bones.add(_buildTextBone(child, offset));
+          print(childOffset);
+
+          // Offset(200.1, 351.9)
+          // Offset(184.5, 356.5)
+          // print(offset);
+          // child.globalOffset(this);
+          // print(offset);
+         // print(childOffset);
+          bones.add(_buildTextBone(child, childOffset));
         } else if (child is RenderPhysicalShape) {
-          bones.add(_handlePhysicalShape(child, offset));
+          bones.add(_handlePhysicalShape(child, childOffset));
         }
       }
-      skeletonize(child, bones);
+      skeletonize(child, bones, childOffset);
     });
   }
 
@@ -231,17 +250,11 @@ class RenderSkeletonizer extends RenderProxyBox {
   @override
   void paint(PaintingContext context, Offset offset) {
     if (!loading) {
-      final watch = Stopwatch()..start();
-       super.paint(context, offset);
-       print('real child painted in ${watch.elapsedMilliseconds}');
-      return;
+      return super.paint(context, offset);
     }
-    final watch = Stopwatch()..start();
     if (_bones.isEmpty || _lastSkeletonizedWidth != size.width) {
-
       _lastSkeletonizedWidth = size.width;
       _skeletonize();
-      print('_skeletonized in:  ${watch.elapsedMilliseconds}');
     }
 
     // super.paint(context, offset);
@@ -253,9 +266,8 @@ class RenderSkeletonizer extends RenderProxyBox {
     for (final bone in _bones) {
       bone.paint(context, offset, shaderPaint);
     }
-    print('painted in:  ${watch.elapsedMilliseconds}');
+    // print('painted in:  ${watch.elapsedMilliseconds}');
   }
-
 
   Widget? rebuildWidget(RenderObject? node) {
     if (node == null) return null;
@@ -456,6 +468,13 @@ class RenderSkeletonizer extends RenderProxyBox {
     } else if (shape is CircleBorder) {
       boxShape = BoxShape.circle;
     }
+
+    if (isButton) {
+      return BoneElement(
+        rect: offset & node.size,
+        borderRadius: borderRadius?.resolve(textDirection),
+      );
+    }
     return ContainerElement(
       rect: offset & node.size,
       elevation: node.elevation,
@@ -479,6 +498,12 @@ class _SlidingGradientTransform extends GradientTransform {
 
 abstract class PaintableElement {
   void paint(PaintingContext context, Offset offset, Paint shaderPaint);
+
+  Matrix4? _transformer;
+
+  set transformer(Matrix4 value) {
+    _transformer = value;
+  }
 }
 
 class BoneElement extends PaintableElement {
@@ -489,6 +514,8 @@ class BoneElement extends PaintableElement {
 
   @override
   void paint(PaintingContext context, Offset offset, Paint shaderPaint) {
+    // MatrixUtils.transformPoint(getTransformTo(this).multiply(arg), point)
+
     final shiftedRect = rect.shift(offset);
     if (borderRadius != null) {
       final rRect = RRect.fromRectAndCorners(
@@ -555,8 +582,19 @@ class TextBoneElement extends PaintableElement {
 
   @override
   void paint(PaintingContext context, Offset offset, Paint shaderPaint) {
+    //   // final revertedMatrix = _transformer!.clone()..invert();
+    //
+    //   // print(MatrixUtils.getAsScale(_transformer!));
+    //   final mat = Matrix4.inverted(_transformer!);
+    //   // print(MatrixUtils.getAsScale(mat));
+    //
+    // final invertedPoint = MatrixUtils.transformPoint(mat, this.offset);
+    //   // print(invertedPoint);
+    //  final reverted = ;
     final drawingOffset = this.offset + offset;
+    // print('Reverted ${reverted}');
 
+    // print(this.offset);
     final rect = Rect.fromLTWH(
       drawingOffset.dx,
       drawingOffset.dy,
@@ -593,14 +631,14 @@ class TransformElement extends PaintableElement {
   final AlignmentGeometry? alignment;
   final TextDirection textDirection;
   final Size size;
-  final Offset offset;
+  final Offset globalOffset;
 
   TransformElement({
     required this.matrix4,
     required this.descendents,
     required this.textDirection,
     required this.size,
-    required this.offset,
+    required this.globalOffset,
     this.origin,
     this.alignment,
   });
@@ -610,6 +648,7 @@ class TransformElement extends PaintableElement {
     if (origin == null && resolvedAlignment == null) {
       return matrix4;
     }
+
     final Matrix4 result = Matrix4.identity();
     if (origin != null) {
       result.translate(origin!.dx, origin!.dy);
@@ -629,16 +668,18 @@ class TransformElement extends PaintableElement {
     return result;
   }
 
+  Matrix4 get multiplied {
+    final transform = Matrix4.identity();
+    transform.multiply(_effectiveTransform);
+    return transform;
+  }
+
   @override
   void paint(PaintingContext context, Offset offset, Paint shaderPaint) {
-    context.pushTransform(true, Offset.zero, _effectiveTransform, (context, childOffset) {
-      for (final descendent in descendents.whereType<TextBoneElement>()) {
-        // context.canvas.drawRect(scaled, Paint()..color = Colors.grey);
+    context.pushTransform(descendents.isNotEmpty, globalOffset + offset, _effectiveTransform, (context, _) {
+      for (final descendent in descendents) {
         descendent.paint(context, offset, shaderPaint);
       }
-
-      // context.pushTransform(true, offset + parentOffset, matrix4, (context, childOffset) {
-      //
     });
   }
 }

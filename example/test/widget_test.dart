@@ -9,22 +9,17 @@ import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 import 'package:example/main.dart';
+import 'package:skeleton_builder/skeleton_builder.dart';
 
 void main() {
-  testWidgets('Counter increments smoke test', (WidgetTester tester) async {
-    // Build our app and trigger a frame.
-    await tester.pumpWidget(const MyApp());
+  final mat = Matrix4.diagonal3Values(2, 2, 1.0);
 
-    // Verify that our counter starts at 0.
-    expect(find.text('0'), findsOneWidget);
-    expect(find.text('1'), findsNothing);
+  print(MatrixUtils.getAsScale(mat));
+  final inverted = mat.clone()..invert();
+  print(MatrixUtils.getAsScale(inverted));
+  const point = Offset(20, 20);
+  final transformed = MatrixUtils.transformPoint(mat, point);
+  print(transformed);
 
-    // Tap the '+' icon and trigger a frame.
-    await tester.tap(find.byIcon(Icons.add));
-    await tester.pump();
-
-    // Verify that our counter has incremented.
-    expect(find.text('0'), findsNothing);
-    expect(find.text('1'), findsOneWidget);
-  });
+  print(MatrixUtils.transformPoint(inverted, transformed));
 }

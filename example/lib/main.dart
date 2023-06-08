@@ -49,25 +49,33 @@ class _MyHomePageState extends State<MyHomePage> {
       body: Skeletonizer(
         key: _scannerKey,
         loading: _loading,
-        child: ListView(
-          children: [
-            for (final i in List.generate(10, (index) => null))
-              Card(
-                elevation: .3,
-               shape: RoundedRectangleBorder(
-                 borderRadius: BorderRadius.circular(20)
-               ),
-                child: const ListTile(
-                  title: Text('A bit long Title Why is it'),
-                  subtitle: Text('Subtitle here'),
-                  trailing: Padding(
-                    padding: EdgeInsets.all(8.0),
-                    child: Icon(Icons.ac_unit),
-                  )
-                ),
+        // ignore: prefer_const_constructors
+        child: false
+            ? const Column(
+                children: [
+                  Text('Hello Title'),
+                  Icon(Icons.ac_unit),
+                  SizedBox(height: 100),
+                  Text("Hello"),
+                  Card(child: SizedBox(height: 100,width: 200,),)
+                ],
               )
-          ],
-        ),
+            : ListView(
+                children: [
+                  for (final i in List.generate(1, (index) => null))
+                    Card(
+                      elevation: .3,
+                      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
+                      child: ListTile(
+                          title: const Text('A bit long Title Why is it'),
+                          subtitle: const Text('Subtitle here'),
+                          trailing: Padding(
+                            padding: EdgeInsets.all(8.0),
+                            child: ElevatedButton(onPressed: () {}, child: const Text("Click")),
+                          )),
+                    )
+                ],
+              ),
       ),
     );
   }
