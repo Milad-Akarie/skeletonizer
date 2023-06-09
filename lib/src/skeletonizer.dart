@@ -5,19 +5,103 @@ import 'package:skeleton_builder/skeleton_builder.dart';
 import 'package:collection/collection.dart';
 import 'package:skeleton_builder/src/helper_utils.dart';
 
-class Skeletonizer extends SingleChildRenderObjectWidget {
+class Skeletonizer extends StatefulWidget {
   const Skeletonizer({
     super.key,
-    required super.child,
+    required this.child,
     required this.loading,
   });
 
+  final Widget child;
+  final bool loading;
+
+  @override
+  State<Skeletonizer> createState() => _SkeletonizerState();
+}
+
+class _SkeletonizerState extends State<Skeletonizer> with SingleTickerProviderStateMixin<Skeletonizer> {
+  late AnimationController _shimmerController;
+
+  @override
+  void initState() {
+    super.initState();
+    _shimmerController = AnimationController.unbounded(vsync: this);
+    _startAnimation();
+    _shimmerController.addListener(_onShimmerChange);
+  }
+
+  void _startAnimation() {
+    _shimmerController.repeat(
+      min: -0.5,
+      max: 1.5,
+      period: const Duration(milliseconds: 1000),
+    );
+  }
+
+  @override
+  void didUpdateWidget(covariant Skeletonizer oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    if(oldWidget.loading != widget.loading) {
+      if (!widget.loading) {
+        _shimmerController.stop();
+      } else if (!_shimmerController.isAnimating) {
+        _startAnimation();
+      }
+    }
+  }
+
+  @override
+  void dispose() {
+    _shimmerController.removeListener(_onShimmerChange);
+    _shimmerController.dispose();
+    super.dispose();
+  }
+
+  void _onShimmerChange() {
+    if (widget.loading) {
+      setState(() {
+        // update the shimmer painting.
+      });
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return _Skeletonizer(
+      loading: widget.loading,
+      shimmer: LinearGradient(
+        colors: const [
+          Color(0xFFEBEBF4),
+          Color(0xFFF4F4F4),
+          Color(0xFFEBEBF4),
+        ],
+        stops: const [0.1, 0.3, 0.4],
+        begin: const Alignment(-1.0, -0.3),
+        end: const Alignment(1.0, 0.3),
+        tileMode: TileMode.clamp,
+        transform: _SlidingGradientTransform(slidePercent: _shimmerController.value),
+      ),
+      child: widget.child,
+    );
+  }
+}
+
+class _Skeletonizer extends SingleChildRenderObjectWidget {
+  const _Skeletonizer({
+    super.key,
+    required super.child,
+    required this.loading,
+    required this.shimmer,
+  });
+
+  final LinearGradient shimmer;
   final bool loading;
 
   @override
   RenderSkeletonizer createRenderObject(BuildContext context) {
     return RenderSkeletonizer(
       loading,
+      shimmer: shimmer,
       textDirection: Directionality.of(context),
       theme: Theme.of(context),
     );
@@ -25,7 +109,9 @@ class Skeletonizer extends SingleChildRenderObjectWidget {
 
   @override
   void updateRenderObject(BuildContext context, covariant RenderSkeletonizer renderObject) {
-    renderObject.loading = loading;
+    renderObject
+      ..loading = loading
+      ..shimmer = shimmer;
     super.updateRenderObject(context, renderObject);
 
     // WidgetsBinding.instance.addPostFrameCallback((timeStamp) {
@@ -40,7 +126,10 @@ class RenderSkeletonizer extends RenderProxyBox {
     required this.textDirection,
     required this.theme,
     RenderBox? child,
-  }) : super(child);
+    required LinearGradient shimmer,
+  })  : _shimmer = shimmer,
+        super(child);
+
   final TextDirection textDirection;
   final ThemeData theme;
   bool loading;
@@ -131,17 +220,9 @@ class RenderSkeletonizer extends RenderProxyBox {
           );
           return;
         } else if (child is RenderParagraph) {
-          // print(childOffset);
-
-          // Offset(200.1, 351.9)
-          // Offset(184.5, 356.5)
-          // print(offset);
-          // child.globalOffset(this);
-          // print(offset);
-          // print(childOffset);
           bones.add(_buildTextBone(child, childOffset));
         } else if (child is RenderPhysicalShape) {
-          return bones.add(_handlePhysicalShape(child, childOffset));
+          return bones.add(_buildPhysicalShape(child, childOffset));
         }
       }
       skeletonize(child, bones, childOffset);
@@ -163,6 +244,7 @@ class RenderSkeletonizer extends RenderProxyBox {
       fontSize: fontSize,
       lineCount: lineCount,
       offset: offset,
+      renderObject: node,
     );
     // return TextBone(
     //   lineHeight: painter.preferredLineHeight,
@@ -228,21 +310,12 @@ class RenderSkeletonizer extends RenderProxyBox {
     return debugProperties(node).firstWhereOrNull((e) => e.value is T)?.value as T?;
   }
 
-  final shimmerGradient = const LinearGradient(
-      colors: [
-        Color(0xFFEBEBF4),
-        Color(0xFFF4F4F4),
-        Color(0xFFEBEBF4),
-      ],
-      stops: [
-        0.1,
-        0.3,
-        0.4
-      ],
-      begin: Alignment(-1.0, -0.3),
-      end: Alignment(1.0, 0.3),
-      tileMode: TileMode.clamp,
-      transform: _SlidingGradientTransform(slidePercent: 0));
+  LinearGradient _shimmer;
+
+  set shimmer(LinearGradient value) {
+    _shimmer = value;
+    markNeedsPaint();
+  }
 
   @override
   bool hitTest(BoxHitTestResult result, {required Offset position}) {
@@ -266,7 +339,7 @@ class RenderSkeletonizer extends RenderProxyBox {
     // super.paint(context, offset);
 
     final canvas = context.canvas;
-    final shader = shimmerGradient.createShader(offset & size, textDirection: textDirection);
+    final shader = _shimmer.createShader(offset & size, textDirection: textDirection);
     final shaderPaint = Paint()..shader = shader;
 
     for (final bone in _bones) {
@@ -461,7 +534,7 @@ class RenderSkeletonizer extends RenderProxyBox {
     return widget;
   }
 
-  ContainerElement _handlePhysicalShape(RenderPhysicalShape node, Offset offset) {
+  ContainerElement _buildPhysicalShape(RenderPhysicalShape node, Offset offset) {
     final isChip = node.isInside<RawChip>();
     final isButton = node.findParentWithName('_RenderInputPadding') != null || isChip;
     final shape = (node.clipper as ShapeBorderClipper).shape;
@@ -482,6 +555,12 @@ class RenderSkeletonizer extends RenderProxyBox {
       descendents: descendents,
       borderRadius: borderRadius?.resolve(textDirection),
     );
+  }
+
+  @override
+  void debugFillProperties(DiagnosticPropertiesBuilder properties) {
+    super.debugFillProperties(properties);
+    properties.add(DiagnosticsProperty<LinearGradient>('_shimmer', _shimmer));
   }
 }
 
@@ -579,29 +658,28 @@ class TextBoneElement extends PaintableElement {
   final int lineCount;
   final double fontSize;
   final Offset offset;
+  final RenderParagraph renderObject;
 
   TextBoneElement({
     required this.painter,
     required this.offset,
     required this.lineCount,
     required this.fontSize,
+    required this.renderObject,
   });
 
   @override
   void paint(PaintingContext context, Offset offset, Paint shaderPaint) {
-    //   // final revertedMatrix = _transformer!.clone()..invert();
-    //
-    //   // print(MatrixUtils.getAsScale(_transformer!));
-    //   final mat = Matrix4.inverted(_transformer!);
-    //   // print(MatrixUtils.getAsScale(mat));
-    //
-    // final invertedPoint = MatrixUtils.transformPoint(mat, this.offset);
-    //   // print(invertedPoint);
-    //  final reverted = ;
     final drawingOffset = this.offset + offset;
-    // print('Reverted ${reverted}');
-
-    // print(this.offset);
+    // final layer = ShaderMaskLayer()
+    //   ..blendMode = BlendMode.srcATop
+    //   ..shader = const LinearGradient(colors: [Colors.red, Colors.blue]).createShader(drawingOffset & painter.size)
+    //   ..maskRect = drawingOffset & painter.size;
+    // context.pushLayer(layer, (context, offset) {
+    //   renderObject.paint(context, drawingOffset);
+    // }, offset);
+    //
+    // return;
     final rect = Rect.fromLTWH(
       drawingOffset.dx,
       drawingOffset.dy,

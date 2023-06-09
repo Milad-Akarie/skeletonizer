@@ -11,7 +11,6 @@ import 'package:skeleton_builder/src/builder/value_describers.dart';
 import 'package:skeleton_builder/src/builder/widget_describer.dart';
 import 'package:collection/collection.dart';
 import 'package:skeleton_builder/src/helper_utils.dart';
-import 'package:gap/gap.dart';
 
 class SkeletonScanner extends SingleChildRenderObjectWidget {
   const SkeletonScanner({super.key, super.child, required this.onPreviewReady});
@@ -820,8 +819,7 @@ class RenderSkeletonScanner extends RenderProxyBox {
         for (final child in children) {
           if (child.widget is! SliverMultiBoxAdaptorWidget &&
               child.widget is! SliverToBoxAdapter &&
-              child.widget is! SliverAppBar &&
-              child.widget is! SliverGap) {
+              child.widget is! SliverAppBar ) {
             final maxExtent = (child.node is RenderSliver) ? (child.node as RenderSliver).geometry!.layoutExtent : 0.0;
             slivers.add(
               FixedExtentSliverHeader(

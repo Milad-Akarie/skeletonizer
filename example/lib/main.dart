@@ -81,20 +81,33 @@ class _MyHomePageState extends State<MyHomePage> {
                 children: [
                   for (final i in List.generate(40, (index) => null))
                     Card(
-                      elevation: 4,
+                      elevation: 1,
                       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
-                      child: ListTile(
-                        title: const Text('A bit long Title Why is it'),
-                        subtitle: const Text('Subtitle here'),
-                        trailing: Padding(
-                          padding: const EdgeInsets.all(8.0),
-                          child: ElevatedButton(onPressed: () {}, child: const Text("Click")),
-                        ),
+                      child:  const ListTile(
+                        title: Text('A bit long Title Why is it'),
+                        subtitle: Text('Subtitle here'),
+                        trailing: Icon(Icons.ac_unit),
                       ),
                     )
                 ],
               ),
       ),
     );
+  }
+}
+
+class Skeletonizable extends StatelessWidget {
+  const Skeletonizable({
+    super.key,
+    required this.child,
+      this.loadingChild = const Card(color: Colors.black),
+  });
+
+  final Widget child;
+  final Widget loadingChild;
+
+  @override
+  Widget build(BuildContext context) {
+    return loadingChild;
   }
 }
