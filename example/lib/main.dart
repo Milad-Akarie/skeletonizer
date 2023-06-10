@@ -49,65 +49,39 @@ class _MyHomePageState extends State<MyHomePage> {
       body: Skeletonizer(
         key: _scannerKey,
         loading: _loading,
-        // ignore: prefer_const_constructors
-        child: false
-            ? CustomScrollView(
-                slivers: [
-                  SliverAppBar(
-                    title: Text('Title'),
-                    leading: BackButton(),
-                  ),
-                  SliverPadding(
-                    padding: const EdgeInsets.all(20.0),
-                    sliver: SliverList(
-                      delegate: SliverChildBuilderDelegate((context, index) {
-                        return Card(
-                          elevation: .3,
-                          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
-                          child: ListTile(
-                              title: const Text('A bit long Title Why is it'),
-                              subtitle: const Text('Subtitle here'),
-                              trailing: Padding(
-                                padding: const EdgeInsets.all(8.0),
-                                child: ElevatedButton(onPressed: () {}, child: const Text("Click")),
-                              )),
-                        );
-                      }, childCount: 10),
+        child: true?  const Padding(
+                    padding: EdgeInsets.all(20.0),
+                    child: Column(
+                      children: [
+                        Skeleton.shadeOriginal(
+                          child: FlutterLogo(size: 199,),
+                        ),
+                        SizedBox(height: 30),
+                        SizedBox(
+                          width: 300,
+                          height: 50,
+                          child: DecoratedBox(
+                            decoration: BoxDecoration(color: Colors.grey),
+                          ),
+                        )
+                      ],
                     ),
                   )
-                ],
-              )
-            : ListView(
-                children: [
-                  for (final i in List.generate(40, (index) => null))
-                    Card(
-                      elevation: 1,
-                      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
-                      child:  const ListTile(
-                        title: Text('A bit long Title Why is it'),
-                        subtitle: Text('Subtitle here'),
-                        trailing: Icon(Icons.ac_unit),
-                      ),
-                    )
-                ],
-              ),
+                : ListView(
+                    children: [
+                      for (final i in List.generate(10, (index) => null))
+                        Card(
+                          elevation: 0,
+                          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
+                          child: const ListTile(
+                            title: Text('A bit long Title Why is it'),
+                            subtitle: Text('Subtitle here'),
+                            trailing: Skeleton.shadeOriginal(child: Icon(Icons.ac_unit)),
+                          ),
+                        )
+                    ],
+                  ),
       ),
     );
-  }
-}
-
-class Skeletonizable extends StatelessWidget {
-  const Skeletonizable({
-    super.key,
-    required this.child,
-      this.loadingChild = const Card(color: Colors.black),
-  });
-
-  final Widget child;
-  final Widget loadingChild;
-
-  @override
-  Widget build(BuildContext context) {
-    return loadingChild;
   }
 }

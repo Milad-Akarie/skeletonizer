@@ -22,6 +22,13 @@ class Skeleton extends SingleChildRenderObjectWidget {
     required super.child,
     bool ignore = true,
   }) : _annotation = ignore ? const IgnoreDescendants() : _none;
+
+
+  const Skeleton.shadeOriginal({
+    super.key,
+    required super.child,
+    bool shade = true,
+  }) : _annotation = shade ? const ShadeOriginal() : _none;
 }
 
 class RenderSkeletonAnnotation extends RenderProxyBox {
@@ -44,4 +51,8 @@ class _NoAnnotation extends SkeletonAnnotation {
 
 class IgnoreDescendants extends SkeletonAnnotation {
   const IgnoreDescendants();
+}
+
+class ShadeOriginal extends SkeletonAnnotation {
+  const ShadeOriginal();
 }

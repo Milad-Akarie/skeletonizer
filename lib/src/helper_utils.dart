@@ -14,6 +14,18 @@ extension ChildernIterator on ContainerRenderObjectMixin {
   }
 }
 
+extension RectX on Rect {
+  RRect toRRect(BorderRadius borderRadius) {
+    return RRect.fromRectAndCorners(
+      this,
+      topLeft: borderRadius.topLeft,
+      topRight: borderRadius.topRight,
+      bottomLeft: borderRadius.bottomLeft,
+      bottomRight: borderRadius.bottomRight,
+    );
+  }
+}
+
 extension RenderBoxX on RenderBox {
   double get assignableHeight => constraints.hasTightHeight ? constraints.maxHeight : size.height;
 
@@ -42,9 +54,9 @@ extension RenderObjectX on RenderObject {
       offset = offset + data.offset;
     } else if (data is SliverPhysicalParentData) {
       offset = offset + data.paintOffset;
-    }  else if(data is SliverMultiBoxAdaptorParentData){
-      offset = offset + Offset(0,data.layoutOffset!);
-    }else{
+    } else if (data is SliverMultiBoxAdaptorParentData) {
+      offset = offset + Offset(0, data.layoutOffset!);
+    } else {
       print(data);
     }
     if (parent is RenderObject) {
