@@ -41,7 +41,7 @@ class SkeletonizerState extends State<Skeletonizer> with TickerProviderStateMixi
   bool get loading => _loading;
 
   LinearGradient get shimmerGradient => LinearGradient(
-        colors: true
+        colors: false
             ? [Colors.red, Colors.blue, Colors.red]
             : const [
                 Color(0xFFEBEBF4),
@@ -57,7 +57,9 @@ class SkeletonizerState extends State<Skeletonizer> with TickerProviderStateMixi
   @override
   void initState() {
     super.initState();
-    _startAnimation();
+    if(loading) {
+      _startAnimation();
+    }
   }
 
   void _startAnimation() {

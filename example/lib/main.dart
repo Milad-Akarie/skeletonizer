@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:shimmer/shimmer.dart';
 import 'package:skeleton_builder/skeleton_builder.dart';
 
 void main() {
@@ -31,7 +32,7 @@ class MyHomePage extends StatefulWidget {
 }
 
 class _MyHomePageState extends State<MyHomePage> {
-  bool _loading = true;
+  bool _loading = false;
   final _scannerKey = GlobalKey();
 
   @override
@@ -46,42 +47,92 @@ class _MyHomePageState extends State<MyHomePage> {
           });
         },
       ),
-      body: Skeletonizer(
-        key: _scannerKey,
-        loading: _loading,
-        child: true?  const Padding(
-                    padding: EdgeInsets.all(20.0),
-                    child: Column(
-                      children: [
-                        Skeleton.shadeOriginal(
-                          child: FlutterLogo(size: 199,),
-                        ),
-                        SizedBox(height: 30),
-                        SizedBox(
-                          width: 300,
-                          height: 50,
-                          child: DecoratedBox(
-                            decoration: BoxDecoration(color: Colors.grey),
+      body: false
+          ? Shimmer.fromColors(
+              baseColor: Colors.red,
+              highlightColor: Colors.blue,
+              child: ListView(
+                children: [
+                  for (final i in List.generate(20, (index) => null))
+                    Card(
+                      elevation: 0,
+                      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
+                      child: const ListTile(
+                        title: Text('A bit long Title Why is it'),
+                        subtitle: Text('Subtitle here'),
+                        trailing: Icon(Icons.ac_unit),
+                      ),
+                    )
+                ],
+              ),
+            )
+          : Skeletonizer(
+              key: _scannerKey,
+              loading: _loading,
+              child: false
+                  ? Padding(
+                      padding: const EdgeInsets.all(8.0),
+                      child: ClipRect(
+                        clipper: PathCliper(),
+                        child: Container(
+                          width: 100,
+                          height: 100,
+                          decoration: const BoxDecoration(
+                            color: Colors.grey,
                           ),
-                        )
+                          // child: const Text(
+                          //   'A very long text that goes mulitple line here so yes that ',
+                          //   style: TextStyle(fontSize: 18),
+                          // ),
+                        ),
+                      ),
+                    )
+                  : ListView(
+                      children: [
+                        for (final i in List.generate(20, (index) => null))
+                          Card(
+                            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+                            child: Column(
+                              children: [
+                                AspectRatio(
+                                  aspectRatio: 1.5,
+                                  child: ClipRRect(
+                                    borderRadius: const BorderRadius.vertical(top: Radius.circular(16)),
+                                    child: InvisibleSkeleton(
+                                      child: Image.network(
+                                          'https://images.unsplash.com/photo-1575936123452-b67c3203c357?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=2940&q=80'),
+                                    ),
+                                  ),
+                                ),
+                                const ListTile(
+                                  title: Text('A bit long Title Why'),
+                                  subtitle: Text('Subtitle here'),
+                                  trailing: SizedBox(
+                                    height: 50,
+                                    width: 50,
+                                    child: Icon(
+                                      Icons.ac_unit,
+                                    ),
+                                  ),
+                                ),
+                              ],
+                            ),
+                          )
                       ],
                     ),
-                  )
-                : ListView(
-                    children: [
-                      for (final i in List.generate(10, (index) => null))
-                        Card(
-                          elevation: 0,
-                          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
-                          child: const ListTile(
-                            title: Text('A bit long Title Why is it'),
-                            subtitle: Text('Subtitle here'),
-                            trailing: Skeleton.shadeOriginal(child: Icon(Icons.ac_unit)),
-                          ),
-                        )
-                    ],
-                  ),
-      ),
+            ),
     );
+  }
+}
+
+class PathCliper extends CustomClipper<Rect> {
+  @override
+  Rect getClip(Size size) {
+    return const Rect.fromLTWH(0, 0, 50, 50);
+  }
+
+  @override
+  bool shouldReclip(covariant CustomClipper<Rect> oldClipper) {
+    return true;
   }
 }

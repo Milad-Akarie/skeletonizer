@@ -1,9 +1,19 @@
+import 'dart:ui';
+
 import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
 import 'package:skeleton_builder/src/helper_utils.dart';
 
 abstract class PaintableElement {
+  const PaintableElement();
+
   void paint(PaintingContext context, Offset offset, Paint shaderPaint);
+}
+
+abstract class AncestorElement extends PaintableElement {
+  final List<PaintableElement> descendents;
+
+  const AncestorElement({this.descendents = const []});
 }
 
 class BoneElement extends PaintableElement {
@@ -29,7 +39,7 @@ class BoneElement extends PaintableElement {
 
 class ShadedElement extends PaintableElement {
   final Offset offset;
-  final RenderObject renderObject;
+  final RenderBox renderObject;
   final Size canvasSize;
 
   ShadedElement({
@@ -42,7 +52,7 @@ class ShadedElement extends PaintableElement {
   void paint(PaintingContext context, Offset offset, Paint shaderPaint) {
     final layer = ShaderMaskLayer()
       ..shader = shaderPaint.shader
-      ..maskRect = offset & canvasSize
+      ..maskRect = Offset.zero & canvasSize + offset
       ..blendMode = BlendMode.srcATop;
 
     context.pushLayer(
@@ -54,17 +64,22 @@ class ShadedElement extends PaintableElement {
   }
 }
 
-class ContainerElement extends BoneElement {
-  final List<PaintableElement> descendents;
+class ContainerElement extends AncestorElement {
   final double? elevation;
   final BoxBorder? border;
   final Color? color;
+  final List<BoxShadow>? boxShadow;
+  final BoxShape boxShape;
+  final Rect rect;
+  final BorderRadius? borderRadius;
 
   ContainerElement({
-    this.descendents = const [],
+    required super.descendents,
     this.elevation,
-    required super.rect,
-    super.borderRadius,
+    required this.rect,
+    this.borderRadius,
+    this.boxShape = BoxShape.rectangle,
+    this.boxShadow,
     this.color,
     this.border,
   });
@@ -75,17 +90,49 @@ class ContainerElement extends BoneElement {
     if (color != null) {
       final treatAsBone = descendents.isEmpty;
       final surfacePaint = Paint()..color = color ?? Colors.white;
-      final drawShadow = descendents.isNotEmpty && elevation != null && elevation! > 0;
-      if (borderRadius != null) {
+      final drawElevation = descendents.isNotEmpty && elevation != null && elevation! > 0;
+
+      if (boxShape == BoxShape.circle) {
+        if (boxShadow != null) {
+          for (final box in boxShadow!) {
+            context.canvas.drawCircle(
+              shiftedRect.center + box.offset,
+              shiftedRect.shortestSide / 2,
+              box.toPaint(),
+            );
+          }
+        }
+        context.canvas.drawCircle(
+          shiftedRect.center,
+          shiftedRect.shortestSide / 2,
+          treatAsBone ? shaderPaint : surfacePaint,
+        );
+      } else if (borderRadius != null) {
         final rRect = shiftedRect.toRRect(borderRadius!);
-        if (drawShadow) {
-          context.canvas.drawShadow(Path()..addRRect(rRect), Colors.black, elevation!, false);
+        if (drawElevation) {
+          context.canvas.drawShadow(
+            Path()..addRRect(rRect),
+            Colors.black,
+            elevation!,
+            false,
+          );
+        }
+        if (boxShadow != null) {
+          for (final box in boxShadow!) {
+            context.canvas.drawRRect(rRect.shift(box.offset), box.toPaint());
+          }
         }
         context.canvas.drawRRect(rRect, treatAsBone ? shaderPaint : surfacePaint);
       } else {
-        if (drawShadow) {
+        if (drawElevation) {
           context.canvas.drawShadow(Path()..addRect(shiftedRect), Colors.black, elevation!, false);
         }
+        if (boxShadow != null) {
+          for (final box in boxShadow!) {
+            context.canvas.drawRect(shiftedRect.shift(box.offset), box.toPaint());
+          }
+        }
+
         context.canvas.drawRect(shiftedRect, treatAsBone ? shaderPaint : surfacePaint);
       }
     }
@@ -202,40 +249,40 @@ class ContainerElement extends BoneElement {
 }
 
 class TextBoneElement extends PaintableElement {
-  final TextPainter painter;
-  final int lineCount;
+  final List<LineMetrics> lines;
   final double fontSize;
   final Offset offset;
 
   TextBoneElement({
-    required this.painter,
     required this.offset,
-    required this.lineCount,
+    required this.lines,
     required this.fontSize,
   });
 
   @override
   void paint(PaintingContext context, Offset offset, Paint shaderPaint) {
     final drawingOffset = this.offset + offset;
-
-    final rect = Rect.fromLTWH(
-      drawingOffset.dx,
-      drawingOffset.dy,
-      painter.width,
-      fontSize,
-    );
-    context.canvas.drawRRect(
-      RRect.fromRectAndRadius(rect, const Radius.circular(8)),
-      shaderPaint,
-    );
+    var yOffset = drawingOffset.dy;
+    for (final line in lines) {
+      final rect = Rect.fromLTWH(
+        drawingOffset.dx,
+        yOffset,
+        line.width,
+        fontSize,
+      );
+      context.canvas.drawRRect(
+        RRect.fromRectAndRadius(rect, Radius.circular(fontSize / 2)),
+        shaderPaint,
+      );
+      yOffset += line.height;
+    }
   }
 }
 
-class RRectClipElement extends PaintableElement {
-  final List<PaintableElement> descendents;
+class RRectClipElement extends AncestorElement {
   final RRect clip;
 
-  RRectClipElement({required this.clip, required this.descendents});
+  RRectClipElement({required this.clip, required super.descendents});
 
   @override
   void paint(PaintingContext context, Offset offset, Paint shaderPaint) {
@@ -247,8 +294,47 @@ class RRectClipElement extends PaintableElement {
   }
 }
 
-class TransformElement extends PaintableElement {
-  final List<PaintableElement> descendents;
+class RectClipElement extends AncestorElement {
+  final Rect clip;
+  final Offset offset;
+
+  RectClipElement({
+    required this.clip,
+    required super.descendents,
+    required this.offset,
+  });
+
+  @override
+  void paint(PaintingContext context, Offset offset, Paint shaderPaint) {
+    context.pushClipRect(false, offset, clip.shift(this.offset), (context, offset) {
+      for (final descendent in descendents) {
+        descendent.paint(context, offset, shaderPaint);
+      }
+    });
+  }
+}
+
+class PathClipElement extends AncestorElement {
+  final Path clip;
+  final Offset offset;
+
+  PathClipElement({
+    required this.clip,
+    required super.descendents,
+    required this.offset,
+  });
+
+  @override
+  void paint(PaintingContext context, Offset offset, Paint shaderPaint) {
+    context.pushClipPath(false, offset, Rect.zero, clip.shift(this.offset), (context, offset) {
+      for (final descendent in descendents) {
+        descendent.paint(context, offset, shaderPaint);
+      }
+    });
+  }
+}
+
+class TransformElement extends AncestorElement {
   final Matrix4 matrix4;
   final Offset? origin;
   final AlignmentGeometry? alignment;
@@ -258,7 +344,7 @@ class TransformElement extends PaintableElement {
 
   TransformElement({
     required this.matrix4,
-    required this.descendents,
+    required super.descendents,
     required this.textDirection,
     required this.size,
     required this.offset,

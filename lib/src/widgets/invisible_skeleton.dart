@@ -6,9 +6,11 @@ class InvisibleSkeleton extends StatelessWidget {
     super.key,
     required this.child,
     this.visible = false,
-    this.replacement = const ColoredBox(color: Colors.black),
+    this.replacementWidth,
+    this.replacementHeight,
+    this.replacement = const DecoratedBox(decoration: BoxDecoration(color: Colors.black),),
   });
-
+  final double? replacementWidth, replacementHeight;
   final bool visible;
   final Widget child;
   final Widget replacement;
@@ -16,6 +18,10 @@ class InvisibleSkeleton extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final isVisible = visible || !Skeletonizer.of(context).loading;
-    return isVisible ? child : replacement;
+    return isVisible ? child : SizedBox(
+      width: replacementWidth,
+      height: replacementHeight,
+      child: replacement,
+    );
   }
 }
