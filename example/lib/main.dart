@@ -98,22 +98,16 @@ class _MyHomePageState extends State<MyHomePage> {
                                   aspectRatio: 1.5,
                                   child: ClipRRect(
                                     borderRadius: const BorderRadius.vertical(top: Radius.circular(16)),
-                                    child: InvisibleSkeleton(
+                                    child: Skeleton.replace(
                                       child: Image.network(
                                           'https://images.unsplash.com/photo-1575936123452-b67c3203c357?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=2940&q=80'),
                                     ),
                                   ),
                                 ),
-                                const ListTile(
+                                 ListTile(
                                   title: Text('A bit long Title Why'),
                                   subtitle: Text('Subtitle here'),
-                                  trailing: SizedBox(
-                                    height: 50,
-                                    width: 50,
-                                    child: Icon(
-                                      Icons.ac_unit,
-                                    ),
-                                  ),
+                                  trailing: ElevatedButton(onPressed: (){}, child: Text('Hello')),
                                 ),
                               ],
                             ),
