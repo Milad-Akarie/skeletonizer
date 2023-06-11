@@ -102,9 +102,9 @@ class RenderSkeletonizer extends RenderProxyBox {
       if (child is RenderBox) {
         if (child is RenderClipRRect) {
           final RRect clipRect;
-          if(child.clipper != null){
+          if (child.clipper != null) {
             clipRect = child.clipper!.getClip(child.size);
-          }else {
+          } else {
             final borderRadius = child.borderRadius.resolve(textDirection);
             clipRect = (offset & child.size).toRRect(borderRadius);
           }
@@ -137,7 +137,7 @@ class RenderSkeletonizer extends RenderProxyBox {
             ),
           );
           return;
-        } else if(child is RenderClipRect){
+        } else if (child is RenderClipRect) {
           elements.add(
             RectClipElement(
               offset: childOffset,
@@ -146,11 +146,10 @@ class RenderSkeletonizer extends RenderProxyBox {
             ),
           );
           return;
-        }else if (child is RenderTransformX) {
-          final matrix = debugValueOfType<Matrix4>(child)!.clone();
+        } else if (child is RenderTransformX) {
           elements.add(
             TransformElement(
-              matrix4: matrix,
+              matrix4: debugValueOfType<Matrix4>(child)!.clone(),
               size: child.size,
               textDirection: textDirection,
               origin: child.origin,
@@ -160,9 +159,9 @@ class RenderSkeletonizer extends RenderProxyBox {
             ),
           );
           return;
-        } else if(child is RenderImage){
+        } else if (child is RenderImage) {
           elements.add(BoneElement(rect: childOffset & child.size));
-        }else if (child is RenderParagraph) {
+        } else if (child is RenderParagraph) {
           elements.add(_buildTextBone(child, childOffset));
         } else if (child is RenderPhysicalModel) {
           elements.add(_buildPhysicalModel(child, childOffset));
@@ -170,6 +169,15 @@ class RenderSkeletonizer extends RenderProxyBox {
           elements.add(_buildPhysicalShape(child, childOffset));
         } else if (child is RenderDecoratedBox) {
           elements.add(_buildDecoratedBox(child, childOffset));
+        } else if (child.widget is ColoredBox) {
+          elements.add(
+            ContainerElement(
+              rect: childOffset & child.size,
+              color: (child.widget as ColoredBox).color,
+              descendents: _getDescendents(child, childOffset),
+            ),
+          );
+          return;
         }
       }
       _skeletonizeRecursively(child, elements, childOffset);

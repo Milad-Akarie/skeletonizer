@@ -90,8 +90,8 @@ class _MyHomePageState extends State<MyHomePage> {
                   : ListView(
                       children: [
                         for (final i in List.generate(20, (index) => null))
-                          Card(
-                            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+                          ColoredBox(
+                            color: Colors.grey,
                             child: Column(
                               children: [
                                 AspectRatio(
