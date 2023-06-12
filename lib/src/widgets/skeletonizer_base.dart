@@ -10,20 +10,22 @@ class SkeletonizerBase extends SingleChildRenderObjectWidget {
   const SkeletonizerBase({
     super.key,
     required super.child,
-    required this.loading,
-    required this.shimmer,
+    required this.enabled,
+    required this.effect,
+    required this.offset,
   });
 
-  final LinearGradient shimmer;
-  final bool loading;
+  final PaintingEffect effect;
+  final bool enabled;
+  final double offset;
 
   @override
   RenderSkeletonizer createRenderObject(BuildContext context) {
     return RenderSkeletonizer(
-      loading,
-      shimmer: shimmer,
+      enabled: enabled,
+      paintingEffect: effect,
+      offset: offset,
       textDirection: Directionality.of(context),
-      theme: Theme.of(context),
     );
   }
 
@@ -33,24 +35,65 @@ class SkeletonizerBase extends SingleChildRenderObjectWidget {
     covariant RenderSkeletonizer renderObject,
   ) {
     renderObject
-      ..loading = loading
-      ..shimmer = shimmer;
+      ..enabled = enabled
+      ..offset = offset
+      ..textDirection = Directionality.of(context)
+      ..paintingEffect = effect;
   }
 }
 
 class RenderSkeletonizer extends RenderProxyBox {
-  RenderSkeletonizer(
-    this.loading, {
-    required this.textDirection,
-    required this.theme,
+  RenderSkeletonizer({
+    required bool enabled,
+    required TextDirection textDirection,
+    required double offset,
     RenderBox? child,
-    required LinearGradient shimmer,
-  })  : _shimmer = shimmer,
+    required PaintingEffect paintingEffect,
+  })  : _offset = offset,
+        _enabled = enabled,
+        _paintingEffect = paintingEffect,
+        _textDirection = textDirection,
         super(child);
 
-  final TextDirection textDirection;
-  final ThemeData theme;
-  bool loading;
+  TextDirection _textDirection;
+
+  TextDirection get textDirection => _textDirection;
+
+  set textDirection(TextDirection value) {
+    if (_textDirection != value) {
+      _textDirection = value;
+      _needsSkeletonizing = true;
+    }
+  }
+
+  bool _enabled;
+
+  bool get enabled => _enabled;
+
+  set enabled(bool value) {
+    if (_enabled != value) {
+      _enabled = value;
+      _needsSkeletonizing = true;
+    }
+  }
+
+  PaintingEffect _paintingEffect;
+
+  set paintingEffect(PaintingEffect value) {
+    if (_paintingEffect != value) {
+      _paintingEffect = value;
+      markNeedsPaint();
+    }
+  }
+
+  double _offset = 0;
+
+  set offset(double value) {
+    if (_offset != value) {
+      _offset = value;
+      markNeedsPaint();
+    }
+  }
 
   @override
   void markNeedsLayout() {
@@ -65,15 +108,6 @@ class RenderSkeletonizer extends RenderProxyBox {
   }
 
   final _paintableElements = <PaintableElement>[];
-
-  Offset get rootOffset {
-    final transform = Matrix4.identity();
-    if (parent is RenderObject) {
-      (parent as RenderObject).applyPaintTransform(this, transform);
-      return MatrixUtils.transformPoint(transform, Offset.zero);
-    }
-    return Offset.zero;
-  }
 
   void _skeletonizeRecursively(RenderObject node, List<PaintableElement> elements, Offset offset) {
     node.visitChildren((child) {
@@ -237,16 +271,9 @@ class RenderSkeletonizer extends RenderProxyBox {
     return debugProperties(node).firstWhereOrNull((e) => e.value is T)?.value as T?;
   }
 
-  LinearGradient _shimmer;
-
-  set shimmer(LinearGradient value) {
-    _shimmer = value;
-    markNeedsPaint();
-  }
-
   @override
   bool hitTest(BoxHitTestResult result, {required Offset position}) {
-    return !loading && super.hitTest(result, position: position);
+    return !enabled && super.hitTest(result, position: position);
   }
 
   double _lastSkeletonizedWidth = 0;
@@ -254,7 +281,7 @@ class RenderSkeletonizer extends RenderProxyBox {
 
   @override
   void paint(PaintingContext context, Offset offset) {
-    if (!loading) {
+    if (!enabled) {
       return super.paint(context, offset);
     }
 
@@ -264,12 +291,10 @@ class RenderSkeletonizer extends RenderProxyBox {
       _skeletonize();
       print('Skeletonized in : ${watch.elapsedMilliseconds}');
     }
-    final shader = _shimmer.createShader(offset & size, textDirection: textDirection);
-    final shaderPaint = Paint()..shader = shader;
-    // final shaderPaint = Paint()..color = Colors.red;
 
+    final paint = _paintingEffect.createPaint(_offset, offset & size);
     for (final element in _paintableElements) {
-      element.paint(context, offset, shaderPaint);
+      element.paint(context, offset, paint);
     }
   }
 
@@ -314,9 +339,9 @@ class RenderSkeletonizer extends RenderProxyBox {
     );
   }
 
-  @override
-  void debugFillProperties(DiagnosticPropertiesBuilder properties) {
-    super.debugFillProperties(properties);
-    properties.add(DiagnosticsProperty<LinearGradient>('_shimmer', _shimmer));
-  }
+// @override
+// void debugFillProperties(DiagnosticPropertiesBuilder properties) {
+//   super.debugFillProperties(properties);
+//   properties.add(DiagnosticsProperty<LinearGradient>('_shimmer', _shaderPaint));
+// }
 }

@@ -1,4 +1,3 @@
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
 import 'package:skeleton_builder/src/widgets/skeletonizer.dart';
@@ -93,7 +92,7 @@ class _SkeletonReplace extends Skeleton {
 
   @override
   Widget build(BuildContext context) {
-    final isVisible = visible || !Skeletonizer.of(context).loading;
+    final isVisible = visible || !Skeletonizer.of(context).enabled;
     return isVisible
         ? child!
         : SizedBox(

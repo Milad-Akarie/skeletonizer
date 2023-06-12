@@ -1,15 +1,21 @@
 import 'package:flutter/material.dart';
+import 'package:skeleton_builder/src/effects/painting_effect_base.dart';
+import 'package:skeleton_builder/src/theme/skeletonizer_theme.dart';
 import 'package:skeleton_builder/src/widgets/skeletonizer_base.dart';
 
 class Skeletonizer extends StatefulWidget {
   const Skeletonizer({
     super.key,
     required this.child,
-    required this.loading,
+    this.enabled = true,
+    this.duration,
+    this.effect,
   });
 
   final Widget child;
-  final bool loading;
+  final bool enabled;
+  final PaintingEffect? effect;
+  final Duration? duration;
 
   @override
   State<Skeletonizer> createState() => SkeletonizerState();
@@ -35,53 +41,61 @@ class Skeletonizer extends StatefulWidget {
 }
 
 class SkeletonizerState extends State<Skeletonizer> with TickerProviderStateMixin<Skeletonizer> {
-  AnimationController? _shimmerController;
-  late bool _loading = widget.loading;
+  AnimationController? _animationController;
+  late bool _enabled = widget.enabled;
 
-  bool get loading => _loading;
+  bool get enabled => _enabled;
 
-  LinearGradient get shimmerGradient => LinearGradient(
-        colors: false
-            ? [Colors.red, Colors.blue, Colors.red]
-            : const [
-                Color(0xFFEBEBF4),
-                Color(0xFFF4F4F4),
-                Color(0xFFEBEBF4),
-              ],
-        stops: const [0.1, 0.3, 0.4],
-        begin: const Alignment(-1.0, -0.3),
-        end: const Alignment(1.0, 0.3),
-        transform: _SlidingGradientTransform(slidePercent: _shimmerController?.value ?? 0),
-      );
+  PaintingEffect? _effect;
+  Duration? _duration;
+
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    final isDarkMode = Theme.of(context).brightness == Brightness.dark;
+    final themeData = SkeletonizerTheme.maybeOf(context) ??
+        (isDarkMode ? const SkeletonizerThemeData.dark() : const SkeletonizerThemeData.light());
+    final effect = widget.effect ?? themeData.effect;
+    final duration = widget.duration ?? themeData.duration;
+    if (_effect != effect || _duration != duration) {
+      _effect = effect;
+      _duration = duration;
+      _animationController?.removeListener(_onShimmerChange);
+      _animationController?.stop(canceled: true);
+      _startAnimation();
+    }
+  }
 
   @override
   void initState() {
     super.initState();
-    if(loading) {
+    if (enabled) {
       _startAnimation();
     }
   }
 
   void _startAnimation() {
+    assert(_effect != null);
+    assert(_duration != null);
     // return;
-    _shimmerController = AnimationController.unbounded(vsync: this)
+    _animationController = AnimationController.unbounded(vsync: this)
       ..addListener(_onShimmerChange)
       ..repeat(
-        min: -0.5,
-        max: 1.5,
-        period: const Duration(milliseconds: 2000),
+        min: _effect!.lowerBound,
+        max: _effect!.upperBound,
+        reverse: _effect!.reverse,
+        period: _duration,
       );
   }
-
 
   @override
   void didUpdateWidget(covariant Skeletonizer oldWidget) {
     super.didUpdateWidget(oldWidget);
-    if (oldWidget.loading != widget.loading) {
-      _loading = widget.loading;
-      if (!_loading) {
-        _shimmerController?.stop(canceled: true);
-        _shimmerController?.dispose();
+    if (oldWidget.enabled != widget.enabled) {
+      _enabled = widget.enabled;
+      if (!_enabled) {
+        _animationController?.stop(canceled: true);
+        _animationController?.dispose();
       } else {
         _startAnimation();
       }
@@ -90,13 +104,13 @@ class SkeletonizerState extends State<Skeletonizer> with TickerProviderStateMixi
 
   @override
   void dispose() {
-    _shimmerController?.removeListener(_onShimmerChange);
-    _shimmerController?.dispose();
+    _animationController?.removeListener(_onShimmerChange);
+    _animationController?.dispose();
     super.dispose();
   }
 
   void _onShimmerChange() {
-    if (widget.loading) {
+    if (mounted && widget.enabled) {
       setState(() {
         // update the shimmer painting.
       });
@@ -105,27 +119,16 @@ class SkeletonizerState extends State<Skeletonizer> with TickerProviderStateMixi
 
   @override
   Widget build(BuildContext context) {
+    assert(_effect != null);
     return SkeletonizerScope(
       state: this,
       child: SkeletonizerBase(
-        loading: widget.loading,
-        shimmer: shimmerGradient,
+        enabled: widget.enabled,
+        effect: _effect!,
+        offset: _animationController?.value ?? 0,
         child: widget.child,
       ),
     );
-  }
-}
-
-class _SlidingGradientTransform extends GradientTransform {
-  const _SlidingGradientTransform({
-    required this.slidePercent,
-  });
-
-  final double slidePercent;
-
-  @override
-  Matrix4? transform(Rect bounds, {TextDirection? textDirection}) {
-    return Matrix4.translationValues(bounds.width * slidePercent, 0.0, 0.0);
   }
 }
 
@@ -136,6 +139,6 @@ class SkeletonizerScope extends InheritedWidget {
 
   @override
   bool updateShouldNotify(covariant SkeletonizerScope oldWidget) {
-    return state.loading != oldWidget.state.loading || state.shimmerGradient != oldWidget.state.shimmerGradient;
+    return state.enabled != oldWidget.state.enabled;
   }
 }

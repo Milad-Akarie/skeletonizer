@@ -14,9 +14,9 @@ class MyApp extends StatelessWidget {
   Widget build(BuildContext context) {
     return MaterialApp(
       title: 'Flutter Demo',
-      theme: ThemeData.light(
-          // primarySwatch: Colors.blue,
-          ),
+      themeMode: ThemeMode.dark,
+      darkTheme: ThemeData.dark(),
+      theme: ThemeData.light(),
       home: const MyHomePage(title: 'Flutter Demo Home Page'),
     );
   }
@@ -67,54 +67,53 @@ class _MyHomePageState extends State<MyHomePage> {
               ),
             )
           : Skeletonizer(
-              key: _scannerKey,
-              loading: _loading,
-              child: false
-                  ? Padding(
-                      padding: const EdgeInsets.all(8.0),
-                      child: ClipRect(
-                        clipper: PathCliper(),
-                        child: Container(
-                          width: 100,
-                          height: 100,
-                          decoration: const BoxDecoration(
-                            color: Colors.grey,
-                          ),
-                          // child: const Text(
-                          //   'A very long text that goes mulitple line here so yes that ',
-                          //   style: TextStyle(fontSize: 18),
-                          // ),
+            enabled: _loading,
+            child: false
+                ? Padding(
+                    padding: const EdgeInsets.all(8.0),
+                    child: ClipRect(
+                      clipper: PathCliper(),
+                      child: Container(
+                        width: 100,
+                        height: 100,
+                        decoration: const BoxDecoration(
+                          color: Colors.grey,
                         ),
+                        // child: const Text(
+                        //   'A very long text that goes mulitple line here so yes that ',
+                        //   style: TextStyle(fontSize: 18),
+                        // ),
                       ),
-                    )
-                  : ListView(
-                      children: [
-                        for (final i in List.generate(20, (index) => null))
-                          ColoredBox(
-                            color: Colors.grey,
-                            child: Column(
-                              children: [
-                                AspectRatio(
-                                  aspectRatio: 1.5,
-                                  child: ClipRRect(
-                                    borderRadius: const BorderRadius.vertical(top: Radius.circular(16)),
-                                    child: Skeleton.replace(
-                                      child: Image.network(
-                                          'https://images.unsplash.com/photo-1575936123452-b67c3203c357?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=2940&q=80'),
-                                    ),
+                    ),
+                  )
+                : ListView(
+                    children: [
+                      for (final i in List.generate(20, (index) => null))
+                        Card(
+                          margin: const EdgeInsets.symmetric(horizontal: 16,vertical: 4),
+                          child: Column(
+                            children: [
+                              AspectRatio(
+                                aspectRatio: 1.5,
+                                child: ClipRRect(
+                                  borderRadius: const BorderRadius.vertical(top: Radius.circular(16)),
+                                  child: Skeleton.shade(
+                                    child: Image.network(
+                                        'https://images.unsplash.com/photo-1575936123452-b67c3203c357?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=2940&q=80'),
                                   ),
                                 ),
-                                 ListTile(
-                                  title: Text('A bit long Title Why'),
-                                  subtitle: Text('Subtitle here'),
-                                  trailing: ElevatedButton(onPressed: (){}, child: Text('Hello')),
-                                ),
-                              ],
-                            ),
-                          )
-                      ],
-                    ),
-            ),
+                              ),
+                              ListTile(
+                                title: Text('A bit long Title Why'),
+                                subtitle: Text('Subtitle here'),
+                                trailing: ElevatedButton(onPressed: () {}, child: Text('Hello')),
+                              ),
+                            ],
+                          ),
+                        )
+                    ],
+                  ),
+          ),
     );
   }
 }
