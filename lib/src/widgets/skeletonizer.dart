@@ -56,7 +56,7 @@ class SkeletonizerState extends State<Skeletonizer> with TickerProviderStateMixi
   }
 
   Brightness _brightness = Brightness.light;
-  TextDirection _textDirection = TextDirection.rtl;
+  TextDirection _textDirection = TextDirection.ltr;
 
   void _setupEffect() {
      _brightness = Theme.of(context).brightness;
