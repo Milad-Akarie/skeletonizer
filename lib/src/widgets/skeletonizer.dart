@@ -62,16 +62,18 @@ class SkeletonizerState extends State<Skeletonizer> with TickerProviderStateMixi
       _duration = duration;
       _animationController?.removeListener(_onShimmerChange);
       _animationController?.stop(canceled: true);
-      _startAnimation();
+      if(widget.enabled) {
+        _startAnimation();
+      }
     }
   }
 
   @override
   void initState() {
     super.initState();
-    if (enabled) {
-      _startAnimation();
-    }
+    // if (enabled) {
+    //   _startAnimation();
+    // }
   }
 
   void _startAnimation() {
@@ -125,7 +127,7 @@ class SkeletonizerState extends State<Skeletonizer> with TickerProviderStateMixi
       child: SkeletonizerBase(
         enabled: widget.enabled,
         effect: _effect!,
-        offset: _animationController?.value ?? 0,
+        animationValue: _animationController?.value ?? 0,
         child: widget.child,
       ),
     );

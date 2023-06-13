@@ -281,12 +281,17 @@ class TextBoneElement extends PaintableElement {
 
 class RRectClipElement extends AncestorElement {
   final RRect clip;
+  final Offset offset;
 
-  RRectClipElement({required this.clip, required super.descendents});
+  RRectClipElement({
+    required this.clip,
+    required this.offset,
+    required super.descendents,
+  });
 
   @override
   void paint(PaintingContext context, Offset offset, Paint shaderPaint) {
-    context.pushClipRRect(false, offset, clip.middleRect, clip, (context, offset) {
+    context.pushClipRRect(true, offset, clip.outerRect, clip, (context, _) {
       for (final descendent in descendents) {
         descendent.paint(context, offset, shaderPaint);
       }
@@ -306,7 +311,7 @@ class RectClipElement extends AncestorElement {
 
   @override
   void paint(PaintingContext context, Offset offset, Paint shaderPaint) {
-    context.pushClipRect(false, offset, clip.shift(this.offset), (context, offset) {
+    context.pushClipRect(true, offset, clip.shift(this.offset), (context, offset) {
       for (final descendent in descendents) {
         descendent.paint(context, offset, shaderPaint);
       }
@@ -326,7 +331,7 @@ class PathClipElement extends AncestorElement {
 
   @override
   void paint(PaintingContext context, Offset offset, Paint shaderPaint) {
-    context.pushClipPath(false, offset, Rect.zero, clip.shift(this.offset), (context, offset) {
+    context.pushClipPath(true, offset, clip.getBounds(), clip.shift(this.offset), (context, offset) {
       for (final descendent in descendents) {
         descendent.paint(context, offset, shaderPaint);
       }
