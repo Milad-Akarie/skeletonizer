@@ -282,7 +282,7 @@ class TextBoneElement extends PaintableElement {
     for (final line in lines) {
       final rect = Rect.fromLTWH(
         drawingOffset.dx,
-        yOffset,
+        yOffset + (line.height - fontSize)/2,
         line.width,
         fontSize,
       );
