@@ -16,11 +16,15 @@ class SkeletonizerBase extends SingleChildRenderObjectWidget {
     required this.enabled,
     required this.effect,
     required this.animationValue,
+    required this.brightness,
+    required this.textDirection,
   });
 
   final PaintingEffect effect;
   final bool enabled;
   final double animationValue;
+  final Brightness brightness;
+  final TextDirection textDirection;
 
   @override
   RenderSkeletonizer createRenderObject(BuildContext context) {
@@ -28,9 +32,12 @@ class SkeletonizerBase extends SingleChildRenderObjectWidget {
       enabled: enabled,
       paintingEffect: effect,
       animationValue: animationValue,
-      textDirection: Directionality.of(context),
+      brightness: brightness,
+      textDirection: textDirection,
     );
   }
+
+
 
   @override
   void updateRenderObject(
@@ -41,7 +48,8 @@ class SkeletonizerBase extends SingleChildRenderObjectWidget {
       ..enabled = enabled
       ..animationValue = animationValue
       ..paintingEffect = effect
-      ..textDirection = Directionality.of(context);
+      ..brightness = brightness
+      ..textDirection = textDirection;
   }
 }
 
@@ -50,12 +58,14 @@ class RenderSkeletonizer extends RenderProxyBox {
     required bool enabled,
     required TextDirection textDirection,
     required double animationValue,
+    required Brightness brightness,
     RenderBox? child,
     required PaintingEffect paintingEffect,
   })  : _animationValue = animationValue,
         _enabled = enabled,
         _paintingEffect = paintingEffect,
         _textDirection = textDirection,
+        _brightness = brightness,
         super(child);
 
   TextDirection _textDirection;
@@ -66,6 +76,20 @@ class RenderSkeletonizer extends RenderProxyBox {
     if (_textDirection != value) {
       _textDirection = value;
       _needsSkeletonizing = true;
+      markNeedsPaint();
+    }
+  }
+
+
+  Brightness _brightness;
+
+  Brightness get brightness => _brightness;
+
+  set brightness(Brightness value) {
+    if (_brightness != value) {
+      _brightness = value;
+      _needsSkeletonizing = true;
+      markNeedsPaint();
     }
   }
 
@@ -98,6 +122,7 @@ class RenderSkeletonizer extends RenderProxyBox {
     }
   }
 
+
   void _skeletonize() {
     _needsSkeletonizing = false;
     _paintableElements.clear();
@@ -113,6 +138,7 @@ class RenderSkeletonizer extends RenderProxyBox {
     if (!paintBounds.contains(offset)) {
       return;
     }
+
     node.visitChildren((child) {
       var childOffset = offset;
       if (child.hasParentData) {
@@ -133,10 +159,24 @@ class RenderSkeletonizer extends RenderProxyBox {
               canvasSize: size,
             ),
           );
+        } else if (child.annotation is KeepOriginal) {
+          return elements.add(
+            OriginalElement(
+              offset: childOffset,
+              renderObject: child.child!,
+            ),
+          );
+        } else if (child.annotation is TreatAsLeaf) {
+          final descendent = _getDescendents(child.child!, childOffset).firstOrNull;
+          if (descendent != null) {
+            if (descendent is AncestorElement) {
+              descendent.descendents.clear();
+            }
+            elements.add(descendent);
+          }
+          return;
         }
-      }
-
-      if (child is RenderBox) {
+      } else if (child is RenderBox) {
         if (child is RenderClipRRect) {
           final descendents = _getDescendents(child, childOffset);
           if (child.clipBehavior == Clip.none) {
@@ -229,9 +269,15 @@ class RenderSkeletonizer extends RenderProxyBox {
         } else if (child is RenderDecoratedBox) {
           elements.add(_buildDecoratedBox(child, childOffset));
         } else if (child is RenderCustomPaint) {
-          elements.add(
-            ShadedElement(offset: childOffset, canvasSize: size, renderObject: child),
-          );
+          // print('Custom Painter');
+          // elements.add(
+          //   ShadedElement(
+          //     offset: childOffset,
+          //     canvasSize: size,
+          //     renderObject: child,
+          //   ),
+          // );
+          // return;
         } else if (child.widget is ColoredBox) {
           elements.add(
             ContainerElement(
@@ -247,7 +293,7 @@ class RenderSkeletonizer extends RenderProxyBox {
             elements.add(element);
           }
           return;
-        }
+        } else {}
       }
 
       _skeletonizeRecursively(child, elements, childOffset);
@@ -344,13 +390,7 @@ class RenderSkeletonizer extends RenderProxyBox {
     if (!enabled) {
       return super.paint(context, offset);
     }
-
-    if (_needsSkeletonizing) {
-      final watch = Stopwatch()..start();
-      _skeletonize();
-      print('Skeletonized in : ${watch.elapsedMilliseconds}');
-    }
-
+    if (_needsSkeletonizing) _skeletonize();
     final paint = _paintingEffect.createPaint(_animationValue, offset & size);
     for (final element in _paintableElements) {
       element.paint(context, offset, paint);
@@ -369,13 +409,14 @@ class RenderSkeletonizer extends RenderProxyBox {
       borderRadius = shape.borderRadius;
     } else if (shape is StadiumBorder) {
       borderRadius = BorderRadius.circular(node.size.height);
-    } else if (shape is CircleBorder) {}
+    }
 
     return ContainerElement(
       rect: offset & node.size,
       elevation: node.elevation,
       descendents: isButton ? const [] : _getDescendents(node, offset),
       color: node.color,
+      boxShape: shape is CircleBorder ? BoxShape.circle : BoxShape.rectangle,
       borderRadius: borderRadius?.resolve(textDirection),
     );
   }
@@ -387,12 +428,13 @@ class RenderSkeletonizer extends RenderProxyBox {
       borderRadius = shape.borderRadius;
     } else if (shape is StadiumBorder) {
       borderRadius = BorderRadius.circular(node.size.height);
-    } else if (shape is CircleBorder) {}
+    }
     return ContainerElement(
       rect: offset & node.size,
       elevation: node.elevation,
       descendents: _getDescendents(node, offset),
       color: node.color,
+      boxShape: shape is CircleBorder ? BoxShape.circle : BoxShape.rectangle,
       borderRadius: borderRadius?.resolve(textDirection),
     );
   }

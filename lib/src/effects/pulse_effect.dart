@@ -9,7 +9,7 @@ class PulseEffect extends PaintingEffect {
 
   PulseEffect({
     this.from = const Color(0xFFEBEBF4),
-    this.to = const Color(0xFFF4F4F4),
+    this.to = const Color(0xFFF6F6F6),
     super.lowerBound,
     super.upperBound,
   }) : super(reverse: true);

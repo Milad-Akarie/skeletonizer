@@ -14,6 +14,7 @@ abstract class AncestorElement extends PaintableElement {
   final List<PaintableElement> descendents;
 
   const AncestorElement({this.descendents = const []});
+
 }
 
 class BoneElement extends PaintableElement {
@@ -61,6 +62,21 @@ class ShadedElement extends PaintableElement {
       this.offset + offset,
       childPaintBounds: renderObject.paintBounds,
     );
+  }
+}
+
+class OriginalElement extends PaintableElement {
+  final Offset offset;
+  final RenderBox renderObject;
+
+  OriginalElement({
+    required this.offset,
+    required this.renderObject,
+  });
+
+  @override
+  void paint(PaintingContext context, Offset offset, Paint shaderPaint) {
+    renderObject.paint(context, this.offset + offset);
   }
 }
 

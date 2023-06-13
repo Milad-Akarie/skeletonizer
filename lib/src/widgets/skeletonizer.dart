@@ -52,7 +52,16 @@ class SkeletonizerState extends State<Skeletonizer> with TickerProviderStateMixi
   @override
   void didChangeDependencies() {
     super.didChangeDependencies();
-    final isDarkMode = Theme.of(context).brightness == Brightness.dark;
+    _setupEffect();
+  }
+
+  Brightness _brightness = Brightness.light;
+  TextDirection _textDirection = TextDirection.rtl;
+
+  void _setupEffect() {
+     _brightness = Theme.of(context).brightness;
+    _textDirection = Directionality.of(context);
+    final isDarkMode = _brightness == Brightness.dark;
     final themeData = SkeletonizerTheme.maybeOf(context) ??
         (isDarkMode ? const SkeletonizerThemeData.dark() : const SkeletonizerThemeData.light());
     final effect = widget.effect ?? themeData.effect;
@@ -60,12 +69,16 @@ class SkeletonizerState extends State<Skeletonizer> with TickerProviderStateMixi
     if (_effect != effect || _duration != duration) {
       _effect = effect;
       _duration = duration;
-      _animationController?.removeListener(_onShimmerChange);
-      _animationController?.stop(canceled: true);
-      if(widget.enabled) {
+      _stopAnimation();
+      if (widget.enabled) {
         _startAnimation();
       }
     }
+  }
+
+  void _stopAnimation() {
+    _animationController?.removeListener(_onShimmerChange);
+    _animationController?.stop(canceled: true);
   }
 
   @override
@@ -102,6 +115,9 @@ class SkeletonizerState extends State<Skeletonizer> with TickerProviderStateMixi
         _startAnimation();
       }
     }
+    if (widget.effect != oldWidget.effect || widget.duration != oldWidget.duration) {
+      _setupEffect();
+    }
   }
 
   @override
@@ -127,6 +143,8 @@ class SkeletonizerState extends State<Skeletonizer> with TickerProviderStateMixi
       child: SkeletonizerBase(
         enabled: widget.enabled,
         effect: _effect!,
+        brightness: _brightness,
+        textDirection: _textDirection,
         animationValue: _animationController?.value ?? 0,
         child: widget.child,
       ),

@@ -2,12 +2,14 @@ import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
 import 'package:skeleton_builder/src/widgets/skeletonizer.dart';
 
-class Skeleton extends SingleChildRenderObjectWidget {
-  final SkeletonAnnotation _annotation;
+class _AnnotatedSkeleton extends SingleChildRenderObjectWidget {
+  final SkeletonAnnotation annotation;
+
+  const _AnnotatedSkeleton({super.child, required this.annotation});
 
   @override
   RenderObject createRenderObject(BuildContext context) {
-    return RenderSkeletonAnnotation(annotation: _annotation);
+    return RenderSkeletonAnnotation(annotation: annotation);
   }
 
   @override
@@ -15,32 +17,8 @@ class Skeleton extends SingleChildRenderObjectWidget {
     BuildContext context,
     covariant RenderSkeletonAnnotation renderObject,
   ) {
-    renderObject.annotation = _annotation;
+    renderObject.annotation = annotation;
   }
-
-  const Skeleton._(this._annotation, {super.key, super.child});
-
-  const Skeleton.ignore({
-    super.key,
-    required super.child,
-    bool ignore = true,
-  }) : _annotation = ignore ? const IgnoreDescendants() : _none;
-
-  /// shades original element
-  const Skeleton.shade({
-    super.key,
-    required super.child,
-    bool shade = true,
-  }) : _annotation = shade ? const ShadeOriginal() : _none;
-
-  const factory Skeleton.replace({
-    Key? key,
-    required Widget child,
-    bool visible,
-    double? replacementWidth,
-    double? replacementHeight,
-    Widget replacement,
-  }) = _SkeletonReplace;
 }
 
 class RenderSkeletonAnnotation extends RenderProxyBox {
@@ -50,6 +28,61 @@ class RenderSkeletonAnnotation extends RenderProxyBox {
   });
 
   SkeletonAnnotation annotation;
+}
+
+class Skeleton extends StatelessWidget {
+  final Widget child;
+  final SkeletonAnnotation annotation;
+
+  const Skeleton._({
+    super.key,
+    required this.child,
+    required this.annotation,
+  });
+
+  const Skeleton.ignore({
+    super.key,
+    required this.child,
+    bool ignore = true,
+  }) : annotation = ignore ? const IgnoreDescendants() : _none;
+
+  /// shades original element
+  const Skeleton.shade({
+    super.key,
+    required this.child,
+    bool shade = true,
+  }) : annotation = shade ? const ShadeOriginal() : _none;
+
+  /// paints original element
+  const Skeleton.keep({
+    super.key,
+    required this.child,
+    bool shade = true,
+  }) : annotation = shade ? const KeepOriginal() : _none;
+
+
+  const Skeleton.leaf({
+    super.key,
+    required this.child,
+    bool shade = true,
+  }) : annotation = shade ? const TreatAsLeaf() : _none;
+
+  @override
+  Widget build(BuildContext context) {
+    return _AnnotatedSkeleton(
+      annotation: annotation,
+      child: child,
+    );
+  }
+
+  const factory Skeleton.replace({
+    Key? key,
+    required Widget child,
+    bool visible,
+    double? replacementWidth,
+    double? replacementHeight,
+    Widget replacement,
+  }) = SkeletonReplace;
 }
 
 abstract class SkeletonAnnotation {
@@ -70,12 +103,20 @@ class ShadeOriginal extends SkeletonAnnotation {
   const ShadeOriginal();
 }
 
+class KeepOriginal extends SkeletonAnnotation {
+  const KeepOriginal();
+}
+
 class ReplaceOriginal extends SkeletonAnnotation {
   const ReplaceOriginal();
 }
 
-class _SkeletonReplace extends Skeleton {
-  const _SkeletonReplace({
+class TreatAsLeaf extends SkeletonAnnotation {
+  const TreatAsLeaf();
+}
+
+class SkeletonReplace extends Skeleton {
+  const SkeletonReplace({
     super.key,
     required super.child,
     this.visible = false,
@@ -84,7 +125,7 @@ class _SkeletonReplace extends Skeleton {
     this.replacement = const DecoratedBox(
       decoration: BoxDecoration(color: Colors.black),
     ),
-  }) : super._(const ReplaceOriginal());
+  }) : super._(annotation: const ReplaceOriginal());
 
   final double? replacementWidth, replacementHeight;
   final bool visible;
@@ -94,7 +135,7 @@ class _SkeletonReplace extends Skeleton {
   Widget build(BuildContext context) {
     final isVisible = visible || !Skeletonizer.of(context).enabled;
     return isVisible
-        ? child!
+        ? super.build(context)
         : SizedBox(
             width: replacementWidth,
             height: replacementHeight,

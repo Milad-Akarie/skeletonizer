@@ -42,18 +42,17 @@ class _ShimmerEffect extends ShimmerEffect {
           highlightColor == other.highlightColor &&
           begin == other.begin &&
           end == other.end &&
-          stops == other.stops &&
           tileMode == other.tileMode;
 
   @override
   int get hashCode =>
-      baseColor.hashCode ^ highlightColor.hashCode ^ begin.hashCode ^ end.hashCode ^ stops.hashCode ^ tileMode.hashCode;
+      baseColor.hashCode ^ highlightColor.hashCode ^ begin.hashCode ^ end.hashCode^ tileMode.hashCode;
 }
 
 abstract class ShimmerEffect extends PaintingEffect {
   List<Color> get colors;
 
-  List<double> get stops;
+  List<double>? get stops;
 
   AlignmentGeometry get begin;
 
@@ -70,15 +69,15 @@ abstract class ShimmerEffect extends PaintingEffect {
     AlignmentGeometry end,
   }) = _ShimmerEffect;
 
-  // const factory ShimmerEffect.raw({
-  //   List<Color> colors,
-  //   List<double> stops,
-  //   AlignmentGeometry begin,
-  //   AlignmentGeometry end,
-  //   TileMode tileMode,
-  //   double lowerBound,
-  //   double upperBound,
-  // }) = _RawShimmerEffect;
+  const factory ShimmerEffect.raw({
+    required List<Color> colors,
+    List<double>? stops,
+    AlignmentGeometry begin,
+    AlignmentGeometry end,
+    TileMode tileMode,
+    double lowerBound,
+    double upperBound,
+  }) = _RawShimmerEffect;
 
   @override
   Paint createPaint(double t, Rect rect) {
@@ -92,8 +91,6 @@ abstract class ShimmerEffect extends PaintingEffect {
         transform: _SlidingGradientTransform(offset: t),
       ).createShader(rect);
   }
-
-
 }
 
 class _RawShimmerEffect extends ShimmerEffect {
@@ -101,7 +98,7 @@ class _RawShimmerEffect extends ShimmerEffect {
   final List<Color> colors;
 
   @override
-  final List<double> stops;
+  final List<double>? stops;
 
   @override
   final AlignmentGeometry begin;
@@ -113,7 +110,7 @@ class _RawShimmerEffect extends ShimmerEffect {
 
   const _RawShimmerEffect({
     required this.colors,
-    this.stops = const [],
+    this.stops,
     this.begin = const Alignment(-1.0, -0.3),
     this.end = const Alignment(1.0, 0.3),
     this.tileMode = TileMode.clamp,
