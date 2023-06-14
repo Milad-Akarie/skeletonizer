@@ -5,7 +5,9 @@ import 'package:flutter/rendering.dart';
 import 'package:skeleton_builder/src/helper_utils.dart';
 
 abstract class PaintableElement {
-  const PaintableElement();
+  const PaintableElement({required this.offset});
+
+  final Offset offset;
 
   void paint(PaintingContext context, Offset offset, Paint shaderPaint);
 }
@@ -13,8 +15,7 @@ abstract class PaintableElement {
 abstract class AncestorElement extends PaintableElement {
   final List<PaintableElement> descendents;
 
-  const AncestorElement({this.descendents = const []});
-
+  const AncestorElement({this.descendents = const [], required super.offset});
 }
 
 class BoneElement extends PaintableElement {
@@ -24,7 +25,7 @@ class BoneElement extends PaintableElement {
   BoneElement({
     required this.rect,
     this.borderRadius,
-  });
+  }):super(offset: rect.topLeft);
 
   @override
   void paint(PaintingContext context, Offset offset, Paint shaderPaint) {
@@ -39,12 +40,11 @@ class BoneElement extends PaintableElement {
 }
 
 class ShadedElement extends PaintableElement {
-  final Offset offset;
   final RenderBox renderObject;
   final Size canvasSize;
 
   ShadedElement({
-    required this.offset,
+    required super.offset,
     required this.canvasSize,
     required this.renderObject,
   });
@@ -66,11 +66,10 @@ class ShadedElement extends PaintableElement {
 }
 
 class OriginalElement extends PaintableElement {
-  final Offset offset;
   final RenderBox renderObject;
 
   OriginalElement({
-    required this.offset,
+    required super.offset,
     required this.renderObject,
   });
 
@@ -98,7 +97,7 @@ class ContainerElement extends AncestorElement {
     this.boxShadow,
     this.color,
     this.border,
-  });
+  }):super(offset: rect.topLeft);
 
   @override
   void paint(PaintingContext context, Offset offset, Paint shaderPaint) {
@@ -267,12 +266,15 @@ class ContainerElement extends AncestorElement {
 class TextBoneElement extends PaintableElement {
   final List<LineMetrics> lines;
   final double fontSize;
-  final Offset offset;
+  final Size textSize;
+  final BorderRadius? borderRadius;
 
   TextBoneElement({
-    required this.offset,
+    required super.offset,
     required this.lines,
     required this.fontSize,
+    required this.textSize,
+    this.borderRadius,
   });
 
   @override
@@ -282,14 +284,15 @@ class TextBoneElement extends PaintableElement {
     for (final line in lines) {
       final rect = Rect.fromLTWH(
         drawingOffset.dx,
-        yOffset + (line.height - fontSize)/2,
+        yOffset + (line.height - fontSize) / 2,
         line.width,
         fontSize,
       );
-      context.canvas.drawRRect(
-        RRect.fromRectAndRadius(rect, Radius.circular(fontSize / 2)),
-        shaderPaint,
-      );
+      if (borderRadius != null) {
+        context.canvas.drawRRect(rect.toRRect(borderRadius!), shaderPaint);
+      } else {
+        context.canvas.drawRect(rect, shaderPaint);
+      }
       yOffset += line.height;
     }
   }
@@ -297,11 +300,10 @@ class TextBoneElement extends PaintableElement {
 
 class RRectClipElement extends AncestorElement {
   final RRect clip;
-  final Offset offset;
 
   RRectClipElement({
     required this.clip,
-    required this.offset,
+    required super.offset,
     required super.descendents,
   });
 
@@ -317,12 +319,11 @@ class RRectClipElement extends AncestorElement {
 
 class RectClipElement extends AncestorElement {
   final Rect clip;
-  final Offset offset;
 
   RectClipElement({
     required this.clip,
     required super.descendents,
-    required this.offset,
+    required super.offset,
   });
 
   @override
@@ -337,12 +338,11 @@ class RectClipElement extends AncestorElement {
 
 class PathClipElement extends AncestorElement {
   final Path clip;
-  final Offset offset;
 
   PathClipElement({
     required this.clip,
     required super.descendents,
-    required this.offset,
+    required super.offset,
   });
 
   @override
@@ -361,14 +361,13 @@ class TransformElement extends AncestorElement {
   final AlignmentGeometry? alignment;
   final TextDirection textDirection;
   final Size size;
-  final Offset offset;
 
   TransformElement({
     required this.matrix4,
     required super.descendents,
     required this.textDirection,
     required this.size,
-    required this.offset,
+    required super.offset,
     this.origin,
     this.alignment,
   });

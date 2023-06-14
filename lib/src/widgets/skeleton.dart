@@ -57,15 +57,15 @@ class Skeleton extends StatelessWidget {
   const Skeleton.keep({
     super.key,
     required this.child,
-    bool shade = true,
-  }) : annotation = shade ? const KeepOriginal() : _none;
+    bool keep = true,
+  }) : annotation = keep ? const KeepOriginal() : _none;
 
 
-  const Skeleton.leaf({
+  const Skeleton.union({
     super.key,
     required this.child,
-    bool shade = true,
-  }) : annotation = shade ? const TreatAsLeaf() : _none;
+    bool union = true,
+  }) : annotation = union ? const UnionDescendents() : _none;
 
   @override
   Widget build(BuildContext context) {
@@ -111,8 +111,8 @@ class ReplaceOriginal extends SkeletonAnnotation {
   const ReplaceOriginal();
 }
 
-class TreatAsLeaf extends SkeletonAnnotation {
-  const TreatAsLeaf();
+class UnionDescendents extends SkeletonAnnotation {
+  const UnionDescendents();
 }
 
 class SkeletonReplace extends Skeleton {

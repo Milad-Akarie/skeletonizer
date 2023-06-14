@@ -37,8 +37,6 @@ class SkeletonizerBase extends SingleChildRenderObjectWidget {
     );
   }
 
-
-
   @override
   void updateRenderObject(
     BuildContext context,
@@ -80,7 +78,6 @@ class RenderSkeletonizer extends RenderProxyBox {
     }
   }
 
-
   Brightness _brightness;
 
   Brightness get brightness => _brightness;
@@ -121,7 +118,6 @@ class RenderSkeletonizer extends RenderProxyBox {
       markNeedsPaint();
     }
   }
-
 
   void _skeletonize() {
     _needsSkeletonizing = false;
@@ -166,14 +162,11 @@ class RenderSkeletonizer extends RenderProxyBox {
               renderObject: child.child!,
             ),
           );
-        } else if (child.annotation is TreatAsLeaf) {
-          final descendent = _getDescendents(child.child!, childOffset).firstOrNull;
-          if (descendent != null) {
-            if (descendent is AncestorElement) {
-              descendent.descendents.clear();
-            }
-            elements.add(descendent);
-          }
+        } else if (child.annotation is UnionDescendents) {
+          final descendents = _getDescendents(child.child!, childOffset);
+          print(child.child!);
+          final (rect, borderRadius) = _union(descendents);
+          elements.add(BoneElement(rect: rect, borderRadius: borderRadius));
           return;
         }
       } else if (child is RenderBox) {
@@ -300,6 +293,39 @@ class RenderSkeletonizer extends RenderProxyBox {
     });
   }
 
+  (Rect, BorderRadius?) _union(List<PaintableElement> descendents) {
+    if (descendents.isEmpty) return (Rect.zero, null);
+
+    var expanded = Rect.fromPoints(
+      descendents.first.offset,
+      descendents.first.offset,
+    );
+    BorderRadius? borderRadius;
+    Size biggestDescendent = Size.zero;
+    for (final descendent in descendents) {
+      if (descendent is BoneElement) {
+        if (descendent.rect.size > biggestDescendent) {
+          biggestDescendent = descendent.rect.size;
+          borderRadius = descendent.borderRadius;
+        }
+        expanded = expanded.expandToInclude(descendent.rect);
+      } else if (descendent is ContainerElement) {
+        if (descendent.rect.size > biggestDescendent) {
+          biggestDescendent = descendent.rect.size;
+          borderRadius = descendent.borderRadius;
+        }
+        expanded = expanded.expandToInclude(descendent.rect);
+      } else if (descendent is TextBoneElement) {
+        if (descendent.textSize > biggestDescendent) {
+          biggestDescendent = descendent.textSize;
+          borderRadius = descendent.borderRadius;
+        }
+        expanded = expanded.expandToInclude(descendent.offset & descendent.textSize);
+      }
+    }
+    return (expanded, borderRadius);
+  }
+
   List<PaintableElement> _getDescendents(RenderObject child, Offset childOffset) {
     final descendents = <PaintableElement>[];
     _skeletonizeRecursively(child, descendents, childOffset);
@@ -313,12 +339,17 @@ class RenderSkeletonizer extends RenderProxyBox {
       textDirection: node.textDirection,
       textScaleFactor: node.textScaleFactor,
       maxLines: node.maxLines,
-    )..layout(maxWidth: node.constraints.maxWidth);
+    )..layout(
+        maxWidth: node.constraints.maxWidth,
+        minWidth: node.constraints.minWidth,
+      );
     final fontSize = (node.text.style?.fontSize ?? 14) * node.textScaleFactor;
     return TextBoneElement(
       fontSize: fontSize,
+      textSize: painter.size,
       lines: painter.computeLineMetrics(),
       offset: offset,
+      borderRadius: BorderRadius.circular(fontSize / 2),
     );
   }
 
