@@ -18,8 +18,8 @@ environment:
 dependencies:
   flutter:
     sdk: flutter
-  skeleton_builder:
-    path: ../../skeleton_builder
+  skeletonizer:
+    path: ../../skeletonizer
   gap:
 
 

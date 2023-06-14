@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:shimmer/shimmer.dart';
-import 'package:skeleton_builder/skeleton_builder.dart';
+import 'package:skeletonizer/skeletonizer.dart';
 
 void main() {
   runApp(const MyApp());
@@ -65,6 +65,7 @@ class _MyHomePageState extends State<MyHomePage> {
             )
           : Skeletonizer(
               enabled: _loading,
+              effect: const ShimmerEffect(highlightColor: Colors.red),
               child: false
                   ? const Skeleton.union(
                       union: false,
@@ -98,12 +99,15 @@ class _MyHomePageState extends State<MyHomePage> {
                                         Icon(Icons.ac_unit),
                                         SizedBox(width: 20),
                                         Padding(
-                                            padding: EdgeInsets.only(top: 10),
-                                            child: Icon(Icons.access_alarm)),
+                                          padding: EdgeInsets.only(top: 10),
+                                          child: Icon(Icons.access_alarm),
+                                        ),
                                       ],
                                     ),
                                   ),
-                                  leading: const Skeleton.shade(child: FlutterLogo(size: 50)),
+                                  leading: const Skeleton.shade(
+                                    child: FlutterLogo(size: 50),
+                                  ),
                                 ),
                               ],
                             ),

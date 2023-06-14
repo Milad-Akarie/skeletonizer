@@ -2,7 +2,8 @@ import 'dart:ui';
 
 import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
-import 'package:skeleton_builder/src/helper_utils.dart';
+import 'package:skeletonizer/src/helper_utils.dart';
+import 'package:skeletonizer/src/widgets/custom_shader_mask.dart';
 
 abstract class PaintableElement {
   const PaintableElement({required this.offset});
@@ -25,7 +26,7 @@ class BoneElement extends PaintableElement {
   BoneElement({
     required this.rect,
     this.borderRadius,
-  }):super(offset: rect.topLeft);
+  }) : super(offset: rect.topLeft);
 
   @override
   void paint(PaintingContext context, Offset offset, Paint shaderPaint) {
@@ -40,7 +41,7 @@ class BoneElement extends PaintableElement {
 }
 
 class ShadedElement extends PaintableElement {
-  final RenderBox renderObject;
+  final RenderSkeletonShaderMask renderObject;
   final Size canvasSize;
 
   ShadedElement({
@@ -51,17 +52,9 @@ class ShadedElement extends PaintableElement {
 
   @override
   void paint(PaintingContext context, Offset offset, Paint shaderPaint) {
-    final layer = ShaderMaskLayer()
-      ..shader = shaderPaint.shader
-      ..maskRect = Offset.zero & canvasSize + offset
-      ..blendMode = BlendMode.srcATop;
-
-    context.pushLayer(
-      layer,
-      renderObject.paint,
-      this.offset + offset,
-      childPaintBounds: renderObject.paintBounds,
-    );
+     renderObject.shader = shaderPaint.shader;
+     renderObject.maskRect = Offset.zero & canvasSize + offset;
+     renderObject.paint(context, this.offset + offset);
   }
 }
 
@@ -97,7 +90,7 @@ class ContainerElement extends AncestorElement {
     this.boxShadow,
     this.color,
     this.border,
-  }):super(offset: rect.topLeft);
+  }) : super(offset: rect.topLeft);
 
   @override
   void paint(PaintingContext context, Offset offset, Paint shaderPaint) {

@@ -1,30 +1,28 @@
 import 'package:flutter/material.dart';
-import 'package:skeleton_builder/src/effects/painting_effect_base.dart';
-import 'package:skeleton_builder/src/theme/skeletonizer_theme.dart';
-import 'package:skeleton_builder/src/widgets/skeletonizer_base.dart';
+import 'package:skeletonizer/src/effects/painting_effect_base.dart';
+import 'package:skeletonizer/src/theme/skeletonizer_theme.dart';
+import 'package:skeletonizer/src/widgets/skeletonizer_base.dart';
 
 class Skeletonizer extends StatefulWidget {
   const Skeletonizer({
     super.key,
     required this.child,
     this.enabled = true,
-    this.duration,
     this.effect,
   });
 
   final Widget child;
   final bool enabled;
   final PaintingEffect? effect;
-  final Duration? duration;
 
   @override
   State<Skeletonizer> createState() => SkeletonizerState();
 
-  static SkeletonizerState? maybeOf(BuildContext context) {
-    return context.dependOnInheritedWidgetOfExactType<SkeletonizerScope>()?.state;
+  static SkeletonizerScope? maybeOf(BuildContext context) {
+    return context.dependOnInheritedWidgetOfExactType<SkeletonizerScope>();
   }
 
-  static SkeletonizerState of(BuildContext context) {
+  static SkeletonizerScope of(BuildContext context) {
     final scope = context.dependOnInheritedWidgetOfExactType<SkeletonizerScope>();
     assert(() {
       if (scope == null) {
@@ -36,7 +34,7 @@ class Skeletonizer extends StatefulWidget {
       }
       return true;
     }());
-    return scope!.state;
+    return scope!;
   }
 }
 
@@ -47,7 +45,7 @@ class SkeletonizerState extends State<Skeletonizer> with TickerProviderStateMixi
   bool get enabled => _enabled;
 
   PaintingEffect? _effect;
-  Duration? _duration;
+  SkeletonizerThemeData? _themeData;
 
   @override
   void didChangeDependencies() {
@@ -59,16 +57,14 @@ class SkeletonizerState extends State<Skeletonizer> with TickerProviderStateMixi
   TextDirection _textDirection = TextDirection.ltr;
 
   void _setupEffect() {
-     _brightness = Theme.of(context).brightness;
+    _brightness = Theme.of(context).brightness;
     _textDirection = Directionality.of(context);
     final isDarkMode = _brightness == Brightness.dark;
-    final themeData = SkeletonizerTheme.maybeOf(context) ??
+    _themeData = SkeletonizerTheme.maybeOf(context) ??
         (isDarkMode ? const SkeletonizerThemeData.dark() : const SkeletonizerThemeData.light());
-    final effect = widget.effect ?? themeData.effect;
-    final duration = widget.duration ?? themeData.duration;
-    if (_effect != effect || _duration != duration) {
+    final effect = widget.effect ?? _themeData!.effect;
+    if (_effect != effect) {
       _effect = effect;
-      _duration = duration;
       _stopAnimation();
       if (widget.enabled) {
         _startAnimation();
@@ -77,30 +73,26 @@ class SkeletonizerState extends State<Skeletonizer> with TickerProviderStateMixi
   }
 
   void _stopAnimation() {
-    _animationController?.removeListener(_onShimmerChange);
-    _animationController?.stop(canceled: true);
-  }
-
-  @override
-  void initState() {
-    super.initState();
-    // if (enabled) {
-    //   _startAnimation();
-    // }
+    _animationController
+      ?..removeListener(_onShimmerChange)
+      ..stop(canceled: true)
+      ..dispose();
+    _animationController = null;
   }
 
   void _startAnimation() {
     assert(_effect != null);
-    assert(_duration != null);
-    // return;
-    _animationController = AnimationController.unbounded(vsync: this)
-      ..addListener(_onShimmerChange)
-      ..repeat(
-        min: _effect!.lowerBound,
-        max: _effect!.upperBound,
-        reverse: _effect!.reverse,
-        period: _duration,
-      );
+
+    if (_effect!.duration.inMilliseconds != 0) {
+      _animationController = AnimationController.unbounded(vsync: this)
+        ..addListener(_onShimmerChange)
+        ..repeat(
+          reverse: _effect!.reverse,
+          min: _effect!.lowerBound,
+          max: _effect!.upperBound,
+          period: _effect!.duration,
+        );
+    }
   }
 
   @override
@@ -109,13 +101,13 @@ class SkeletonizerState extends State<Skeletonizer> with TickerProviderStateMixi
     if (oldWidget.enabled != widget.enabled) {
       _enabled = widget.enabled;
       if (!_enabled) {
+        _animationController?.reset();
         _animationController?.stop(canceled: true);
-        _animationController?.dispose();
       } else {
         _startAnimation();
       }
     }
-    if (widget.effect != oldWidget.effect || widget.duration != oldWidget.duration) {
+    if (widget.effect != oldWidget.effect) {
       _setupEffect();
     }
   }
@@ -138,11 +130,13 @@ class SkeletonizerState extends State<Skeletonizer> with TickerProviderStateMixi
   @override
   Widget build(BuildContext context) {
     assert(_effect != null);
+    assert(_themeData != null);
     return SkeletonizerScope(
-      state: this,
+      enabled: _enabled,
       child: SkeletonizerBase(
         enabled: widget.enabled,
         effect: _effect!,
+        themeData: _themeData!,
         brightness: _brightness,
         textDirection: _textDirection,
         animationValue: _animationController?.value ?? 0,
@@ -153,12 +147,12 @@ class SkeletonizerState extends State<Skeletonizer> with TickerProviderStateMixi
 }
 
 class SkeletonizerScope extends InheritedWidget {
-  const SkeletonizerScope({super.key, required super.child, required this.state});
+  const SkeletonizerScope({super.key, required super.child, required this.enabled});
 
-  final SkeletonizerState state;
+  final bool enabled;
 
   @override
   bool updateShouldNotify(covariant SkeletonizerScope oldWidget) {
-    return state.enabled != oldWidget.state.enabled;
+    return enabled != oldWidget.enabled;
   }
 }

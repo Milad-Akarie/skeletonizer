@@ -1,10 +1,10 @@
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
-import 'package:skeleton_builder/skeleton_builder.dart';
+import 'package:skeletonizer/skeletonizer.dart';
 import 'package:collection/collection.dart';
-import 'package:skeleton_builder/src/helper_utils.dart';
-import 'package:skeleton_builder/src/painting/paintable_element.dart';
+import 'package:skeletonizer/src/helper_utils.dart';
+import 'package:skeletonizer/src/painting/paintable_element.dart';
 import 'dart:math' as math;
 
 const double _kQuarterTurnsInRadians = math.pi / 2.0;
@@ -18,6 +18,7 @@ class SkeletonizerBase extends SingleChildRenderObjectWidget {
     required this.animationValue,
     required this.brightness,
     required this.textDirection,
+    required this.themeData,
   });
 
   final PaintingEffect effect;
@@ -25,6 +26,7 @@ class SkeletonizerBase extends SingleChildRenderObjectWidget {
   final double animationValue;
   final Brightness brightness;
   final TextDirection textDirection;
+  final SkeletonizerThemeData themeData;
 
   @override
   RenderSkeletonizer createRenderObject(BuildContext context) {
@@ -34,6 +36,7 @@ class SkeletonizerBase extends SingleChildRenderObjectWidget {
       animationValue: animationValue,
       brightness: brightness,
       textDirection: textDirection,
+      themeData: themeData,
     );
   }
 
@@ -47,6 +50,7 @@ class SkeletonizerBase extends SingleChildRenderObjectWidget {
       ..animationValue = animationValue
       ..paintingEffect = effect
       ..brightness = brightness
+      ..themeData = themeData
       ..textDirection = textDirection;
   }
 }
@@ -59,11 +63,13 @@ class RenderSkeletonizer extends RenderProxyBox {
     required Brightness brightness,
     RenderBox? child,
     required PaintingEffect paintingEffect,
+    required SkeletonizerThemeData themeData,
   })  : _animationValue = animationValue,
         _enabled = enabled,
         _paintingEffect = paintingEffect,
         _textDirection = textDirection,
         _brightness = brightness,
+        _themeData = themeData,
         super(child);
 
   TextDirection _textDirection;
@@ -73,6 +79,18 @@ class RenderSkeletonizer extends RenderProxyBox {
   set textDirection(TextDirection value) {
     if (_textDirection != value) {
       _textDirection = value;
+      _needsSkeletonizing = true;
+      markNeedsPaint();
+    }
+  }
+
+  SkeletonizerThemeData _themeData;
+
+  SkeletonizerThemeData get themeData => _themeData;
+
+  set themeData(SkeletonizerThemeData value) {
+    if (_themeData != value) {
+      _themeData = value;
       _needsSkeletonizing = true;
       markNeedsPaint();
     }
@@ -128,10 +146,10 @@ class RenderSkeletonizer extends RenderProxyBox {
   final _paintableElements = <PaintableElement>[];
 
   void _skeletonizeRecursively(RenderObject node, List<PaintableElement> elements, Offset offset) {
-    // avoid skeletonizing renderers outside of screen bounds
+    // avoid skeletonizing renderers outside of skeletonizer bounds
     //
     // this may need to shifting by parent offset
-    if (!paintBounds.contains(offset)) {
+    if (!paintBounds.overlaps(node.paintBounds.shift(offset))) {
       return;
     }
 
@@ -144,18 +162,12 @@ class RenderSkeletonizer extends RenderProxyBox {
           childOffset = MatrixUtils.transformPoint(transform, offset);
         }
       }
+
       if (child is RenderSkeletonAnnotation) {
         if (child.annotation is IgnoreDescendants) {
           return;
-        } else if (child.annotation is ShadeOriginal) {
-          return elements.add(
-            ShadedElement(
-              offset: childOffset,
-              renderObject: child.child!,
-              canvasSize: size,
-            ),
-          );
-        } else if (child.annotation is KeepOriginal) {
+        }
+        if (child.annotation is KeepOriginal) {
           return elements.add(
             OriginalElement(
               offset: childOffset,
@@ -164,12 +176,20 @@ class RenderSkeletonizer extends RenderProxyBox {
           );
         } else if (child.annotation is UnionDescendents) {
           final descendents = _getDescendents(child.child!, childOffset);
-          print(child.child!);
           final (rect, borderRadius) = _union(descendents);
           elements.add(BoneElement(rect: rect, borderRadius: borderRadius));
           return;
         }
-      } else if (child is RenderBox) {
+      }
+      if(child is RenderSkeletonShaderMask){
+        return elements.add(
+          ShadedElement(
+            offset: childOffset,
+            renderObject: child,
+            canvasSize: size,
+          ),
+        );
+      }else if (child is RenderBox) {
         if (child is RenderClipRRect) {
           final descendents = _getDescendents(child, childOffset);
           if (child.clipBehavior == Clip.none) {
@@ -349,7 +369,9 @@ class RenderSkeletonizer extends RenderProxyBox {
       textSize: painter.size,
       lines: painter.computeLineMetrics(),
       offset: offset,
-      borderRadius: BorderRadius.circular(fontSize / 2),
+      borderRadius: themeData.textBorderRadius.usesHeightFactor
+          ? BorderRadius.circular(fontSize * themeData.textBorderRadius.heightPercentage!)
+          : themeData.textBorderRadius.borderRadius!.resolve(textDirection),
     );
   }
 
@@ -469,10 +491,4 @@ class RenderSkeletonizer extends RenderProxyBox {
       borderRadius: borderRadius?.resolve(textDirection),
     );
   }
-
-// @override
-// void debugFillProperties(DiagnosticPropertiesBuilder properties) {
-//   super.debugFillProperties(properties);
-//   properties.add(DiagnosticsProperty<LinearGradient>('_shimmer', _shaderPaint));
-// }
 }

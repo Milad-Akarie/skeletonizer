@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
-import 'package:skeleton_builder/src/widgets/skeletonizer.dart';
+import 'package:skeletonizer/skeletonizer.dart';
+import 'package:skeletonizer/src/widgets/skeletonizer.dart';
 
 class _AnnotatedSkeleton extends SingleChildRenderObjectWidget {
   final SkeletonAnnotation annotation;
@@ -47,11 +48,11 @@ class Skeleton extends StatelessWidget {
   }) : annotation = ignore ? const IgnoreDescendants() : _none;
 
   /// shades original element
-  const Skeleton.shade({
-    super.key,
-    required this.child,
-    bool shade = true,
-  }) : annotation = shade ? const ShadeOriginal() : _none;
+  const factory Skeleton.shade({
+    Key? key,
+    required Widget child,
+    bool shade,
+  }) = SkeletonShade;
 
   /// paints original element
   const Skeleton.keep({
@@ -59,7 +60,6 @@ class Skeleton extends StatelessWidget {
     required this.child,
     bool keep = true,
   }) : annotation = keep ? const KeepOriginal() : _none;
-
 
   const Skeleton.union({
     super.key,
@@ -141,5 +141,21 @@ class SkeletonReplace extends Skeleton {
             height: replacementHeight,
             child: replacement,
           );
+  }
+}
+
+class SkeletonShade extends Skeleton {
+  const SkeletonShade({
+    super.key,
+    required super.child,
+    this.shade = true,
+  }) : super._(annotation: shade ? const ShadeOriginal() : _none);
+
+  final bool shade;
+
+  @override
+  Widget build(BuildContext context) {
+    final useMask = shade && Skeletonizer.of(context).enabled;
+    return useMask ? SkeletonShaderMask(child: super.build(context)) : super.build(context);
   }
 }

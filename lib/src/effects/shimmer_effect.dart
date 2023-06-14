@@ -12,6 +12,7 @@ class _ShimmerEffect extends ShimmerEffect {
     this.highlightColor = const Color(0xFFF4F4F4),
     this.begin = const Alignment(-1.0, -0.3),
     this.end = const Alignment(1.0, 0.3),
+    super.duration,
   }) : super._(lowerBound: -.5, upperBound: 1.5);
 
   @override
@@ -41,12 +42,18 @@ class _ShimmerEffect extends ShimmerEffect {
           baseColor == other.baseColor &&
           highlightColor == other.highlightColor &&
           begin == other.begin &&
+          duration == other.duration &&
           end == other.end &&
           tileMode == other.tileMode;
 
   @override
   int get hashCode =>
-      baseColor.hashCode ^ highlightColor.hashCode ^ begin.hashCode ^ end.hashCode^ tileMode.hashCode;
+      baseColor.hashCode ^
+      highlightColor.hashCode ^
+      begin.hashCode ^
+      end.hashCode ^
+      tileMode.hashCode ^
+      duration.hashCode;
 }
 
 abstract class ShimmerEffect extends PaintingEffect {
@@ -60,13 +67,18 @@ abstract class ShimmerEffect extends PaintingEffect {
 
   TileMode get tileMode;
 
-  const ShimmerEffect._({super.lowerBound, super.upperBound});
+  const ShimmerEffect._({
+    super.lowerBound,
+    super.upperBound,
+    super.duration = const Duration(milliseconds: 2000),
+  });
 
   const factory ShimmerEffect({
     Color baseColor,
     Color highlightColor,
     AlignmentGeometry begin,
     AlignmentGeometry end,
+    Duration duration,
   }) = _ShimmerEffect;
 
   const factory ShimmerEffect.raw({
@@ -77,6 +89,7 @@ abstract class ShimmerEffect extends PaintingEffect {
     TileMode tileMode,
     double lowerBound,
     double upperBound,
+    Duration duration,
   }) = _RawShimmerEffect;
 
   @override
@@ -116,6 +129,7 @@ class _RawShimmerEffect extends ShimmerEffect {
     this.tileMode = TileMode.clamp,
     super.lowerBound = -0.5,
     super.upperBound = 1.5,
+    super.duration,
   }) : super._();
 
   @override
@@ -127,10 +141,12 @@ class _RawShimmerEffect extends ShimmerEffect {
           stops == other.stops &&
           begin == other.begin &&
           end == other.end &&
+          duration == other.duration &&
           tileMode == other.tileMode;
 
   @override
-  int get hashCode => colors.hashCode ^ stops.hashCode ^ begin.hashCode ^ end.hashCode ^ tileMode.hashCode;
+  int get hashCode =>
+      colors.hashCode ^ stops.hashCode ^ begin.hashCode ^ end.hashCode ^ tileMode.hashCode ^ duration.hashCode;
 }
 
 class _SlidingGradientTransform extends GradientTransform {

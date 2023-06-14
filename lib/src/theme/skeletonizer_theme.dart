@@ -1,13 +1,15 @@
 import 'package:flutter/cupertino.dart';
-import 'package:skeleton_builder/skeleton_builder.dart';
+import 'package:skeletonizer/skeletonizer.dart';
+
+const _defaultTextBoneBorderRadius = TextBoneBorderRadius.fromHeightFactor(.5);
 
 class SkeletonizerThemeData {
   final PaintingEffect effect;
-  final Duration duration;
+  final TextBoneBorderRadius textBorderRadius;
 
   const SkeletonizerThemeData.light({
     this.effect = const ShimmerEffect(),
-    this.duration = const Duration(milliseconds: 2000),
+    this.textBorderRadius = _defaultTextBoneBorderRadius,
   });
 
   const SkeletonizerThemeData.dark({
@@ -15,16 +17,54 @@ class SkeletonizerThemeData {
       baseColor: Color(0xFF3A3A3A),
       highlightColor: Color(0xFF424242),
     ),
-    this.duration = const Duration(milliseconds: 2000),
+    this.textBorderRadius = _defaultTextBoneBorderRadius,
   });
 
   @override
   bool operator ==(Object other) =>
       identical(this, other) ||
-      other is SkeletonizerThemeData && runtimeType == other.runtimeType && effect == other.effect;
+      other is SkeletonizerThemeData &&
+          runtimeType == other.runtimeType &&
+          effect == other.effect &&
+          textBorderRadius == other.textBorderRadius;
 
   @override
-  int get hashCode => effect.hashCode;
+  int get hashCode => effect.hashCode ^ textBorderRadius.hashCode;
+}
+
+class TextBoneBorderRadius {
+  final BorderRadiusGeometry? _borderRadius;
+  final double? _heightPercentage;
+  final bool usesHeightFactor;
+
+  const TextBoneBorderRadius(
+    BorderRadiusGeometry borderRadius,
+  )   : _borderRadius = borderRadius,
+        _heightPercentage = null,
+        usesHeightFactor = false;
+
+  const TextBoneBorderRadius.fromHeightFactor(
+    double factor,
+  )   : assert(factor >= 0 && factor <= 1),
+        _borderRadius = null,
+        _heightPercentage = factor,
+        usesHeightFactor = true;
+
+  double? get heightPercentage => _heightPercentage;
+
+  BorderRadiusGeometry? get borderRadius => _borderRadius;
+
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      other is TextBoneBorderRadius &&
+          runtimeType == other.runtimeType &&
+          _borderRadius == other._borderRadius &&
+          _heightPercentage == other._heightPercentage &&
+          usesHeightFactor == other.usesHeightFactor;
+
+  @override
+  int get hashCode => _borderRadius.hashCode ^ _heightPercentage.hashCode ^ usesHeightFactor.hashCode;
 }
 
 class SkeletonizerTheme extends InheritedWidget {
