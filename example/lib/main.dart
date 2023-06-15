@@ -63,42 +63,50 @@ class _MyHomePageState extends State<MyHomePage> {
                 ],
               ),
             )
-          : Skeletonizer(
-              enabled: _loading,
-              effect: const ShimmerEffect(highlightColor: Colors.red),
-              child: ListView(
-                children: [
-                  for (final i in List.generate(20, (index) => index))
-                    Card(
-                      elevation: .3,
-                      child: Column(
-                        children: [
-                          ListTile(
-                            title: Text(
-                              'Item number $i with',
-                              maxLines: 2,
-                            ),
-                            subtitle: const Text('Subtitle here'),
-                            trailing: const Skeleton.union(
-                              child: Row(
-                                mainAxisSize: MainAxisSize.min,
-                                children: [
-                                  Icon(Icons.ac_unit),
-                                  SizedBox(width: 20),
-                                  Padding(
-                                    padding: EdgeInsets.only(top: 10),
-                                    child: Icon(Icons.access_alarm),
-                                  ),
-                                ],
+          : SkeletonizerTheme(
+            data: const SkeletonizerThemeData(
+              justifyMultiLineText: true
+            ),
+            child: Skeletonizer(
+                enabled: _loading,
+                effect: const ShimmerEffect(highlightColor: Colors.red),
+                child: true ? const Padding(
+                  padding: EdgeInsets.all(16.0),
+                  child: Text('However, now I am trying to test howowlkwlkjwlkjwlsdlkfjsldkfj the intrinsic sof the underlying render object.'),
+                ): ListView(
+                  children: [
+                    for (final i in List.generate(20, (index) => index))
+                      Card(
+                        elevation: .3,
+                        child: Column(
+                          children: [
+                            ListTile(
+                              title: Text(
+                                'Item number $i with',
+                                maxLines: 2,
+                              ),
+                              subtitle: const Text('Subtitle here'),
+                              trailing: const Skeleton.union(
+                                child: Row(
+                                  mainAxisSize: MainAxisSize.min,
+                                  children: [
+                                    Icon(Icons.ac_unit),
+                                    SizedBox(width: 20),
+                                    Padding(
+                                      padding: EdgeInsets.only(top: 10),
+                                      child: Icon(Icons.access_alarm),
+                                    ),
+                                  ],
+                                ),
                               ),
                             ),
-                          ),
-                        ],
-                      ),
-                    )
-                ],
+                          ],
+                        ),
+                      )
+                  ],
+                ),
               ),
-            ),
+          ),
     );
   }
 }

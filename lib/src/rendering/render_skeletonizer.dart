@@ -96,11 +96,12 @@ class RenderSkeletonizer extends RenderProxyBox {
 
   void _skeletonize() {
     _needsSkeletonizing = false;
-    _paintableElements.clear();
-    _skeletonizeRecursively(this, _paintableElements, Offset.zero);
+    paintableElements.clear();
+    _skeletonizeRecursively(this, paintableElements, Offset.zero);
   }
 
-  final _paintableElements = <PaintableElement>[];
+  @visibleForTesting
+  final paintableElements = <PaintableElement>[];
 
   void _skeletonizeRecursively(RenderObject node, List<PaintableElement> elements, Offset offset) {
     // avoid skeletonizing renderers outside of skeletonizer bounds
@@ -322,6 +323,7 @@ class RenderSkeletonizer extends RenderProxyBox {
     return TextElement(
       fontSize: fontSize,
       textSize: painter.size,
+      justifyMultiLine: themeData.justifyMultiLineText,
       lines: painter.computeLineMetrics(),
       offset: offset,
       borderRadius: themeData.textBorderRadius.usesHeightFactor
@@ -400,7 +402,7 @@ class RenderSkeletonizer extends RenderProxyBox {
     }
     if (_needsSkeletonizing) _skeletonize();
     final paint = _paintingEffect.createPaint(_animationValue, offset & size);
-    for (final element in _paintableElements) {
+    for (final element in paintableElements) {
       element.paint(context, offset, paint);
     }
   }

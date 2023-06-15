@@ -6,9 +6,17 @@ const _defaultTextBoneBorderRadius = TextBoneBorderRadius.fromHeightFactor(.5);
 class SkeletonizerThemeData {
   final PaintingEffect effect;
   final TextBoneBorderRadius textBorderRadius;
+  final bool justifyMultiLineText;
+
+  const SkeletonizerThemeData({
+    this.effect = const ShimmerEffect(),
+    this.justifyMultiLineText = true,
+    this.textBorderRadius = _defaultTextBoneBorderRadius,
+  });
 
   const SkeletonizerThemeData.light({
     this.effect = const ShimmerEffect(),
+    this.justifyMultiLineText = true,
     this.textBorderRadius = _defaultTextBoneBorderRadius,
   });
 
@@ -17,6 +25,7 @@ class SkeletonizerThemeData {
       baseColor: Color(0xFF3A3A3A),
       highlightColor: Color(0xFF424242),
     ),
+    this.justifyMultiLineText = true,
     this.textBorderRadius = _defaultTextBoneBorderRadius,
   });
 
@@ -26,10 +35,11 @@ class SkeletonizerThemeData {
       other is SkeletonizerThemeData &&
           runtimeType == other.runtimeType &&
           effect == other.effect &&
+          justifyMultiLineText == other.justifyMultiLineText &&
           textBorderRadius == other.textBorderRadius;
 
   @override
-  int get hashCode => effect.hashCode ^ textBorderRadius.hashCode;
+  int get hashCode => effect.hashCode ^ textBorderRadius.hashCode ^ justifyMultiLineText.hashCode;
 }
 
 class TextBoneBorderRadius {

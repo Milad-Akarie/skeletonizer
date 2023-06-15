@@ -9,6 +9,7 @@ class TextElement extends PaintableElement {
   final double fontSize;
   final Size textSize;
   final BorderRadius? borderRadius;
+  final bool justifyMultiLine;
 
   TextElement({
     required super.offset,
@@ -16,6 +17,7 @@ class TextElement extends PaintableElement {
     required this.fontSize,
     required this.textSize,
     this.borderRadius,
+    this.justifyMultiLine = true,
   });
 
   @override
@@ -39,11 +41,14 @@ class TextElement extends PaintableElement {
   void paint(PaintingContext context, Offset offset, Paint shaderPaint) {
     final drawingOffset = this.offset + offset;
     var yOffset = drawingOffset.dy;
-    for (final line in lines) {
+
+    for (var i =0;i<lines.length;i++) {
+      final shouldJustify = justifyMultiLine && lines.length > 1 && i < (lines.length - 1);
+      final line = lines[i];
       final rect = Rect.fromLTWH(
         drawingOffset.dx,
         yOffset + (line.height - fontSize) / 2,
-        line.width,
+        shouldJustify ? textSize.width : line.width,
         fontSize,
       );
       if (borderRadius != null) {
@@ -53,5 +58,10 @@ class TextElement extends PaintableElement {
       }
       yOffset += line.height;
     }
+  }
+
+  @override
+  String toString() {
+    return 'TextElement{lines: $lines, fontSize: $fontSize, textSize: $textSize, borderRadius: $borderRadius}';
   }
 }
