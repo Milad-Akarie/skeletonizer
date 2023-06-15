@@ -24,12 +24,20 @@ extension RectX on Rect {
       bottomRight: borderRadius.bottomRight,
     );
   }
+
+  bool containsRect(Rect rect){
+
+    if(rect.left < left || rect.right > right) return false;
+     if(rect.top < top || rect.bottom > bottom) return false;
+     return true;
+  }
 }
+
 
 extension RenderObjectX on RenderObject {
   String get typeName => runtimeType.toString();
 
-  bool get hasParentData => parentData.toString() != '<none>';
+  bool get hasParentData =>  parentData.runtimeType != ParentData;
 
   Widget? get widget => debugCreator is DebugCreator ? (debugCreator as DebugCreator).element.widget : null;
 

@@ -66,54 +66,38 @@ class _MyHomePageState extends State<MyHomePage> {
           : Skeletonizer(
               enabled: _loading,
               effect: const ShimmerEffect(highlightColor: Colors.red),
-              child: false
-                  ? const Skeleton.union(
-                      union: false,
-                      child: Card(
-                        color: Colors.red,
-                        child: Row(
-                          children: [
-                            Text("Hello"),
-                            Text("Hello how are you"),
-                          ],
-                        ),
+              child: ListView(
+                children: [
+                  for (final i in List.generate(20, (index) => index))
+                    Card(
+                      elevation: .3,
+                      child: Column(
+                        children: [
+                          ListTile(
+                            title: Text(
+                              'Item number $i with',
+                              maxLines: 2,
+                            ),
+                            subtitle: const Text('Subtitle here'),
+                            trailing: const Skeleton.union(
+                              child: Row(
+                                mainAxisSize: MainAxisSize.min,
+                                children: [
+                                  Icon(Icons.ac_unit),
+                                  SizedBox(width: 20),
+                                  Padding(
+                                    padding: EdgeInsets.only(top: 10),
+                                    child: Icon(Icons.access_alarm),
+                                  ),
+                                ],
+                              ),
+                            ),
+                          ),
+                        ],
                       ),
                     )
-                  : ListView(
-                      children: [
-                        for (final i in List.generate(20, (index) => index))
-                          Card(
-                            elevation: .3,
-                            child: Column(
-                              children: [
-                                ListTile(
-                                  title: Text(
-                                    'Item number $i with',
-                                    maxLines: 2,
-                                  ),
-                                  subtitle: const Text('Subtitle here'),
-                                  trailing: const Skeleton.union(
-                                    child: Row(
-                                      mainAxisSize: MainAxisSize.min,
-                                      children: [
-                                        Icon(Icons.ac_unit),
-                                        SizedBox(width: 20),
-                                        Padding(
-                                          padding: EdgeInsets.only(top: 10),
-                                          child: Icon(Icons.access_alarm),
-                                        ),
-                                      ],
-                                    ),
-                                  ),
-                                  leading: const Skeleton.shade(
-                                    child: FlutterLogo(size: 50),
-                                  ),
-                                ),
-                              ],
-                            ),
-                          )
-                      ],
-                    ),
+                ],
+              ),
             ),
     );
   }

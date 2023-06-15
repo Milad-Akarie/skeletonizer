@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
 import 'package:skeletonizer/skeletonizer.dart';
-import 'package:skeletonizer/src/widgets/skeletonizer.dart';
 
 class _AnnotatedSkeleton extends SingleChildRenderObjectWidget {
   final SkeletonAnnotation annotation;
@@ -65,7 +64,8 @@ class Skeleton extends StatelessWidget {
     super.key,
     required this.child,
     bool union = true,
-  }) : annotation = union ? const UnionDescendents() : _none;
+    UnionDescendents annotation = const UnionDescendents(),
+  }) : annotation = union ? annotation : _none;
 
   @override
   Widget build(BuildContext context) {
@@ -112,7 +112,9 @@ class ReplaceOriginal extends SkeletonAnnotation {
 }
 
 class UnionDescendents extends SkeletonAnnotation {
-  const UnionDescendents();
+  const UnionDescendents({this.borderRadius});
+
+  final BorderRadiusGeometry? borderRadius;
 }
 
 class SkeletonReplace extends Skeleton {
