@@ -1,3 +1,4 @@
+import 'package:collection/collection.dart';
 import 'package:flutter/material.dart';
 import 'package:skeletonizer/src/painting/paintable_element.dart';
 import 'package:skeletonizer/src/utils.dart';
@@ -31,7 +32,7 @@ class ContainerElement extends AncestorElement {
           elevation == other.elevation &&
           border == other.border &&
           color == other.color &&
-          boxShadow == other.boxShadow &&
+          const ListEquality().equals(boxShadow, other.boxShadow)  &&
           boxShape == other.boxShape &&
           super == (other) &&
           rect == other.rect &&
@@ -42,11 +43,17 @@ class ContainerElement extends AncestorElement {
       elevation.hashCode ^
       border.hashCode ^
       color.hashCode ^
-      boxShadow.hashCode ^
+      const ListEquality().hash(boxShadow) ^
       boxShape.hashCode ^
       rect.hashCode ^
       borderRadius.hashCode ^
       super.hashCode;
+
+
+  @override
+  String toString() {
+    return 'ContainerElement{elevation: $elevation, border: $border, color: $color, boxShadow: $boxShadow, boxShape: $boxShape, rect: $rect, borderRadius: $borderRadius}, descendents: $descendents';
+  }
 
   @override
   void paint(PaintingContext context, Offset offset, Paint shaderPaint) {
@@ -72,6 +79,7 @@ class ContainerElement extends AncestorElement {
           treatAsBone ? shaderPaint : surfacePaint,
         );
       } else if (borderRadius != null) {
+
         final rRect = shiftedRect.toRRect(borderRadius!);
         if (drawElevation) {
           context.canvas.drawShadow(
@@ -96,34 +104,36 @@ class ContainerElement extends AncestorElement {
             context.canvas.drawRect(shiftedRect.shift(box.offset), box.toPaint());
           }
         }
-
         context.canvas.drawRect(shiftedRect, treatAsBone ? shaderPaint : surfacePaint);
       }
     }
-    final borderToDraw = border;
 
-    if (borderToDraw is Border) {
-      final borderPaint = Paint()
-        ..shader = shaderPaint.shader
-        ..color = Colors.black
-        ..style = PaintingStyle.stroke;
-      if (borderToDraw.isUniform) {
-        borderPaint.strokeWidth = borderToDraw.top.width;
-        context.canvas.drawRRect(shiftedRect.toRRect(borderRadius ?? BorderRadius.zero), borderPaint);
-      } else {
-        paintBorder(
-          context.canvas,
-          shiftedRect,
-          paint: borderPaint,
-          top: borderToDraw.top,
-          bottom: borderToDraw.bottom,
-          left: borderToDraw.left,
-          right: borderToDraw.right,
-        );
-      }
+    if (border is Border) {
+      _paintBorder(shaderPaint, border as Border, context, shiftedRect);
     }
     for (final descendent in descendents) {
       descendent.paint(context, offset, shaderPaint);
+    }
+  }
+
+  void _paintBorder(Paint shaderPaint, Border borderToDraw, PaintingContext context, Rect shiftedRect) {
+    final borderPaint = Paint()
+      ..shader = shaderPaint.shader
+      ..color = Colors.black
+      ..style = PaintingStyle.stroke;
+    if (borderToDraw.isUniform) {
+      borderPaint.strokeWidth = borderToDraw.top.width;
+      context.canvas.drawRRect(shiftedRect.toRRect(borderRadius ?? BorderRadius.zero), borderPaint);
+    } else {
+      paintBorder(
+        context.canvas,
+        shiftedRect,
+        paint: borderPaint,
+        top: borderToDraw.top,
+        bottom: borderToDraw.bottom,
+        left: borderToDraw.left,
+        right: borderToDraw.right,
+      );
     }
   }
 

@@ -157,116 +157,129 @@ class RenderSkeletonizer extends RenderProxyBox {
         );
       } else if (child is RenderBox) {
         if (child is RenderClipRRect) {
-          final descendents = _getDescendents(child, childOffset);
-          if (child.clipBehavior == Clip.none) {
-            elements.addAll(descendents);
-          } else if (descendents.isNotEmpty) {
-            final RRect clipRect;
-            if (child.clipper != null) {
-              clipRect = child.clipper!.getClip(child.size);
-            } else {
-              final borderRadius = child.borderRadius.resolve(textDirection);
-              clipRect = (childOffset & child.size).toRRect(borderRadius);
-            }
-            elements.add(
-              RRectClipElement(
-                clip: clipRect,
-                offset: childOffset,
-                descendents: descendents,
-              ),
-            );
-          }
-          return;
+          return _handleClipRRect(child, childOffset, elements);
         } else if (child is RenderClipPath) {
-          final descendents = _getDescendents(child, childOffset);
-          final clipper = child.clipper;
-          if (child.clipBehavior == Clip.none) {
-            elements.addAll(descendents);
-          } else if (clipper != null && descendents.isNotEmpty) {
-            elements.add(
-              PathClipElement(
-                offset: childOffset,
-                clip: clipper.getClip(child.size),
-                descendents: _getDescendents(child, childOffset),
-              ),
-            );
-            return;
-          }
+          return _handlePathClip(child, childOffset, elements);
         } else if (child is RenderClipOval) {
-          final descendents = _getDescendents(child, childOffset);
-          if (child.clipBehavior == Clip.none) {
-            elements.addAll(descendents);
-          } else if (descendents.isNotEmpty) {
-            final rect = child.clipper?.getClip(child.size) ?? child.paintBounds;
-            elements.add(
-              PathClipElement(
-                offset: childOffset,
-                clip: Path()..addOval(rect),
-                descendents: descendents,
-              ),
-            );
-          }
-          return;
+          return _handleOvalClip(child, childOffset, elements);
         } else if (child is RenderClipRect) {
-          final descendents = _getDescendents(child, childOffset);
-          if (child.clipBehavior == Clip.none) {
-            elements.addAll(descendents);
-          } else if (descendents.isNotEmpty) {
-            elements.add(
-              RectClipElement(
-                offset: childOffset,
-                rect: child.clipper?.getClip(child.size) ?? child.paintBounds,
-                descendents: descendents,
-              ),
-            );
-          }
-          return;
+          return _handleClipRect(child, childOffset, elements);
         } else if (child is RenderTransform) {
-          final descendents = _getDescendents(child, childOffset);
-          if (descendents.isNotEmpty) {
-            elements.add(
-              TransformElement(
-                matrix4: debugValueOfType<Matrix4>(child)!.clone(),
-                size: child.size,
-                textDirection: textDirection,
-                origin: child.origin,
-                alignment: child.alignment,
-                descendents: descendents,
-                offset: childOffset,
-              ),
-            );
-          }
-          return;
+          return _handleTransform(child, childOffset, elements);
         } else if (child is RenderImage) {
           elements.add(LeafElement(rect: childOffset & child.size));
         } else if (child is RenderParagraph) {
           elements.add(_buildTextBone(child, childOffset));
         } else if (child is RenderPhysicalModel) {
-          elements.add(_buildPhysicalModel(child, childOffset));
+          return elements.add(_buildPhysicalModel(child, childOffset));
         } else if (child is RenderPhysicalShape) {
-          elements.add(_buildPhysicalShape(child, childOffset));
+          return elements.add(_buildPhysicalShape(child, childOffset));
         } else if (child is RenderDecoratedBox) {
-          elements.add(_buildDecoratedBox(child, childOffset));
+          return elements.add(_buildDecoratedBox(child, childOffset));
         } else if (child.widget is ColoredBox) {
-          elements.add(
+          return elements.add(
             ContainerElement(
               rect: childOffset & child.size,
               color: (child.widget as ColoredBox).color,
               descendents: _getDescendents(child, childOffset),
             ),
           );
-          return;
         } else if (child is RenderRotatedBox) {
           final element = _buildRotatedBox(child, childOffset);
           if (element != null) {
             elements.add(element);
           }
           return;
-        } else {}
+        }
       }
-
       _skeletonizeRecursively(child, elements, childOffset);
     });
+  }
+
+  void _handleClipRRect(RenderClipRRect child, Offset childOffset, List<PaintableElement> elements) {
+    final descendents = _getDescendents(child, childOffset);
+    if (child.clipBehavior == Clip.none) {
+      elements.addAll(descendents);
+    } else if (descendents.isNotEmpty) {
+      final RRect clipRect;
+      if (child.clipper != null) {
+        clipRect = child.clipper!.getClip(child.size);
+      } else {
+        final borderRadius = child.borderRadius.resolve(textDirection);
+        clipRect = (childOffset & child.size).toRRect(borderRadius);
+      }
+      elements.add(
+        ClipRRectElement(
+          clip: clipRect,
+          offset: childOffset,
+          descendents: descendents,
+        ),
+      );
+    }
+  }
+
+  void _handlePathClip(RenderClipPath child, Offset childOffset, List<PaintableElement> elements) {
+    final descendents = _getDescendents(child, childOffset);
+    final clipper = child.clipper;
+    if (child.clipBehavior == Clip.none) {
+      elements.addAll(descendents);
+    } else if (clipper != null && descendents.isNotEmpty) {
+      elements.add(
+        ClipPathElement(
+          offset: childOffset,
+          clip: clipper.getClip(child.size),
+          descendents: _getDescendents(child, childOffset),
+        ),
+      );
+    }
+  }
+
+  void _handleOvalClip(RenderClipOval child, Offset childOffset, List<PaintableElement> elements) {
+    final descendents = _getDescendents(child, childOffset);
+    if (child.clipBehavior == Clip.none) {
+      elements.addAll(descendents);
+    } else if (descendents.isNotEmpty) {
+      final rect = child.clipper?.getClip(child.size) ?? child.paintBounds;
+      elements.add(
+        ClipPathElement(
+          offset: childOffset,
+          clip: Path()..addOval(rect),
+          descendents: descendents,
+        ),
+      );
+    }
+  }
+
+  void _handleTransform(RenderTransform child, Offset childOffset, List<PaintableElement> elements) {
+    final descendents = _getDescendents(child, childOffset);
+    if (descendents.isNotEmpty) {
+      elements.add(
+        TransformElement(
+          matrix4: debugValueOfType<Matrix4>(child)!.clone(),
+          size: child.size,
+          textDirection: textDirection,
+          origin: child.origin,
+          alignment: child.alignment,
+          descendents: descendents,
+          offset: childOffset,
+        ),
+      );
+    }
+  }
+
+  void _handleClipRect(RenderClipRect child, Offset childOffset, List<PaintableElement> elements) {
+    final descendents = _getDescendents(child, childOffset);
+    if (child.clipBehavior == Clip.none) {
+      elements.addAll(descendents);
+    } else if (descendents.isNotEmpty) {
+      elements.add(
+        ClipRectElement(
+          offset: childOffset,
+          rect: child.clipper?.getClip(child.size) ?? child.paintBounds,
+          descendents: descendents,
+        ),
+      );
+    }
   }
 
   (Rect, BorderRadius?) _union(List<PaintableElement> descendents) {
@@ -320,10 +333,13 @@ class RenderSkeletonizer extends RenderProxyBox {
         minWidth: node.constraints.minWidth,
       );
     final fontSize = (node.text.style?.fontSize ?? 14) * node.textScaleFactor;
+
     return TextElement(
       fontSize: fontSize,
       textSize: painter.size,
-      justifyMultiLine: themeData.justifyMultiLineText,
+      textAlign: node.textAlign,
+      textDirection: node.textDirection,
+      justifyMultiLines: themeData.justifyMultiLineText,
       lines: painter.computeLineMetrics(),
       offset: offset,
       borderRadius: themeData.textBorderRadius.usesHeightFactor
@@ -389,10 +405,15 @@ class RenderSkeletonizer extends RenderProxyBox {
 
   bool _needsSkeletonizing = true;
 
+  Constraints? _skeletonizedAtConstrains;
+
   @override
   void layout(Constraints constraints, {bool parentUsesSize = false}) {
     super.layout(constraints, parentUsesSize: parentUsesSize);
-    _needsSkeletonizing = true;
+    if (_skeletonizedAtConstrains != constraints) {
+      _skeletonizedAtConstrains = constraints;
+      _needsSkeletonizing = true;
+    }
   }
 
   @override
@@ -407,7 +428,7 @@ class RenderSkeletonizer extends RenderProxyBox {
     }
   }
 
-  ContainerElement _buildPhysicalShape(RenderPhysicalShape node, Offset offset) {
+  PaintableElement _buildPhysicalShape(RenderPhysicalShape node, Offset offset) {
     final isButton = node.findParentWithName('_RenderInputPadding') != null;
     final shape = (node.clipper as ShapeBorderClipper).shape;
     BorderRadiusGeometry? borderRadius;
@@ -416,11 +437,23 @@ class RenderSkeletonizer extends RenderProxyBox {
     } else if (shape is StadiumBorder) {
       borderRadius = BorderRadius.circular(node.size.height);
     }
+    var descendents = isButton ? const <PaintableElement>[] : _getDescendents(node, offset);
+
+    if (borderRadius != null && node.clipBehavior != Clip.none && descendents.isNotEmpty) {
+      final clipRect = (offset & node.size).toRRect(borderRadius.resolve(textDirection));
+      descendents = [
+        ClipRRectElement(
+          clip: clipRect,
+          offset: offset,
+          descendents: descendents,
+        )
+      ];
+    }
 
     return ContainerElement(
       rect: offset & node.size,
       elevation: node.elevation,
-      descendents: isButton ? const [] : _getDescendents(node, offset),
+      descendents: descendents,
       color: node.color,
       boxShape: shape is CircleBorder ? BoxShape.circle : BoxShape.rectangle,
       borderRadius: borderRadius?.resolve(textDirection),

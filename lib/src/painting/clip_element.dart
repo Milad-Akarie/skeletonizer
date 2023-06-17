@@ -1,10 +1,10 @@
 import 'package:flutter/rendering.dart';
 import 'package:skeletonizer/src/painting/paintable_element.dart';
 
-class RRectClipElement extends AncestorElement {
+class ClipRRectElement extends AncestorElement {
   final RRect clip;
 
-  RRectClipElement({
+  ClipRRectElement({
     required this.clip,
     required super.offset,
     required super.descendents,
@@ -13,10 +13,15 @@ class RRectClipElement extends AncestorElement {
   @override
   bool operator ==(Object other) =>
       identical(this, other) ||
-      other is RRectClipElement && runtimeType == other.runtimeType && clip == other.clip && super == (other);
+      other is ClipRRectElement && runtimeType == other.runtimeType && clip == other.clip && super == (other);
 
   @override
   int get hashCode => clip.hashCode ^ super.hashCode;
+
+  @override
+  String toString() {
+    return 'RRectClipElement{clip: $clip, offset: $offset, descendents: $descendents}';
+  }
 
   @override
   void paint(PaintingContext context, Offset offset, Paint shaderPaint) {
@@ -31,26 +36,23 @@ class RRectClipElement extends AncestorElement {
   Rect get rect => clip.outerRect;
 }
 
-class RectClipElement extends AncestorElement {
+class ClipRectElement extends AncestorElement {
   @override
   final Rect rect;
 
-  RectClipElement({
+  ClipRectElement({
     required this.rect,
     required super.descendents,
     required super.offset,
   });
 
-
   @override
   bool operator ==(Object other) =>
       identical(this, other) ||
-          other is RectClipElement && runtimeType == other.runtimeType && rect == other.rect && super == (other);
+      other is ClipRectElement && runtimeType == other.runtimeType && rect == other.rect && super == (other);
 
   @override
   int get hashCode => rect.hashCode ^ super.hashCode;
-
-
 
   @override
   void paint(PaintingContext context, Offset offset, Paint shaderPaint) {
@@ -62,23 +64,27 @@ class RectClipElement extends AncestorElement {
   }
 }
 
-class PathClipElement extends AncestorElement {
+class ClipPathElement extends AncestorElement {
   final Path clip;
 
-  PathClipElement({
+  ClipPathElement({
     required this.clip,
     required super.descendents,
     required super.offset,
   });
 
-
   @override
   bool operator ==(Object other) =>
       identical(this, other) ||
-          other is PathClipElement && runtimeType == other.runtimeType && clip == other.clip && super == (other);
+      other is ClipPathElement && runtimeType == other.runtimeType && rect == other.rect && super == (other);
 
   @override
-  int get hashCode => clip.hashCode ^ super.hashCode;
+  int get hashCode => rect.hashCode ^ super.hashCode;
+
+  @override
+  String toString() {
+    return 'PathClipElement{clip: $clip, offset: $offset, descendents: $descendents}';
+  }
 
   @override
   void paint(PaintingContext context, Offset offset, Paint shaderPaint) {
@@ -92,4 +98,3 @@ class PathClipElement extends AncestorElement {
   @override
   Rect get rect => clip.getBounds();
 }
-

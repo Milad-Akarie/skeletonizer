@@ -79,8 +79,8 @@ class Skeleton extends StatelessWidget {
     Key? key,
     required Widget child,
     bool visible,
-    double? replacementWidth,
-    double? replacementHeight,
+    double? width,
+    double? height,
     Widget replacement,
   }) = SkeletonReplace;
 }
@@ -122,14 +122,14 @@ class SkeletonReplace extends Skeleton {
     super.key,
     required super.child,
     this.visible = false,
-    this.replacementWidth,
-    this.replacementHeight,
+    this.width,
+    this.height,
     this.replacement = const DecoratedBox(
       decoration: BoxDecoration(color: Colors.black),
     ),
   }) : super._(annotation: const ReplaceOriginal());
 
-  final double? replacementWidth, replacementHeight;
+  final double? width, height;
   final bool visible;
   final Widget replacement;
 
@@ -139,8 +139,8 @@ class SkeletonReplace extends Skeleton {
     return isVisible
         ? super.build(context)
         : SizedBox(
-            width: replacementWidth,
-            height: replacementHeight,
+            width: width,
+            height: height,
             child: replacement,
           );
   }
@@ -157,7 +157,7 @@ class SkeletonShade extends Skeleton {
 
   @override
   Widget build(BuildContext context) {
-    final useMask = shade && Skeletonizer.of(context).enabled;
-    return useMask ? SkeletonShaderMask(child: super.build(context)) : super.build(context);
+    final userShaderMask = shade && Skeletonizer.of(context).enabled;
+    return userShaderMask ? SkeletonShaderMask(child: super.build(context)) : super.build(context);
   }
 }

@@ -1,12 +1,6 @@
-import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/rendering.dart';
 import 'package:skeletonizer/skeletonizer.dart';
-import 'package:collection/collection.dart';
 import 'package:skeletonizer/src/rendering/render_skeletonizer.dart';
-import 'package:skeletonizer/src/utils.dart';
-import 'package:skeletonizer/src/painting/paintable_element.dart';
-import 'dart:math' as math;
 
 class SkeletonizerBase extends SingleChildRenderObjectWidget {
   const SkeletonizerBase({

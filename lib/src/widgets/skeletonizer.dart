@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:skeletonizer/src/effects/painting_effect_base.dart';
-import 'package:skeletonizer/src/rendering/render_skeletonizer.dart';
 import 'package:skeletonizer/src/theme/skeletonizer_theme.dart';
 import 'package:skeletonizer/src/widgets/skeletonizer_base.dart';
 
