@@ -82,7 +82,6 @@ class SkeletonizerState extends State<Skeletonizer> with TickerProviderStateMixi
 
   void _startAnimation() {
     assert(_effect != null);
-
     if (_effect!.duration.inMilliseconds != 0) {
       _animationController = AnimationController.unbounded(vsync: this)
         ..addListener(_onShimmerChange)

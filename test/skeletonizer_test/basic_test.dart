@@ -5,6 +5,8 @@ import 'package:skeletonizer/src/rendering/render_skeletonizer.dart';
 import 'package:skeletonizer/src/utils.dart';
 import 'package:skeletonizer/src/widgets/skeletonizer.dart';
 
+import 'utils.dart';
+
 void main() {
   testWidgets('Card widgets should be resolved to ContainerElements', (tester) async {
     final skeletonizer = await tester.pumpSkeletonizerApp(
@@ -282,18 +284,3 @@ TextElement _toTextElement(TextSpan text) {
   );
 }
 
-extension WidgetTesterX on WidgetTester {
-  Future<RenderSkeletonizer> pumpSkeletonizerApp(Widget widget) async {
-    await pumpWidget(
-      MaterialApp(
-        home: Skeletonizer(
-          child: widget,
-        ),
-      ),
-    );
-    return skeletonizer;
-  }
-
-  RenderSkeletonizer get skeletonizer =>
-      allRenderObjects.firstWhere((e) => e is RenderSkeletonizer) as RenderSkeletonizer;
-}
