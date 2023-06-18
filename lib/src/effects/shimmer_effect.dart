@@ -1,7 +1,7 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 
-import 'painting_effect_base.dart';
+import 'painting_effect.dart';
 
 class _ShimmerEffect extends ShimmerEffect {
   final Color baseColor;

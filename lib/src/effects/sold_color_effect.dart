@@ -1,5 +1,5 @@
 import 'package:flutter/cupertino.dart';
-import 'package:skeletonizer/src/effects/painting_effect_base.dart';
+import 'package:skeletonizer/src/effects/painting_effect.dart';
 
 class SoldColorEffect extends PaintingEffect {
   final Color color;

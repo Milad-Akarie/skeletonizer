@@ -1,12 +1,11 @@
-
-import 'package:flutter/cupertino.dart';
-import 'package:skeletonizer/src/effects/painting_effect_base.dart';
+import 'package:flutter/material.dart';
+import 'package:skeletonizer/src/effects/painting_effect.dart';
 
 class PulseEffect extends PaintingEffect {
   final Color from;
   final Color to;
 
- const PulseEffect(
+  const PulseEffect(
       {this.from = const Color(0xFFEBEBF4),
       this.to = const Color(0xFFF6F6F6),
       super.lowerBound,

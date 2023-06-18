@@ -52,10 +52,10 @@ class ShadedElement extends PaintableElement {
   @override
   void paint(PaintingContext context, Offset offset, Paint shaderPaint) {
     renderObject.shader = shaderPaint.shader;
-    renderObject.maskRect = rect;
+    renderObject.maskRect = offset & canvasSize + this.offset;
     renderObject.paint(context, this.offset + offset);
   }
 
   @override
-  Rect get rect => Offset.zero & canvasSize + offset;
+  Rect get rect => Rect.zero;
 }

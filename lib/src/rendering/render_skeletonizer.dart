@@ -138,11 +138,11 @@ class RenderSkeletonizer extends RenderProxyBox {
               renderObject: child.child!,
             ),
           );
-        } else if (child.annotation is UnionDescendents) {
+        } else if (child.annotation is UniteDescendents) {
           final descendents = _getDescendents(child.child!, childOffset);
           final (rect, borderRadius) = _union(descendents);
           final effectiveBorderRadius =
-              (child.annotation as UnionDescendents).borderRadius?.resolve(textDirection) ?? borderRadius;
+              (child.annotation as UniteDescendents).borderRadius?.resolve(textDirection) ?? borderRadius;
           elements.add(LeafElement(rect: rect, borderRadius: effectiveBorderRadius));
           return;
         }
@@ -179,10 +179,10 @@ class RenderSkeletonizer extends RenderProxyBox {
         } else if (child.widget is ColoredBox) {
           return elements.add(
             ContainerElement(
-              rect: childOffset & child.size,
-              color: (child.widget as ColoredBox).color,
-              descendents: _getDescendents(child, childOffset),
-            ),
+                rect: childOffset & child.size,
+                color: (child.widget as ColoredBox).color,
+                descendents: _getDescendents(child, childOffset),
+                drawContainer: !themeData.ignoreContainers),
           );
         } else if (child is RenderRotatedBox) {
           final element = _buildRotatedBox(child, childOffset);
@@ -358,6 +358,7 @@ class RenderSkeletonizer extends RenderProxyBox {
       color: boxDecoration.color,
       boxShape: boxDecoration.shape,
       boxShadow: boxDecoration.boxShadow,
+      drawContainer: !themeData.ignoreContainers,
     );
   }
 
@@ -405,15 +406,10 @@ class RenderSkeletonizer extends RenderProxyBox {
 
   bool _needsSkeletonizing = true;
 
-  Constraints? _skeletonizedAtConstrains;
-
   @override
   void layout(Constraints constraints, {bool parentUsesSize = false}) {
     super.layout(constraints, parentUsesSize: parentUsesSize);
-    if (_skeletonizedAtConstrains != constraints) {
-      _skeletonizedAtConstrains = constraints;
-      _needsSkeletonizing = true;
-    }
+    _needsSkeletonizing = true;
   }
 
   @override
@@ -449,7 +445,6 @@ class RenderSkeletonizer extends RenderProxyBox {
         )
       ];
     }
-
     return ContainerElement(
       rect: offset & node.size,
       elevation: node.elevation,
@@ -457,6 +452,7 @@ class RenderSkeletonizer extends RenderProxyBox {
       color: node.color,
       boxShape: shape is CircleBorder ? BoxShape.circle : BoxShape.rectangle,
       borderRadius: borderRadius?.resolve(textDirection),
+      drawContainer: !themeData.ignoreContainers,
     );
   }
 
@@ -475,6 +471,7 @@ class RenderSkeletonizer extends RenderProxyBox {
       color: node.color,
       boxShape: shape is CircleBorder ? BoxShape.circle : BoxShape.rectangle,
       borderRadius: borderRadius?.resolve(textDirection),
+      drawContainer: !themeData.ignoreContainers,
     );
   }
 }

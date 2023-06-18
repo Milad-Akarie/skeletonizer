@@ -12,6 +12,7 @@ class ContainerElement extends AncestorElement {
   @override
   final Rect rect;
   final BorderRadius? borderRadius;
+  final bool drawContainer;
 
   ContainerElement({
     required super.descendents,
@@ -20,6 +21,7 @@ class ContainerElement extends AncestorElement {
     this.borderRadius,
     this.boxShape = BoxShape.rectangle,
     this.boxShadow,
+    this.drawContainer = true,
     this.color,
     this.border,
   }) : super(offset: rect.topLeft);
@@ -31,8 +33,9 @@ class ContainerElement extends AncestorElement {
           runtimeType == other.runtimeType &&
           elevation == other.elevation &&
           border == other.border &&
+          drawContainer == other.drawContainer &&
           color == other.color &&
-          const ListEquality().equals(boxShadow, other.boxShadow)  &&
+          const ListEquality().equals(boxShadow, other.boxShadow) &&
           boxShape == other.boxShape &&
           super == (other) &&
           rect == other.rect &&
@@ -46,9 +49,9 @@ class ContainerElement extends AncestorElement {
       const ListEquality().hash(boxShadow) ^
       boxShape.hashCode ^
       rect.hashCode ^
+      drawContainer.hashCode ^
       borderRadius.hashCode ^
       super.hashCode;
-
 
   @override
   String toString() {
@@ -58,59 +61,60 @@ class ContainerElement extends AncestorElement {
   @override
   void paint(PaintingContext context, Offset offset, Paint shaderPaint) {
     final shiftedRect = rect.shift(offset);
-    if (color != null) {
-      final treatAsBone = descendents.isEmpty;
-      final surfacePaint = Paint()..color = color ?? Colors.white;
-      final drawElevation = descendents.isNotEmpty && elevation != null && elevation! > 0;
+    if (drawContainer) {
+      if (color != null) {
+        final treatAsBone = descendents.isEmpty;
+        final surfacePaint = Paint()..color = color ?? Colors.white;
+        final drawElevation = descendents.isNotEmpty && elevation != null && elevation! > 0;
 
-      if (boxShape == BoxShape.circle) {
-        if (boxShadow != null) {
-          for (final box in boxShadow!) {
-            context.canvas.drawCircle(
-              shiftedRect.center + box.offset,
-              shiftedRect.shortestSide / 2,
-              box.toPaint(),
+        if (boxShape == BoxShape.circle) {
+          if (boxShadow != null) {
+            for (final box in boxShadow!) {
+              context.canvas.drawCircle(
+                shiftedRect.center + box.offset,
+                shiftedRect.shortestSide / 2,
+                box.toPaint(),
+              );
+            }
+          }
+          context.canvas.drawCircle(
+            shiftedRect.center,
+            shiftedRect.shortestSide / 2,
+            treatAsBone ? shaderPaint : surfacePaint,
+          );
+        } else if (borderRadius != null) {
+          final rRect = shiftedRect.toRRect(borderRadius!);
+          if (drawElevation) {
+            context.canvas.drawShadow(
+              Path()..addRRect(rRect),
+              Colors.black,
+              elevation!,
+              false,
             );
           }
-        }
-        context.canvas.drawCircle(
-          shiftedRect.center,
-          shiftedRect.shortestSide / 2,
-          treatAsBone ? shaderPaint : surfacePaint,
-        );
-      } else if (borderRadius != null) {
-
-        final rRect = shiftedRect.toRRect(borderRadius!);
-        if (drawElevation) {
-          context.canvas.drawShadow(
-            Path()..addRRect(rRect),
-            Colors.black,
-            elevation!,
-            false,
-          );
-        }
-        if (boxShadow != null) {
-          for (final box in boxShadow!) {
-            context.canvas.drawRRect(rRect.shift(box.offset), box.toPaint());
+          if (boxShadow != null) {
+            for (final box in boxShadow!) {
+              context.canvas.drawRRect(rRect.shift(box.offset), box.toPaint());
+            }
           }
-        }
-        context.canvas.drawRRect(rRect, treatAsBone ? shaderPaint : surfacePaint);
-      } else {
-        if (drawElevation) {
-          context.canvas.drawShadow(Path()..addRect(shiftedRect), Colors.black, elevation!, false);
-        }
-        if (boxShadow != null) {
-          for (final box in boxShadow!) {
-            context.canvas.drawRect(shiftedRect.shift(box.offset), box.toPaint());
+          context.canvas.drawRRect(rRect, treatAsBone ? shaderPaint : surfacePaint);
+        } else {
+          if (drawElevation) {
+            context.canvas.drawShadow(Path()..addRect(shiftedRect), Colors.black, elevation!, false);
           }
+          if (boxShadow != null) {
+            for (final box in boxShadow!) {
+              context.canvas.drawRect(shiftedRect.shift(box.offset), box.toPaint());
+            }
+          }
+          context.canvas.drawRect(shiftedRect, treatAsBone ? shaderPaint : surfacePaint);
         }
-        context.canvas.drawRect(shiftedRect, treatAsBone ? shaderPaint : surfacePaint);
+      }
+      if (border is Border) {
+        _paintBorder(shaderPaint, border as Border, context, shiftedRect);
       }
     }
 
-    if (border is Border) {
-      _paintBorder(shaderPaint, border as Border, context, shiftedRect);
-    }
     for (final descendent in descendents) {
       descendent.paint(context, offset, shaderPaint);
     }

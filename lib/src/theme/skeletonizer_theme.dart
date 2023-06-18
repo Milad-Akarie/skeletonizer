@@ -7,17 +7,20 @@ class SkeletonizerThemeData {
   final PaintingEffect effect;
   final TextBoneBorderRadius textBorderRadius;
   final bool justifyMultiLineText;
+  final bool ignoreContainers;
 
   const SkeletonizerThemeData({
     this.effect = const ShimmerEffect(),
     this.justifyMultiLineText = true,
     this.textBorderRadius = _defaultTextBoneBorderRadius,
+    this.ignoreContainers = false,
   });
 
   const SkeletonizerThemeData.light({
     this.effect = const ShimmerEffect(),
     this.justifyMultiLineText = true,
     this.textBorderRadius = _defaultTextBoneBorderRadius,
+    this.ignoreContainers = false,
   });
 
   const SkeletonizerThemeData.dark({
@@ -27,6 +30,7 @@ class SkeletonizerThemeData {
     ),
     this.justifyMultiLineText = true,
     this.textBorderRadius = _defaultTextBoneBorderRadius,
+    this.ignoreContainers = false,
   });
 
   @override
@@ -36,10 +40,26 @@ class SkeletonizerThemeData {
           runtimeType == other.runtimeType &&
           effect == other.effect &&
           justifyMultiLineText == other.justifyMultiLineText &&
+          ignoreContainers == other.ignoreContainers &&
           textBorderRadius == other.textBorderRadius;
 
   @override
-  int get hashCode => effect.hashCode ^ textBorderRadius.hashCode ^ justifyMultiLineText.hashCode;
+  int get hashCode =>
+      effect.hashCode ^ textBorderRadius.hashCode ^ justifyMultiLineText.hashCode ^ ignoreContainers.hashCode;
+
+  SkeletonizerThemeData copyWith({
+    PaintingEffect? effect,
+    TextBoneBorderRadius? textBorderRadius,
+    bool? justifyMultiLineText,
+    bool? ignoreContainers,
+  }) {
+    return SkeletonizerThemeData(
+      effect: effect ?? this.effect,
+      textBorderRadius: textBorderRadius ?? this.textBorderRadius,
+      justifyMultiLineText: justifyMultiLineText ?? this.justifyMultiLineText,
+      ignoreContainers: ignoreContainers ?? this.ignoreContainers,
+    );
+  }
 }
 
 class TextBoneBorderRadius {

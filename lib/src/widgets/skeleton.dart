@@ -60,12 +60,12 @@ class Skeleton extends StatelessWidget {
     bool keep = true,
   }) : annotation = keep ? const KeepOriginal() : _none;
 
-  const Skeleton.union({
+  const Skeleton.unite({
     super.key,
     required this.child,
-    bool union = true,
-    UnionDescendents annotation = const UnionDescendents(),
-  }) : annotation = union ? annotation : _none;
+    bool unite = true,
+    UniteDescendents annotation = const UniteDescendents(),
+  }) : annotation = unite ? annotation : _none;
 
   @override
   Widget build(BuildContext context) {
@@ -111,8 +111,8 @@ class ReplaceOriginal extends SkeletonAnnotation {
   const ReplaceOriginal();
 }
 
-class UnionDescendents extends SkeletonAnnotation {
-  const UnionDescendents({this.borderRadius});
+class UniteDescendents extends SkeletonAnnotation {
+  const UniteDescendents({this.borderRadius});
 
   final BorderRadiusGeometry? borderRadius;
 }

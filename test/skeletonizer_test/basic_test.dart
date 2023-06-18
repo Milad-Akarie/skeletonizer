@@ -1,10 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:skeletonizer/src/painting/painting.dart';
-import 'package:skeletonizer/src/rendering/render_skeletonizer.dart';
 import 'package:skeletonizer/src/utils.dart';
-import 'package:skeletonizer/src/widgets/skeletonizer.dart';
 
+import 'helpers.dart';
 import 'utils.dart';
 
 void main() {
@@ -208,7 +207,7 @@ void main() {
         alignment: Alignment.topLeft,
         child: ClipRect(
           child:
-          SizedBox(width: 100, height: 20, child: Align(alignment: Alignment.topLeft, child: RichText(text: text))),
+              SizedBox(width: 100, height: 20, child: Align(alignment: Alignment.topLeft, child: RichText(text: text))),
         ),
       ),
     );
@@ -224,14 +223,13 @@ void main() {
     );
   });
 
-
   testWidgets('ClipPath widgets should be resolved to PathClipElements', (tester) async {
     const text = TextSpan(text: 'foo', style: TextStyle(fontSize: 14));
     final skeletonizer = await tester.pumpSkeletonizerApp(
       Align(
         alignment: Alignment.topLeft,
         child: ClipPath(
-          clipper: _PathClip(),
+          clipper: TestPathClipper(),
           child: SizedBox(
             width: 100,
             height: 20,
@@ -248,7 +246,7 @@ void main() {
         ClipPathElement(
           offset: Offset.zero,
           descendents: [_toTextElement(text)],
-          clip: _PathClip().getClip(Size.zero),
+          clip: TestPathClipper().getClip(const Size(100,20)),
         )
       ],
       skeletonizer.paintableElements,
@@ -256,17 +254,6 @@ void main() {
   });
 }
 
-class _PathClip extends CustomClipper<Path> {
-  @override
-  Path getClip(Size size) {
-    return Path()
-      ..moveTo(0, 0)
-      ..lineTo(10, 10);
-  }
-
-  @override
-  bool shouldReclip(covariant CustomClipper<Path> oldClipper) => false;
-}
 
 TextElement _toTextElement(TextSpan text) {
   final painter = TextPainter(
@@ -283,4 +270,3 @@ TextElement _toTextElement(TextSpan text) {
     textDirection: TextDirection.ltr,
   );
 }
-

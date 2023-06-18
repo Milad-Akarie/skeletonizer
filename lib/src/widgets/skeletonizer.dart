@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:skeletonizer/src/effects/painting_effect_base.dart';
+import 'package:skeletonizer/src/effects/painting_effect.dart';
 import 'package:skeletonizer/src/theme/skeletonizer_theme.dart';
 import 'package:skeletonizer/src/widgets/skeletonizer_base.dart';
 
@@ -9,11 +9,17 @@ class Skeletonizer extends StatefulWidget {
     required this.child,
     this.enabled = true,
     this.effect,
+    this.textBoneBorderRadius,
+    this.ignoreContainers,
+    this.justifyMultiLineText,
   });
 
   final Widget child;
   final bool enabled;
   final PaintingEffect? effect;
+  final TextBoneBorderRadius? textBoneBorderRadius;
+  final bool? ignoreContainers;
+  final bool? justifyMultiLineText;
 
   @override
   State<Skeletonizer> createState() => SkeletonizerState();
@@ -44,8 +50,9 @@ class SkeletonizerState extends State<Skeletonizer> with TickerProviderStateMixi
 
   bool get enabled => _enabled;
 
-  PaintingEffect? _effect;
   SkeletonizerThemeData? _themeData;
+
+  PaintingEffect? get _effect => _themeData?.effect;
 
   @override
   void didChangeDependencies() {
@@ -60,11 +67,17 @@ class SkeletonizerState extends State<Skeletonizer> with TickerProviderStateMixi
     _brightness = Theme.of(context).brightness;
     _textDirection = Directionality.of(context);
     final isDarkMode = _brightness == Brightness.dark;
-    _themeData = SkeletonizerTheme.maybeOf(context) ??
+    var themeData = SkeletonizerTheme.maybeOf(context) ??
         (isDarkMode ? const SkeletonizerThemeData.dark() : const SkeletonizerThemeData.light());
-    final effect = widget.effect ?? _themeData!.effect;
-    if (_effect != effect) {
-      _effect = effect;
+    themeData = themeData.copyWith(
+      effect: widget.effect,
+      textBorderRadius: widget.textBoneBorderRadius,
+      ignoreContainers: widget.ignoreContainers,
+      justifyMultiLineText: widget.justifyMultiLineText,
+    );
+
+    if (themeData != _themeData) {
+      _themeData = themeData;
       _stopAnimation();
       if (widget.enabled) {
         _startAnimation();
@@ -106,9 +119,7 @@ class SkeletonizerState extends State<Skeletonizer> with TickerProviderStateMixi
         _startAnimation();
       }
     }
-    if (widget.effect != oldWidget.effect) {
-      _setupEffect();
-    }
+    _setupEffect();
   }
 
   @override
