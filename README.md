@@ -1,5 +1,5 @@
 <p align="center">                    
-<img  src="https://raw.githubusercontent.com/Milad-Akarie/skeletonizer/main/art/skeletonizer_logo.svg" height="170">                    
+<img  src="https://raw.githubusercontent.com/Milad-Akarie/skeletonizer/main/art/skeletonizer_logo.svg" height="130">                    
 </p>                    
 
 <p align="center">                    
@@ -43,22 +43,21 @@ in addition SkeletonAnnotations can be used to change how some widgets are skele
 Simply wrap your layout with `Skeletonizer` widget
 
 ```dart
- Skeletonizer
-(
-enabled: _loading,
-child: ListView.builder(
-itemCount: 7,
-itemBuilder: (context, index) {
-return Card(
-child: ListTile(
-title: Text('Item number $index as title'),
-subtitle: const Text('Subtitle here'),
-trailing: const Icon(Icons.ac_unit),
-),
-);
-},
-)
-,
+
+Skeletonizer(
+  enabled: _loading,
+  child: ListView.builder(
+    itemCount: 7,
+    itemBuilder: (context, index) {
+      return Card(
+        child: ListTile(
+          title: Text('Item number $index as title'),
+          subtitle: const Text('Subtitle here'),
+          trailing: const Icon(Icons.ac_unit),
+        ),
+      );
+    },
+  ),
 )
 ```
 
@@ -71,12 +70,8 @@ trailing: const Icon(Icons.ac_unit),
 #### Skeletonizer with no containers
 
 ```dart
-Skeletonizer
-(
-ignoreContainers
-:
-true
-)
+
+Skeletonizer(ignoreContainers: true)
 ```
 
 ![](https://github.com/Milad-Akarie/skeletonizer/blob/main/art/skeletonizer_demo_2.gif?raw=true)
@@ -89,25 +84,23 @@ e.g the following ListView ill not render anything unless `users` is populated, 
 we have no layout which mean we have nothing to skeletonize.
 
 ```dart
- Skeletonizer
-(
-enabled: _loading,
-child: ListView.builder(
-itemCount: users.lenght,
-itemBuilder: (context, index) {
-return Card(
-child: ListTile(
-title: Text(users[index].name),
-subtitle: Text(users[index].jobTitle),
-leading: CircleAvatar(
-radius: 24,
-backgroundImage: NetworkImage(users[index].avatar),
-),
-),
-);
-},
-)
-,
+Skeletonizer(
+  enabled: _loading,
+  child: ListView.builder(
+    itemCount: users.lenght,
+    itemBuilder: (context, index) {
+      return Card(
+        child: ListTile(
+          title: Text(users[index].name),
+          subtitle: Text(users[index].jobTitle),
+          leading: CircleAvatar(
+            radius: 24,
+            backgroundImage: NetworkImage(users[index].avatar),
+          ),
+        ),
+      );
+    },
+  ),
 )
 ```
 
@@ -115,39 +108,40 @@ So the key here is to provide fake data for the layout to shape until the real d
 backend, so we would such a setup in our build method
 
 ```dart
- if (_loading) {
-final fakeUsers = List.generate(
-7, (index) => const User(
-name: 'User name',
-jobTitle: 'Developer',
-avatar: ''
-),
-);
-return Skeletonizer(
-child: UserList(users: fakeUsers),
-);
-} else {
-return UserList(users: realUsers);
-}
+ 
+  if (_loading) {
+    final fakeUsers = List.generate(
+      7, (index) => const User(
+        name: 'User name',
+        jobTitle: 'Developer',
+        avatar: ''
+    ),
+    );
+    return Skeletonizer(
+      child: UserList(users: fakeUsers),
+    );
+  } else {
+    return UserList(users: realUsers);
+  }  
+
 ```
 
 or by utilizing the `enabled` flag
 
 ```dart
-
-final users = _loading ? realUsers : List.generate(
-    7, (index) =>
-const User(
-    name: 'User name',
-    jobTitle: 'Developer',
-    avatar: ''
-)
-);return Skeletonizer
-(
-enabled: _loading,
-child: UserList(users: users)
-,
-);
+  {
+  final users = _loading ? realUsers : List.generate(
+      7, (index) => const User(
+      name: 'User name',
+      jobTitle: 'Developer',
+      avatar: ''
+  )
+  );
+  return Skeletonizer(
+    enabled: _loading,
+    child: UserList(users: users),
+  );
+ 
 ```
 
 Now we have our layout but one issue remains, if you run the above example you'll get an error in
@@ -157,66 +151,59 @@ tree when skeletonizer is enabled and we do that by using a skeleton annotation
 called `Skeleton.replace` ..read more about annotations below.
 
 ```dart
- Skeletonizer
-(
-enabled: _loading,
-child: ListView.builder(
-itemCount: users.lenght,
-itemBuilder: (context, index) {
-return Card(
-child: ListTile(
-title: Text(users[index].name),
-subtitle: Text('users[index].jobTitle),
-leading: Skeleton.replace(
-width: 48, // width of replacement
-height: 48, // height of replacement
-child; CircleAvatar(
-radius: 24,
-backgroundImage: NetworkImage(users[index].avatar),
-),
-),
-);
-},
-)
-,
+Skeletonizer(
+  enabled: _loading,
+  child: ListView.builder(
+    itemCount: users.lenght,
+    itemBuilder: (context, index) {
+      return Card(
+        child: ListTile(
+          title: Text(users[index].name),
+          subtitle: Text('users[index].jobTitle),
+            leading: Skeleton.replace(
+            width: 48, // width of replacement
+            height: 48, // height of replacement
+            child; CircleAvatar(
+            radius: 24,
+            backgroundImage: NetworkImage(users[index].avatar),
+          ),
+        ),
+      );
+    },
+  ),
 )
 ```
 
 or you can do it directly like follows:
 
 ```dart
- Skeletonizer
-(
-enabled: _loading,
-child: ListView.builder(
-itemCount: users.lenght,
-itemBuilder: (context, index) {
-return Card(
-child: ListTile(
-title: Text(users[index].name),
-subtitle: Text('users[index].jobTitle),
-leading: CircleAvatar(
-radius: 24,
-backgroundImage: _loading ? null : NetworkImage(users[index].avatar),
-),
-),
-),
-);
-},
-)
-,
+Skeletonizer(
+  enabled: _loading,
+  child: ListView.builder(
+    itemCount: users.lenght,
+    itemBuilder: (context, index) {
+      return Card(
+        child: ListTile(
+          title: Text(users[index].name),
+          subtitle: Text('users[index].jobTitle),
+            leading: CircleAvatar(
+            radius: 24,
+            backgroundImage: _loading ? null : NetworkImage(users[index].avatar),
+          ),
+        ),
+      ),);
+    },
+  ),
 )
 ```
 
 **Note**: you can also check wither a skeletonizer is enabled inside descendent widgets using:
 
 ```dart
-Skeletonizer.of
-(
-context
-)
-.
-enabled;
+
+Skeletonizer
+    .of(context)
+    .enabled;
 ```
 
 ## Annotations
@@ -230,17 +217,14 @@ enabled.
 Widgets annotated with `Skeleton.ignore` will not be skeletonized
 
 ```dart
-  Card
-(
-child: ListTile(
-title: Text('The title goes here'),
-subtitle: Text('Subtitle here'),
-trailing: Skeleton.ignore( // the icon will not be skeletonized
-child: Icon(Icons.ac_unit, size: 40),
-)
-,
-)
-,
+Card(
+  child: ListTile(
+    title: Text('The title goes here'),
+    subtitle: Text('Subtitle here'),
+    trailing: Skeleton.ignore( // the icon will not be skeletonized
+      child: Icon(Icons.ac_unit, size: 40),
+    ),
+  ),
 )
 ```
 
@@ -248,17 +232,14 @@ child: Icon(Icons.ac_unit, size: 40),
 **Ignored multiple descendants demo**
 
 ```dart
-  Card
-(
-child: Skeleton.ignore( // all descendents will be ignored
-child: ListTile(
-title: Text('The title goes here'),
-subtitle: Text('Subtitle here'),
-trailing: Icon(Icons.ac_unit, size: 40),
-)
-,
-)
-,
+Card(
+  child: Skeleton.ignore( // all descendents will be ignored
+    child: ListTile(
+      title: Text('The title goes here'),
+      subtitle: Text('Subtitle here'),
+      trailing: Icon(Icons.ac_unit, size: 40),
+    ),
+  ),
 )
 ```
 
@@ -269,17 +250,14 @@ trailing: Icon(Icons.ac_unit, size: 40),
 Widgets annotated with `Skeleton.keep` will not be skeletonized but will be painted as is
 
 ```dart
-  Card
-(
-child: ListTile(
-title: Text('The title goes here'),
-subtitle: Text('Subtitle here'),
-trailing: Skeleton.keep( // the icon will be painted as is
-child: Icon(Icons.ac_unit, size: 40),
-)
-,
-)
-,
+Card(
+  child: ListTile(
+    title: Text('The title goes here'),
+    subtitle: Text('Subtitle here'),
+    trailing: Skeleton.keep( // the icon will be painted as is
+      child: Icon(Icons.ac_unit, size: 40),
+    ),
+  ),
 )
 ```
 
@@ -290,17 +268,14 @@ child: Icon(Icons.ac_unit, size: 40),
 Widgets annotated with `Skeleton.shade` will not be skeletonized but will be shaded by a shader mask
 
 ```dart
-  Card
-(
-child: ListTile(
-title: Text('The title goes here'),
-subtitle: Text('Subtitle here'),
-trailing: Skeleton.shade( // the icon will be shaded by shader mask
-child: Icon(Icons.ac_unit, size: 40),
-)
-,
-)
-,
+Card(
+  child: ListTile(
+    title: Text('The title goes here'),
+    subtitle: Text('Subtitle here'),
+    trailing: Skeleton.shade( // the icon will be shaded by shader mask
+      child: Icon(Icons.ac_unit, size: 40),
+    ),
+  ),
 )
 ```
 
@@ -313,50 +288,42 @@ replacement will be skeletonized, This is good for widgets that can render with 
 like `Image.network()`
 
 ```dart
-  Card
-(
-child: ListTile(
-title: Text('The title goes here'),
-subtitle: Text('Subtitle here'),
-trailing: Skeleton.replace( // the icon will be replaced when skeletonizer is on
-width: 50, // the width of the replacement
-height: 50, // the height of the replacement
-replacment: // defaults to a DecoratedBox
-child: Icon(Icons.ac_unit, size: 40),
+Card(
+  child: ListTile(
+    title: Text('The title goes here'),
+    subtitle: Text('Subtitle here'),
+    trailing: Skeleton.replace( // the icon will be replaced when skeletonizer is on
+        width: 50, // the width of the replacement
+        height: 50, // the height of the replacement
+        replacment: // defaults to a DecoratedBox
+        child: Icon(Icons.ac_unit, size: 40),
+  ),
 )
-,
-)
-,
-)
+,)
 ```
 
 ![](https://github.com/Milad-Akarie/skeletonizer/blob/main/art/replaced_skeleton_demo.gif?raw=true)
 
 ### Skeleton.unite
-
 Widgets annotated with `Skeleton.unite` will not be united and drawn as one big bone, this is good
 for when you have multiple small bones close to each other and you want to present them as one bone.
 
 ```dart
-Card
-(
-child: ListTile(
-title: Text('Item number 1 as title'),
-subtitle: Text('Subtitle here'),
-trailing: Skeleton.unite(
-child: Row(
-mainAxisSize: MainAxisSize.min,
-children: [
-Icon(Icons.ac_unit, size: 32),
-SizedBox(width: 8),
-Icon(Icons.access_alarm, size: 32),
-],
-)
-,
-)
-,
-)
-,
+Card(
+  child: ListTile(
+    title: Text('Item number 1 as title'),
+    subtitle: Text('Subtitle here'),
+    trailing: Skeleton.unite(
+      child: Row(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Icon(Icons.ac_unit, size: 32),
+          SizedBox(width: 8),
+          Icon(Icons.access_alarm, size: 32),
+        ],
+      ),
+    ),
+  ),
 )
 ,
 ```
@@ -366,24 +333,21 @@ Icon(Icons.access_alarm, size: 32),
 This annotation can also be used to merge a while layout and present it as one
 
 ```dart
-  Skeleton.unite
-(
-child: Card(
-child: ListTile(
-title: Text('Item number 1 as title'),
-subtitle: Text('Subtitle here'),
-trailing: Row(
-mainAxisSize: MainAxisSize.min,
-children: [
-Icon(Icons.ac_unit, size: 32),
-SizedBox(width: 8),
-Icon(Icons.access_alarm, size: 32),
-],
-),
-)
-,
-)
-,
+Skeleton.unite(
+  child: Card(
+    child: ListTile(
+      title: Text('Item number 1 as title'),
+      subtitle: Text('Subtitle here'),
+      trailing: Row(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Icon(Icons.ac_unit, size: 32),
+          SizedBox(width: 8),
+          Icon(Icons.access_alarm, size: 32),
+        ],
+      ),
+    ),
+  ),
 )
 ```
 
@@ -404,13 +368,10 @@ liking.
 You can provide a global text config options to skeletonizer widgets like
 
 ```dart
-   Skeletonizer
-(
-justifyMultiLineText: false,
-textBoneBorderRadius: TextBoneBorderRadius.fromHeightFactor(.5)
-,
-...
-.
+Skeletonizer(
+    justifyMultiLineText: false,
+    textBoneBorderRadius: TextBoneBorderRadius.fromHeightFactor(.5),
+    ...
 )
 ```
 
@@ -423,17 +384,16 @@ provide
 default skeletonizer configurations to your whole App.
 
 ```dart
-SkeletonizerConfig
-(
-data: SkeletonizerConfigData(
-effect: const ShimmerEffect(),
-justifyMultiLineText: true,
-textBorderRadius: TextBoneBorderRadius(..),
-ignoreContainers: false,
-),
-.....
+SkeletonizerConfig(
+    data: SkeletonizerConfigData(
+      effect: const ShimmerEffect(),
+      justifyMultiLineText: true,
+      textBorderRadius: TextBoneBorderRadius(..),
+      ignoreContainers: false,
+    ),
+    .....
 )
- ```
+```
 
 ### Support Skeletonizer
 
