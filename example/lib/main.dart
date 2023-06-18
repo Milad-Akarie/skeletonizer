@@ -12,21 +12,21 @@ class MyApp extends StatelessWidget {
   Widget build(BuildContext context) {
     return MaterialApp(
       title: 'Skeletonizer Demo',
-      darkTheme: ThemeData.dark(),
-      theme: ThemeData.light(),
-      home: const MyHomePage(),
+      debugShowCheckedModeBanner: false,
+      theme: ThemeData.light(useMaterial3: true),
+      home: const SkeletonizerDemoPage(),
     );
   }
 }
 
-class MyHomePage extends StatefulWidget {
-  const MyHomePage({super.key});
+class SkeletonizerDemoPage extends StatefulWidget {
+  const SkeletonizerDemoPage({super.key});
 
   @override
-  State<MyHomePage> createState() => _MyHomePageState();
+  State<SkeletonizerDemoPage> createState() => _SkeletonizerDemoPageState();
 }
 
-class _MyHomePageState extends State<MyHomePage> {
+class _SkeletonizerDemoPageState extends State<SkeletonizerDemoPage> {
   bool _enabled = true;
 
   @override
@@ -35,49 +35,75 @@ class _MyHomePageState extends State<MyHomePage> {
       appBar: AppBar(
         title: const Text('Skeletonizer Demo'),
       ),
-      floatingActionButton: FloatingActionButton(
-        child: Icon(
-          _enabled
-              ? Icons.hourglass_bottom_rounded
-              : Icons.hourglass_disabled_outlined,
+      floatingActionButton: Padding(
+        padding: const EdgeInsets.only(bottom: 32, right: 4),
+        child: FloatingActionButton(
+          child: Icon(
+            _enabled ? Icons.hourglass_bottom_rounded : Icons.hourglass_disabled_outlined,
+          ),
+          onPressed: () {
+            setState(() {
+              _enabled = !_enabled;
+            });
+          },
         ),
-        onPressed: () {
-          setState(() {
-            _enabled = !_enabled;
-          });
-        },
       ),
       body: Skeletonizer(
-          enabled: _enabled,
-          child: ListView(
-            children: [
-              for (final i in List.generate(20, (index) => index))
-                Card(
-                  elevation: .3,
-                  child: Column(
-                    children: [
-                      ListTile(
-                        title: Text('Item number $i with'),
-                        subtitle: const Text('Subtitle here'),
-                        trailing: const Skeleton.shade(
-                          child: Row(
-                            mainAxisSize: MainAxisSize.min,
-                            children: [
-                              Icon(Icons.ac_unit),
-                              SizedBox(width: 20),
-                              Padding(
-                                padding: EdgeInsets.only(top: 10),
-                                child: Icon(Icons.access_alarm),
-                              ),
-                            ],
-                          ),
+        enabled: _enabled,
+        child: true
+            ? const Padding(
+                padding: EdgeInsets.all(16),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Padding(
+                      padding: EdgeInsets.all(8.0),
+                      child: Skeleton.keep(child: Text('Default')),
+                    ),
+                    Card(
+                      child: ListTile(
+                        title: Text('Item number 1 as title'),
+                        subtitle: Text('Subtitle here'),
+                        trailing: Row(
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            Icon(Icons.ac_unit, size: 32),
+                            SizedBox(width: 8),
+                            Icon(Icons.access_alarm, size: 32),
+                          ],
                         ),
                       ),
-                    ],
-                  ),
-                )
-            ],
-          )),
+                    ),
+                    Padding(
+                      padding: EdgeInsets.all(8.0),
+                      child: Skeleton.keep(child: Text('Ignored skeleton')),
+                    ),
+                    Card(
+                      child:Skeleton.ignore(
+                        child: ListTile(
+                          title: Text('Item number 1 as title'),
+                          subtitle: Text('Subtitle here'),
+                          trailing: Icon(Icons.ac_unit, size: 32),
+                        ),
+                      ),
+                    )
+                  ],
+                ),
+              )
+            : ListView.builder(
+                itemCount: 7,
+                padding: const EdgeInsets.all(16),
+                itemBuilder: (context, index) {
+                  return Card(
+                    child: ListTile(
+                      title: Text('Item number $index as title'),
+                      subtitle: const Text('Subtitle here'),
+                      trailing: const Icon(Icons.ac_unit, size: 40),
+                    ),
+                  );
+                },
+              ),
+      ),
     );
   }
 }
