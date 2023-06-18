@@ -50,64 +50,68 @@ class _SkeletonizerDemoPageState extends State<SkeletonizerDemoPage> {
       ),
       body: true
           ? Padding(
-              padding: EdgeInsets.all(16),
+              padding: const EdgeInsets.all(16),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   const Padding(
                     padding: EdgeInsets.all(8.0),
-                    child: Skeleton.keep(child: Text('Shimmer effect')),
+                    child: Skeleton.keep(child: Text('Fixed Text border radius')),
                   ),
                   Skeletonizer(
-                    child: Column(
+                    textBoneBorderRadius: TextBoneBorderRadius(BorderRadius.circular(8)),
+                    child: const Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        for (final i in [0, 1])
-                          const Card(
-                            child: ListTile(
-                              title: Text('Item number 1 as title'),
-                              subtitle: Text('Subtitle here'),
-                              trailing: Icon(Icons.ac_unit, size: 32),
-                            ),
-                          ),
+                        Text(
+                          'Item number 1 as title',
+                          style: TextStyle(fontSize: 30),
+                        ),
+                        Text(
+                          'Item number 1 as title',
+                          style: TextStyle(fontSize: 14),
+                        ),
                       ],
                     ),
                   ),
                   const Padding(
                     padding: EdgeInsets.all(8.0),
-                    child: Skeleton.keep(child: Text('Pulse effect')),
+                    child: Skeleton.keep(child: Text('TextBoneBorderRadius.fromHeightFactor(.5)')),
                   ),
-                  Skeletonizer(
-                    effect: PulseEffect(from: Colors.grey.shade300, to: Colors.grey.shade200),
+                  const Skeletonizer(
+                    textBoneBorderRadius: TextBoneBorderRadius.fromHeightFactor(.5),
                     child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        for (final i in [0, 1])
-                          const Card(
-                            child: ListTile(
-                              title: Text('Item number 1 as title'),
-                              subtitle: Text('Subtitle here'),
-                              trailing: Icon(Icons.ac_unit, size: 32),
-                            ),
-                          ),
+                        Text(
+                          'Item number 1 as title',
+                          style: TextStyle(fontSize: 30),
+                        ),
+                        Text(
+                          'Item number 1 as title',
+                          style: TextStyle(fontSize: 14),
+                        ),
                       ],
                     ),
                   ),
                   const Padding(
                     padding: EdgeInsets.all(8.0),
-                    child: Skeleton.keep(child: Text('Sold color effect')),
+                    child: Skeleton.keep(child: Text('JustifyMultiLine set to true (default)')),
                   ),
                   Skeletonizer(
-                    effect: SoldColorEffect(color: Colors.grey.shade300),
-                    child: Column(
-                      children: [
-                        for (final i in [0, 1])
-                          const Card(
-                            child: ListTile(
-                              title: Text('Item number 1 as title'),
-                              subtitle: Text('Subtitle here'),
-                              trailing: Icon(Icons.ac_unit, size: 32),
-                            ),
-                          ),
-                      ],
+                    child: Text(
+                      'Item number 1 as title Item number 1 as title Item number 1 as title Item number 1 as title Item number 1 as title Item number 1 as title',
+                    ),
+
+                  ),
+                  const Padding(
+                    padding: EdgeInsets.all(8.0),
+                    child: Skeleton.keep(child: Text('JustifyMultiLine set to false')),
+                  ),
+                  Skeletonizer(
+                    justifyMultiLineText: false,
+                    child: Text(
+                      'Item number 1 as title Item number 1 as title Item number 1 as title Item number 1 as title Item number 1 as title Item number 1 as title',
                     ),
                   ),
                 ],
