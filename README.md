@@ -18,7 +18,7 @@
 
 - [Introduction](#introduction)
 - [Basic usage](#basic-usage)
-- [Then need for fake data](#then-need-for-fake-data)
+- [The need for fake data](#the-need-for-fake-data)
 - [Annotations](#annotations)
 - [Customization](#customization)
 
@@ -79,7 +79,7 @@ Skeletonizer(ignoreContainers: true)
 
 ![](https://github.com/Milad-Akarie/skeletonizer/blob/main/art/skeletonizer_demo_2.gif?raw=true)
 
-## Then need for fake data
+## The need for fake data
 
 In order for skeletonizer to work it actually needs a layout, but in most cases the layout would
 need data to shape which.
@@ -162,7 +162,7 @@ Skeletonizer(
       return Card(
         child: ListTile(
           title: Text(users[index].name),
-          subtitle: Text('users[index].jobTitle),
+          subtitle: Text(users[index].jobTitle),
             leading: Skeleton.replace(
             width: 48, // width of replacement
             height: 48, // height of replacement
@@ -188,7 +188,7 @@ Skeletonizer(
       return Card(
         child: ListTile(
           title: Text(users[index].name),
-          subtitle: Text('users[index].jobTitle),
+          subtitle: Text(users[index].jobTitle),
             leading: CircleAvatar(
             radius: 24,
             backgroundImage: _loading ? null : NetworkImage(users[index].avatar),
