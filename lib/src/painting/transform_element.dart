@@ -1,13 +1,26 @@
 import 'package:flutter/rendering.dart';
 import 'package:skeletonizer/src/painting/painting.dart';
 
+/// Holds painting information for [RenderTransform] & [RenderRotatedBox]
+///
+/// transforms [descendents] with provide [matrix4]
 class TransformElement extends AncestorElement {
+  /// see [RenderTransform.matrix]
   final Matrix4 matrix4;
+
+  /// see [RenderTransform.origin]
   final Offset? origin;
+
+  /// see [RenderTransform.alignment]
   final AlignmentGeometry? alignment;
+
+  /// see [RenderTransform.textDirection]
   final TextDirection textDirection;
+
+  /// see [RenderTransform.size]
   final Size size;
 
+  /// Default constructor
   TransformElement({
     required this.matrix4,
     required super.descendents,
@@ -18,18 +31,17 @@ class TransformElement extends AncestorElement {
     this.alignment,
   });
 
-
   @override
   bool operator ==(Object other) =>
       identical(this, other) ||
-          other is TransformElement &&
-              runtimeType == other.runtimeType &&
-              matrix4 == other.matrix4 &&
-              origin == other.origin &&
-              alignment == other.alignment &&
-              textDirection == other.textDirection &&
-              size == other.size &&
-              super == (other);
+      other is TransformElement &&
+          runtimeType == other.runtimeType &&
+          matrix4 == other.matrix4 &&
+          origin == other.origin &&
+          alignment == other.alignment &&
+          textDirection == other.textDirection &&
+          size == other.size &&
+          super == (other);
 
   @override
   int get hashCode =>
@@ -75,10 +87,13 @@ class TransformElement extends AncestorElement {
     final translation = MatrixUtils.getAsTranslation(_transform);
     if (translation != null) {
       for (final descendent in descendents) {
-        descendent.paint(context, this.offset + offset + translation, shaderPaint);
+        descendent.paint(
+            context, this.offset + offset + translation, shaderPaint);
       }
     } else {
-      context.pushTransform(descendents.isNotEmpty, this.offset + offset, _transform, (context, _) {
+      context.pushTransform(
+          descendents.isNotEmpty, this.offset + offset, _transform,
+          (context, _) {
         for (final descendent in descendents) {
           descendent.paint(context, offset, shaderPaint);
         }

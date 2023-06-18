@@ -3,6 +3,65 @@ import 'package:flutter/material.dart';
 
 import 'painting_effect.dart';
 
+/// Builds a painting effect where a linear gradient
+/// is used to create a shimmer-like effect
+abstract class ShimmerEffect extends PaintingEffect {
+  /// see [LinearGradient.colors]
+  List<Color> get colors;
+
+  /// see [LinearGradient.stops]
+  List<double>? get stops;
+
+  /// see [LinearGradient.begin]
+  AlignmentGeometry get begin;
+
+  /// see [LinearGradient.end]
+  AlignmentGeometry get end;
+
+  /// see [LinearGradient.tileMode]
+  TileMode get tileMode;
+
+  const ShimmerEffect._({
+    super.lowerBound,
+    super.upperBound,
+    super.duration = const Duration(milliseconds: 2000),
+  });
+
+  /// Builds a [_ShimmerEffect] with default values
+  const factory ShimmerEffect({
+    Color baseColor,
+    Color highlightColor,
+    AlignmentGeometry begin,
+    AlignmentGeometry end,
+    Duration duration,
+  }) = _ShimmerEffect;
+
+  /// Builds a [_RawShimmerEffect] with default values
+  const factory ShimmerEffect.raw({
+    required List<Color> colors,
+    List<double>? stops,
+    AlignmentGeometry begin,
+    AlignmentGeometry end,
+    TileMode tileMode,
+    double lowerBound,
+    double upperBound,
+    Duration duration,
+  }) = _RawShimmerEffect;
+
+  @override
+  Paint createPaint(double t, Rect rect) {
+    return Paint()
+      ..shader = LinearGradient(
+        colors: colors,
+        stops: stops,
+        begin: begin,
+        end: end,
+        tileMode: tileMode,
+        transform: _SlidingGradientTransform(offset: t),
+      ).createShader(rect);
+  }
+}
+
 class _ShimmerEffect extends ShimmerEffect {
   final Color baseColor;
   final Color highlightColor;
@@ -56,56 +115,6 @@ class _ShimmerEffect extends ShimmerEffect {
       duration.hashCode;
 }
 
-abstract class ShimmerEffect extends PaintingEffect {
-  List<Color> get colors;
-
-  List<double>? get stops;
-
-  AlignmentGeometry get begin;
-
-  AlignmentGeometry get end;
-
-  TileMode get tileMode;
-
-  const ShimmerEffect._({
-    super.lowerBound,
-    super.upperBound,
-    super.duration = const Duration(milliseconds: 2000),
-  });
-
-  const factory ShimmerEffect({
-    Color baseColor,
-    Color highlightColor,
-    AlignmentGeometry begin,
-    AlignmentGeometry end,
-    Duration duration,
-  }) = _ShimmerEffect;
-
-  const factory ShimmerEffect.raw({
-    required List<Color> colors,
-    List<double>? stops,
-    AlignmentGeometry begin,
-    AlignmentGeometry end,
-    TileMode tileMode,
-    double lowerBound,
-    double upperBound,
-    Duration duration,
-  }) = _RawShimmerEffect;
-
-  @override
-  Paint createPaint(double t, Rect rect) {
-    return Paint()
-      ..shader = LinearGradient(
-        colors: colors,
-        stops: stops,
-        begin: begin,
-        end: end,
-        tileMode: tileMode,
-        transform: _SlidingGradientTransform(offset: t),
-      ).createShader(rect);
-  }
-}
-
 class _RawShimmerEffect extends ShimmerEffect {
   @override
   final List<Color> colors;
@@ -146,7 +155,12 @@ class _RawShimmerEffect extends ShimmerEffect {
 
   @override
   int get hashCode =>
-      colors.hashCode ^ stops.hashCode ^ begin.hashCode ^ end.hashCode ^ tileMode.hashCode ^ duration.hashCode;
+      colors.hashCode ^
+      stops.hashCode ^
+      begin.hashCode ^
+      end.hashCode ^
+      tileMode.hashCode ^
+      duration.hashCode;
 }
 
 class _SlidingGradientTransform extends GradientTransform {

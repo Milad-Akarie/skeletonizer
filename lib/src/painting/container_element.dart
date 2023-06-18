@@ -3,17 +3,34 @@ import 'package:flutter/material.dart';
 import 'package:skeletonizer/src/painting/paintable_element.dart';
 import 'package:skeletonizer/src/utils.dart';
 
+/// Holds painting information for container-type widgets
+/// e.g [Card],[Material],[Container],[ColoredBox]..
 class ContainerElement extends AncestorElement {
+  /// The elevation of the container
   final double? elevation;
+
+  /// The Border of the container
   final BoxBorder? border;
+
+  /// The color of the container
   final Color? color;
+
+  /// The boxShadow of the container
   final List<BoxShadow>? boxShadow;
+
+  /// The shape of the container
   final BoxShape boxShape;
   @override
   final Rect rect;
+
+  /// The borderRadius of the container
   final BorderRadius? borderRadius;
+
+  /// Whether to ignore the container and only paint
+  /// dependents
   final bool drawContainer;
 
+  /// Default constructor
   ContainerElement({
     required super.descendents,
     this.elevation,
@@ -65,7 +82,8 @@ class ContainerElement extends AncestorElement {
       if (color != null) {
         final treatAsBone = descendents.isEmpty;
         final surfacePaint = Paint()..color = color ?? Colors.white;
-        final drawElevation = descendents.isNotEmpty && elevation != null && elevation! > 0;
+        final drawElevation =
+            descendents.isNotEmpty && elevation != null && elevation! > 0;
 
         if (boxShape == BoxShape.circle) {
           if (boxShadow != null) {
@@ -97,17 +115,21 @@ class ContainerElement extends AncestorElement {
               context.canvas.drawRRect(rRect.shift(box.offset), box.toPaint());
             }
           }
-          context.canvas.drawRRect(rRect, treatAsBone ? shaderPaint : surfacePaint);
+          context.canvas
+              .drawRRect(rRect, treatAsBone ? shaderPaint : surfacePaint);
         } else {
           if (drawElevation) {
-            context.canvas.drawShadow(Path()..addRect(shiftedRect), Colors.black, elevation!, false);
+            context.canvas.drawShadow(
+                Path()..addRect(shiftedRect), Colors.black, elevation!, false);
           }
           if (boxShadow != null) {
             for (final box in boxShadow!) {
-              context.canvas.drawRect(shiftedRect.shift(box.offset), box.toPaint());
+              context.canvas
+                  .drawRect(shiftedRect.shift(box.offset), box.toPaint());
             }
           }
-          context.canvas.drawRect(shiftedRect, treatAsBone ? shaderPaint : surfacePaint);
+          context.canvas
+              .drawRect(shiftedRect, treatAsBone ? shaderPaint : surfacePaint);
         }
       }
       if (border is Border) {
@@ -120,16 +142,18 @@ class ContainerElement extends AncestorElement {
     }
   }
 
-  void _paintBorder(Paint shaderPaint, Border borderToDraw, PaintingContext context, Rect shiftedRect) {
+  void _paintBorder(Paint shaderPaint, Border borderToDraw,
+      PaintingContext context, Rect shiftedRect) {
     final borderPaint = Paint()
       ..shader = shaderPaint.shader
       ..color = Colors.black
       ..style = PaintingStyle.stroke;
     if (borderToDraw.isUniform) {
       borderPaint.strokeWidth = borderToDraw.top.width;
-      context.canvas.drawRRect(shiftedRect.toRRect(borderRadius ?? BorderRadius.zero), borderPaint);
+      context.canvas.drawRRect(
+          shiftedRect.toRRect(borderRadius ?? BorderRadius.zero), borderPaint);
     } else {
-      paintBorder(
+      _paintPresentBorders(
         context.canvas,
         shiftedRect,
         paint: borderPaint,
@@ -141,7 +165,7 @@ class ContainerElement extends AncestorElement {
     }
   }
 
-  void paintBorder(
+  void _paintPresentBorders(
     Canvas canvas,
     Rect rect, {
     required Paint paint,

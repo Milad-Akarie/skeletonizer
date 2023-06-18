@@ -17,5 +17,6 @@ extension WidgetTesterX on WidgetTester {
   }
 
   RenderSkeletonizer get skeletonizer =>
-      allRenderObjects.firstWhere((e) => e is RenderSkeletonizer) as RenderSkeletonizer;
+      allRenderObjects.firstWhere((e) => e is RenderSkeletonizer)
+          as RenderSkeletonizer;
 }

@@ -5,15 +5,30 @@ import 'package:flutter/rendering.dart';
 import 'package:skeletonizer/src/painting/paintable_element.dart';
 import 'package:skeletonizer/src/utils.dart';
 
+/// Holds painting information of skeletonized [RenderParagraphs]
 class TextElement extends PaintableElement {
+  /// The lines of text
   final List<LineMetrics> lines;
+
+  /// The used font size
   final double fontSize;
+
+  /// The text block size
   final Size textSize;
+
+  /// The border radius of skeletonized lines
   final BorderRadius? borderRadius;
+
+  /// Whether to justify multi lines
   final bool justifyMultiLines;
+
+  /// The text direction
   final TextDirection textDirection;
+
+  /// The text alignment
   final TextAlign textAlign;
 
+  /// Default constructor
   TextElement({
     required super.offset,
     required this.lines,
@@ -58,8 +73,9 @@ class TextElement extends PaintableElement {
     var yOffset = globalOffset.dy;
     for (var i = 0; i < lines.length; i++) {
       final line = lines[i];
-      final shouldJustify =
-          justifyMultiLines && textAlign != TextAlign.center && (lines.length > 1 && i < (lines.length - 1));
+      final shouldJustify = justifyMultiLines &&
+          textAlign != TextAlign.center &&
+          (lines.length > 1 && i < (lines.length - 1));
       final width = shouldJustify ? textSize.width : line.width;
       final rect = Rect.fromLTWH(
         shouldJustify ? globalOffset.dx : line.left + globalOffset.dx,

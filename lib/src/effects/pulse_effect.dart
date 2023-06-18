@@ -1,10 +1,16 @@
 import 'package:flutter/material.dart';
 import 'package:skeletonizer/src/effects/painting_effect.dart';
 
+/// Creates a painting effect where a two colors are lerped
+/// back nad forward based on animation value
 class PulseEffect extends PaintingEffect {
+  /// The color to fade from
   final Color from;
+
+  /// The color to fade to
   final Color to;
 
+  /// Default constructor
   const PulseEffect(
       {this.from = const Color(0xFFEBEBF4),
       this.to = const Color(0xFFF6F6F6),
@@ -16,7 +22,11 @@ class PulseEffect extends PaintingEffect {
   @override
   Paint createPaint(double t, Rect rect) {
     final color = Color.lerp(from, to, t)!;
-    // if possible find a better way to create one-color shaders!
+
+    // We're creating a shader here because [ShadedElement] component
+    // will use a shader mask to shade original elements
+    //
+    // todo: find a better way to create a one-color shader!
     return Paint()
       ..shader = LinearGradient(
         colors: [color, color],

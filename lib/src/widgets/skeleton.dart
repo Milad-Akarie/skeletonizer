@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
 import 'package:skeletonizer/skeletonizer.dart';
+import 'package:skeletonizer/src/rendering/render_skeletonizer.dart';
 
 class _AnnotatedSkeleton extends SingleChildRenderObjectWidget {
   final SkeletonAnnotation annotation;
@@ -21,17 +22,35 @@ class _AnnotatedSkeleton extends SingleChildRenderObjectWidget {
   }
 }
 
+/// Delegates a [SkeletonAnnotation] to the render tree
 class RenderSkeletonAnnotation extends RenderProxyBox {
+  /// Default constructor
   RenderSkeletonAnnotation({
     RenderBox? child,
-    required this.annotation,
-  });
+    required SkeletonAnnotation annotation,
+  }) : _annotation = annotation;
 
-  SkeletonAnnotation annotation;
+  SkeletonAnnotation _annotation;
+
+  /// The annotation to be used
+  set annotation(SkeletonAnnotation value) {
+    if (value != _annotation) {
+      _annotation = value;
+      markNeedsLayout();
+    }
+  }
+
+  /// The annotation to be used
+  SkeletonAnnotation get annotation => _annotation;
 }
 
+/// A Widget that holds [SkeletonAnnotation]
+/// to be consumed by [RenderSkeletonizer]
 class Skeleton extends StatelessWidget {
+  /// The child under this widget
   final Widget child;
+
+  /// The annotation to be passed to the [_AnnotatedSkeleton]
   final SkeletonAnnotation annotation;
 
   const Skeleton._({
@@ -40,26 +59,28 @@ class Skeleton extends StatelessWidget {
     required this.annotation,
   });
 
+  /// Do not skeletonize the descended widgets
   const Skeleton.ignore({
     super.key,
     required this.child,
     bool ignore = true,
   }) : annotation = ignore ? const IgnoreDescendants() : _none;
 
-  /// shades original element
+  /// Wrap original widget with shader mask
   const factory Skeleton.shade({
     Key? key,
     required Widget child,
     bool shade,
-  }) = SkeletonShade;
+  }) = _SkeletonShade;
 
-  /// paints original element
+  /// Paint original element as is
   const Skeleton.keep({
     super.key,
     required this.child,
     bool keep = true,
   }) : annotation = keep ? const KeepOriginal() : _none;
 
+  /// Unite all descendants into a one big rect
   const Skeleton.unite({
     super.key,
     required this.child,
@@ -75,53 +96,73 @@ class Skeleton extends StatelessWidget {
     );
   }
 
+  /// Replace the original element when [Skeletonizer.enabled] is true
   const factory Skeleton.replace({
     Key? key,
     required Widget child,
-    bool visible,
+    bool replace,
     double? width,
     double? height,
     Widget replacement,
-  }) = SkeletonReplace;
+  }) = _SkeletonReplace;
 }
 
+/// An abstraction for annotation values
+/// that change how skeletonized renderers look
 abstract class SkeletonAnnotation {
+  /// Default constructor
   const SkeletonAnnotation();
 }
 
 const _none = _NoAnnotation();
 
+/// No annotation is used, this is equal to null
 class _NoAnnotation extends SkeletonAnnotation {
   const _NoAnnotation();
 }
 
+/// Ignore all descendent skeletonized renderers
 class IgnoreDescendants extends SkeletonAnnotation {
+  /// Default constructor
   const IgnoreDescendants();
 }
 
+/// Shade the original the element and do not skeletonize it
 class ShadeOriginal extends SkeletonAnnotation {
+  /// Default constructor
   const ShadeOriginal();
 }
 
+/// paint the original element as is
 class KeepOriginal extends SkeletonAnnotation {
+  /// Default constructor
   const KeepOriginal();
 }
 
+/// Replace the original element when [Skeletonizer.enabled] is true
 class ReplaceOriginal extends SkeletonAnnotation {
+  /// Default constructor
   const ReplaceOriginal();
 }
 
+/// Unite all descendants into a one big rect
 class UniteDescendents extends SkeletonAnnotation {
+  /// Default constructor
   const UniteDescendents({this.borderRadius});
 
+  /// The overall border radius of all united descendants
+  ///
+  /// if not provided a the border radius of hte biggest descent will be used
   final BorderRadiusGeometry? borderRadius;
 }
 
-class SkeletonReplace extends Skeleton {
-  const SkeletonReplace({
+/// Replace the original element when [Skeletonizer.enabled] is true
+class _SkeletonReplace extends Skeleton {
+  /// Default constructor
+  const _SkeletonReplace({
     super.key,
     required super.child,
-    this.visible = false,
+    this.replace = false,
     this.width,
     this.height,
     this.replacement = const DecoratedBox(
@@ -129,14 +170,19 @@ class SkeletonReplace extends Skeleton {
     ),
   }) : super._(annotation: const ReplaceOriginal());
 
+  /// The width nad height of the replacement
   final double? width, height;
-  final bool visible;
+
+  /// Whether replacing is enabled
+  final bool replace;
+
+  /// The replacement widget
   final Widget replacement;
 
   @override
   Widget build(BuildContext context) {
-    final isVisible = visible || !Skeletonizer.of(context).enabled;
-    return isVisible
+    final doReplace = replace || !Skeletonizer.of(context).enabled;
+    return doReplace
         ? super.build(context)
         : SizedBox(
             width: width,
@@ -146,8 +192,9 @@ class SkeletonReplace extends Skeleton {
   }
 }
 
-class SkeletonShade extends Skeleton {
-  const SkeletonShade({
+/// Shade the original the element and do not skeletonize it
+class _SkeletonShade extends Skeleton {
+  const _SkeletonShade({
     super.key,
     required super.child,
     this.shade = true,
@@ -158,6 +205,8 @@ class SkeletonShade extends Skeleton {
   @override
   Widget build(BuildContext context) {
     final userShaderMask = shade && Skeletonizer.of(context).enabled;
-    return userShaderMask ? SkeletonShaderMask(child: super.build(context)) : super.build(context);
+    return userShaderMask
+        ? SkeletonShaderMask(child: super.build(context))
+        : super.build(context);
   }
 }

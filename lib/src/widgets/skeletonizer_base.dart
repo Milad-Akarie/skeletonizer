@@ -2,34 +2,44 @@ import 'package:flutter/material.dart';
 import 'package:skeletonizer/skeletonizer.dart';
 import 'package:skeletonizer/src/rendering/render_skeletonizer.dart';
 
+/// Builds a [RenderSkeletonizer]
 class SkeletonizerBase extends SingleChildRenderObjectWidget {
+  /// The default constructor
   const SkeletonizerBase({
     super.key,
     required super.child,
     required this.enabled,
-    required this.effect,
     required this.animationValue,
     required this.brightness,
     required this.textDirection,
-    required this.themeData,
+    required this.config,
   });
 
-  final PaintingEffect effect;
+  /// If false the widget tree will painted
+  /// as is
   final bool enabled;
+
+  /// The value to animate painting effects
   final double animationValue;
+
+  /// The used brightness
   final Brightness brightness;
+
+  /// The scoped text direction
+  /// used to resolve Directional geometries e.g [BorderRadiusDirectional]
   final TextDirection textDirection;
-  final SkeletonizerThemeData themeData;
+
+  /// The resolved skeletonizer theme data
+  final SkeletonizerConfigData config;
 
   @override
   RenderSkeletonizer createRenderObject(BuildContext context) {
     return RenderSkeletonizer(
       enabled: enabled,
-      paintingEffect: effect,
       animationValue: animationValue,
       brightness: brightness,
       textDirection: textDirection,
-      themeData: themeData,
+      config: config,
     );
   }
 
@@ -41,9 +51,8 @@ class SkeletonizerBase extends SingleChildRenderObjectWidget {
     renderObject
       ..enabled = enabled
       ..animationValue = animationValue
-      ..paintingEffect = effect
       ..brightness = brightness
-      ..themeData = themeData
+      ..config = config
       ..textDirection = textDirection;
   }
 }

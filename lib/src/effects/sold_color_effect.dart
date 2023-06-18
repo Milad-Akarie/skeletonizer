@@ -1,10 +1,13 @@
 import 'package:flutter/cupertino.dart';
 import 'package:skeletonizer/src/effects/painting_effect.dart';
 
+/// Creates a none-animated painting effect
 class SoldColorEffect extends PaintingEffect {
+  /// The color to paint or shade renderers
   final Color color;
 
- const SoldColorEffect({
+  /// Default constructor
+  const SoldColorEffect({
     this.color = const Color(0xFFF6F6F6),
     super.lowerBound,
     super.upperBound,
@@ -12,7 +15,10 @@ class SoldColorEffect extends PaintingEffect {
 
   @override
   Paint createPaint(double t, Rect rect) {
-    // if possible find a better way to create one-color shaders!
+    // We're creating a shader here because [ShadedElement] component
+    // will use a shader mask to shade original elements
+    //
+    // todo: find a better way to create a one-color shader!
     return Paint()
       ..shader = LinearGradient(
         colors: [color, color],
@@ -21,7 +27,10 @@ class SoldColorEffect extends PaintingEffect {
 
   @override
   bool operator ==(Object other) =>
-      identical(this, other) || other is SoldColorEffect && runtimeType == other.runtimeType && color == other.color;
+      identical(this, other) ||
+      other is SoldColorEffect &&
+          runtimeType == other.runtimeType &&
+          color == other.color;
 
   @override
   int get hashCode => color.hashCode;

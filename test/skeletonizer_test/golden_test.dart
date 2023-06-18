@@ -24,8 +24,8 @@ void runTests() {
   goldenTest(
     'Skeletonize Text successfully',
     fileName: 'text',
-    builder: () => SkeletonizerTheme(
-      data: const SkeletonizerThemeData.light(
+    builder: () => SkeletonizerConfig(
+      data: const SkeletonizerConfigData.light(
         effect: SoldColorEffect(color: Colors.green),
       ),
       child: GoldenTestGroup(
@@ -45,13 +45,17 @@ void runTests() {
           GoldenTestScenario(
             name: ' With TextAlign.center',
             child: const Skeletonizer(
-              child: SizedBox(width: double.infinity, child: Text('English', textAlign: TextAlign.center)),
+              child: SizedBox(
+                  width: double.infinity,
+                  child: Text('English', textAlign: TextAlign.center)),
             ),
           ),
           GoldenTestScenario(
             name: ' With TextAlign.right',
             child: const Skeletonizer(
-              child: SizedBox(width: double.infinity, child: Text('English', textAlign: TextAlign.right)),
+              child: SizedBox(
+                  width: double.infinity,
+                  child: Text('English', textAlign: TextAlign.right)),
             ),
           ),
           GoldenTestScenario(
@@ -96,8 +100,8 @@ void runTests() {
   goldenTest(
     'Skeletonize containers successfully',
     fileName: 'container',
-    builder: () => SkeletonizerTheme(
-      data: const SkeletonizerThemeData.light(
+    builder: () => SkeletonizerConfig(
+      data: const SkeletonizerConfigData.light(
         effect: SoldColorEffect(color: Colors.green),
       ),
       child: GoldenTestGroup(
@@ -205,8 +209,8 @@ void runTests() {
   goldenTest(
     'Skeletonize containers without drawing them successfully',
     fileName: 'ignored_container',
-    builder: () => SkeletonizerTheme(
-      data: const SkeletonizerThemeData.light(
+    builder: () => SkeletonizerConfig(
+      data: const SkeletonizerConfigData.light(
         effect: SoldColorEffect(color: Colors.green),
         ignoreContainers: true,
       ),
@@ -314,8 +318,8 @@ void runTests() {
   goldenTest(
     'Skeletonize ListTile successfully',
     fileName: 'list_tile',
-    builder: () => SkeletonizerTheme(
-      data: const SkeletonizerThemeData.light(
+    builder: () => SkeletonizerConfig(
+      data: const SkeletonizerConfigData.light(
         effect: SoldColorEffect(color: Colors.green),
       ),
       child: GoldenTestGroup(
@@ -419,8 +423,8 @@ void runTests() {
   goldenTest(
     'Skeletonize with annotations successfully',
     fileName: 'skeleton_annotations',
-    builder: () => SkeletonizerTheme(
-      data: const SkeletonizerThemeData.light(
+    builder: () => SkeletonizerConfig(
+      data: const SkeletonizerConfigData.light(
         effect: SoldColorEffect(color: Colors.green),
       ),
       child: GoldenTestGroup(
@@ -496,8 +500,8 @@ void runTests() {
   goldenTest(
     'Skeletonize clippers successfully',
     fileName: 'clippers',
-    builder: () => SkeletonizerTheme(
-      data: const SkeletonizerThemeData.light(
+    builder: () => SkeletonizerConfig(
+      data: const SkeletonizerConfigData.light(
         effect: SoldColorEffect(color: Colors.green),
       ),
       child: GoldenTestGroup(
@@ -590,8 +594,8 @@ void runTests() {
   goldenTest(
     'Skeletonize transformers successfully',
     fileName: 'transformers',
-    builder: () => SkeletonizerTheme(
-      data: const SkeletonizerThemeData.light(
+    builder: () => SkeletonizerConfig(
+      data: const SkeletonizerConfigData.light(
         effect: SoldColorEffect(color: Colors.green),
       ),
       child: GoldenTestGroup(

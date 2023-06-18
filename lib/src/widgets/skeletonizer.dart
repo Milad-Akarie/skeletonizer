@@ -1,9 +1,34 @@
 import 'package:flutter/material.dart';
 import 'package:skeletonizer/src/effects/painting_effect.dart';
-import 'package:skeletonizer/src/theme/skeletonizer_theme.dart';
+import 'package:skeletonizer/src/skeletonizer_config.dart';
 import 'package:skeletonizer/src/widgets/skeletonizer_base.dart';
 
+/// Paints a skeleton of the [child] widget
+///
+/// if [enabled] is set the false the child
+/// will be painted normally
 class Skeletonizer extends StatefulWidget {
+  /// The widget to be skeletonized
+  final Widget child;
+
+  /// Whether skeletonizing is enabled
+  final bool enabled;
+
+  /// The painting effect to apply
+  /// on the skeletonized elements
+  final PaintingEffect? effect;
+
+  /// The [TextElement] border radius config
+  final TextBoneBorderRadius? textBoneBorderRadius;
+
+  /// Whether to ignore container elements and only paint
+  /// the dependents
+  final bool? ignoreContainers;
+
+  /// Whether to justify multi line text bones
+  final bool? justifyMultiLineText;
+
+  /// Default constructor
   const Skeletonizer({
     super.key,
     required this.child,
@@ -14,22 +39,18 @@ class Skeletonizer extends StatefulWidget {
     this.justifyMultiLineText,
   });
 
-  final Widget child;
-  final bool enabled;
-  final PaintingEffect? effect;
-  final TextBoneBorderRadius? textBoneBorderRadius;
-  final bool? ignoreContainers;
-  final bool? justifyMultiLineText;
-
   @override
   State<Skeletonizer> createState() => SkeletonizerState();
 
+  /// Depends on the the nearest SkeletonizerScope if any
   static SkeletonizerScope? maybeOf(BuildContext context) {
     return context.dependOnInheritedWidgetOfExactType<SkeletonizerScope>();
   }
 
+  /// Depends on the the nearest SkeletonizerScope if any otherwise it throws
   static SkeletonizerScope of(BuildContext context) {
-    final scope = context.dependOnInheritedWidgetOfExactType<SkeletonizerScope>();
+    final scope =
+        context.dependOnInheritedWidgetOfExactType<SkeletonizerScope>();
     assert(() {
       if (scope == null) {
         throw FlutterError(
@@ -44,15 +65,15 @@ class Skeletonizer extends StatefulWidget {
   }
 }
 
-class SkeletonizerState extends State<Skeletonizer> with TickerProviderStateMixin<Skeletonizer> {
+/// The state of [Skeletonizer] widget
+class SkeletonizerState extends State<Skeletonizer>
+    with TickerProviderStateMixin<Skeletonizer> {
   AnimationController? _animationController;
   late bool _enabled = widget.enabled;
 
-  bool get enabled => _enabled;
+  SkeletonizerConfigData? _config;
 
-  SkeletonizerThemeData? _themeData;
-
-  PaintingEffect? get _effect => _themeData?.effect;
+  PaintingEffect? get _effect => _config?.effect;
 
   @override
   void didChangeDependencies() {
@@ -67,17 +88,18 @@ class SkeletonizerState extends State<Skeletonizer> with TickerProviderStateMixi
     _brightness = Theme.of(context).brightness;
     _textDirection = Directionality.of(context);
     final isDarkMode = _brightness == Brightness.dark;
-    var themeData = SkeletonizerTheme.maybeOf(context) ??
-        (isDarkMode ? const SkeletonizerThemeData.dark() : const SkeletonizerThemeData.light());
-    themeData = themeData.copyWith(
+    var config = SkeletonizerConfig.maybeOf(context) ??
+        (isDarkMode
+            ? const SkeletonizerConfigData.dark()
+            : const SkeletonizerConfigData.light());
+    config = config.copyWith(
       effect: widget.effect,
       textBorderRadius: widget.textBoneBorderRadius,
       ignoreContainers: widget.ignoreContainers,
       justifyMultiLineText: widget.justifyMultiLineText,
     );
-
-    if (themeData != _themeData) {
-      _themeData = themeData;
+    if (config != _config) {
+      _config = config;
       _stopAnimation();
       if (widget.enabled) {
         _startAnimation();
@@ -139,14 +161,12 @@ class SkeletonizerState extends State<Skeletonizer> with TickerProviderStateMixi
 
   @override
   Widget build(BuildContext context) {
-    assert(_effect != null);
-    assert(_themeData != null);
+    assert(_config != null);
     return SkeletonizerScope(
       enabled: _enabled,
       child: SkeletonizerBase(
         enabled: widget.enabled,
-        effect: _effect!,
-        themeData: _themeData!,
+        config: _config!,
         brightness: _brightness,
         textDirection: _textDirection,
         animationValue: _animationController?.value ?? 0,
@@ -156,9 +176,14 @@ class SkeletonizerState extends State<Skeletonizer> with TickerProviderStateMixi
   }
 }
 
+/// Provides the skeletonizer activation information
+/// to the descent widgets
 class SkeletonizerScope extends InheritedWidget {
-  const SkeletonizerScope({super.key, required super.child, required this.enabled});
+  /// Default constructor
+  const SkeletonizerScope(
+      {super.key, required super.child, required this.enabled});
 
+  /// Whether skeletonizing is enabled
   final bool enabled;
 
   @override
