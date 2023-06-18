@@ -1,5 +1,5 @@
 <p align="center">                    
-<img  src="https://raw.githubusercontent.com/Milad-Akarie/skeletonizer/main/art/skeletonizer_logo.svg" height="170">                    
+<img  src="https://raw.githubusercontent.com/Milad-Akarie/skeletonizer/main/art/skeletonizer_logo.svg" height="130">                    
 </p>                    
 
 <p align="center">                    
