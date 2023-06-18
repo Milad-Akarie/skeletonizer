@@ -48,88 +48,21 @@ class _SkeletonizerDemoPageState extends State<SkeletonizerDemoPage> {
           },
         ),
       ),
-      body: true
-          ? Padding(
-              padding: const EdgeInsets.all(16),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  const Padding(
-                    padding: EdgeInsets.all(8.0),
-                    child: Skeleton.keep(child: Text('Fixed Text border radius')),
-                  ),
-                  Skeletonizer(
-                    textBoneBorderRadius: TextBoneBorderRadius(BorderRadius.circular(8)),
-                    child: const Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Text(
-                          'Item number 1 as title',
-                          style: TextStyle(fontSize: 30),
-                        ),
-                        Text(
-                          'Item number 1 as title',
-                          style: TextStyle(fontSize: 14),
-                        ),
-                      ],
-                    ),
-                  ),
-                  const Padding(
-                    padding: EdgeInsets.all(8.0),
-                    child: Skeleton.keep(child: Text('TextBoneBorderRadius.fromHeightFactor(.5)')),
-                  ),
-                  const Skeletonizer(
-                    textBoneBorderRadius: TextBoneBorderRadius.fromHeightFactor(.5),
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Text(
-                          'Item number 1 as title',
-                          style: TextStyle(fontSize: 30),
-                        ),
-                        Text(
-                          'Item number 1 as title',
-                          style: TextStyle(fontSize: 14),
-                        ),
-                      ],
-                    ),
-                  ),
-                  const Padding(
-                    padding: EdgeInsets.all(8.0),
-                    child: Skeleton.keep(child: Text('JustifyMultiLine set to true (default)')),
-                  ),
-                  Skeletonizer(
-                    child: Text(
-                      'Item number 1 as title Item number 1 as title Item number 1 as title Item number 1 as title Item number 1 as title Item number 1 as title',
-                    ),
-
-                  ),
-                  const Padding(
-                    padding: EdgeInsets.all(8.0),
-                    child: Skeleton.keep(child: Text('JustifyMultiLine set to false')),
-                  ),
-                  Skeletonizer(
-                    justifyMultiLineText: false,
-                    child: Text(
-                      'Item number 1 as title Item number 1 as title Item number 1 as title Item number 1 as title Item number 1 as title Item number 1 as title',
-                    ),
-                  ),
-                ],
+      body: Skeletonizer(
+        child: ListView.builder(
+          itemCount: 7,
+          padding: const EdgeInsets.all(16),
+          itemBuilder: (context, index) {
+            return Card(
+              child: ListTile(
+                title: Text('Item number $index as title'),
+                subtitle: const Text('Subtitle here'),
+                trailing: const Icon(Icons.ac_unit, size: 40),
               ),
-            )
-          : ListView.builder(
-              itemCount: 7,
-              padding: const EdgeInsets.all(16),
-              itemBuilder: (context, index) {
-                return Card(
-                  child: ListTile(
-                    title: Text('Item number $index as title'),
-                    subtitle: const Text('Subtitle here'),
-                    trailing: const Icon(Icons.ac_unit, size: 40),
-                  ),
-                );
-              },
-            ),
+            );
+          },
+        ),
+      ),
     );
   }
 }
