@@ -49,6 +49,7 @@ class _SkeletonizerDemoPageState extends State<SkeletonizerDemoPage> {
         ),
       ),
       body: Skeletonizer(
+        enabled: _enabled,
         child: ListView.builder(
           itemCount: 7,
           padding: const EdgeInsets.all(16),
@@ -57,7 +58,11 @@ class _SkeletonizerDemoPageState extends State<SkeletonizerDemoPage> {
               child: ListTile(
                 title: Text('Item number $index as title'),
                 subtitle: const Text('Subtitle here'),
-                trailing: const Icon(Icons.ac_unit, size: 40),
+                trailing: const CircleAvatar(
+                  child: Skeleton.ignore(
+                    child: Icon(Icons.ac_unit, size: 32),
+                  ),
+                ),
               ),
             );
           },

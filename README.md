@@ -21,13 +21,13 @@
 - [The need for fake data](#the-need-for-fake-data)
 - [Annotations](#annotations)
 - [Customization](#customization)
+- [Resources](#resources)
 
 ## Introduction
 
 ### What are skeleton loaders?
 
-Skeleton loaders are visual placeholders for information while data is still loading. Anatomy. A
-skeleton loader provides a low fidelity representation of the interface that will be loaded.
+UI skeleton loading is a technique used to enhance user experience during web or app loading. It involves displaying a simplified, static version of the user interface while the actual content is being fetched. This placeholder UI gives the illusion of instant loading and prevents users from perceiving long loading times.
 
 ### Motivation
 
@@ -133,12 +133,12 @@ or by utilizing the `enabled` flag
 
 ```dart
   {
-  final users = _loading ? realUsers : List.generate(
+  final users = _loading ? List.generate(
       7, (index) => const User(
       name: 'User name',
       jobTitle: 'Developer',
       avatar: ''
-  )
+  ) : realUsers;
   );
   return Skeletonizer(
     enabled: _loading,
@@ -203,10 +203,7 @@ Skeletonizer(
 **Note**: you can also check wither a skeletonizer is enabled inside descendent widgets using:
 
 ```dart
-
-Skeletonizer
-    .of(context)
-    .enabled;
+Skeletonizer.of(context).enabled;
 ```
 
 ## Annotations
@@ -232,7 +229,8 @@ Card(
 ```
 
 ![](https://github.com/Milad-Akarie/skeletonizer/blob/main/art/ignored_skeleton_demo.gif?raw=true)
-**Ignored multiple descendants demo**
+
+Ignored multiple descendants demo
 
 ```dart
 Card(
@@ -362,6 +360,7 @@ Skeleton.unite(
 
 Skeletonizer has 3 different parting effects to choose from and which can be customized to your
 liking.
+
 **Note: Loading effects are disturbed by Gif optimization, these look much better on flutter**
 
 ![](https://github.com/Milad-Akarie/skeletonizer/blob/main/art/loading_effects_demo.gif?raw=true)
@@ -382,7 +381,7 @@ Skeletonizer(
 
 ### Using the inheritable SkeletonizerConfig widget
 
-Use `SkeletonizerConfigData` somewhere up your widgets tree e.g above the `MaterialApp` widget to
+Use `SkeletonizerConfig` somewhere up your widgets tree e.g above the `MaterialApp` widget to
 provide
 default skeletonizer configurations to your whole App.
 
@@ -397,7 +396,9 @@ SkeletonizerConfig(
     .....
 )
 ```
-
+## Resources
+- [Flutter skeleton loader using skeletonizer](https://medium.com/@milad-akarie/flutter-skeleton-loader-using-skeletonizer-13d410dc4ac7)
+ 
 ### Support Skeletonizer
 
 You can support skeletonizer by liking it on Pub and staring it on Github, sharing ideas on how we

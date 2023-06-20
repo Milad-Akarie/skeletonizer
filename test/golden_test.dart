@@ -7,7 +7,6 @@ import 'dart:async';
 
 import 'helpers.dart';
 
-
 void main() => testExecutable(runTests);
 
 Future<void> testExecutable(FutureOr<void> Function() testMain) async {
@@ -46,17 +45,13 @@ void runTests() {
           GoldenTestScenario(
             name: ' With TextAlign.center',
             child: const Skeletonizer(
-              child: SizedBox(
-                  width: double.infinity,
-                  child: Text('English', textAlign: TextAlign.center)),
+              child: SizedBox(width: double.infinity, child: Text('English', textAlign: TextAlign.center)),
             ),
           ),
           GoldenTestScenario(
             name: ' With TextAlign.right',
             child: const Skeletonizer(
-              child: SizedBox(
-                  width: double.infinity,
-                  child: Text('English', textAlign: TextAlign.right)),
+              child: SizedBox(width: double.infinity, child: Text('English', textAlign: TextAlign.right)),
             ),
           ),
           GoldenTestScenario(
@@ -229,6 +224,7 @@ void runTests() {
                   shape: RoundedRectangleBorder(
                     borderRadius: BorderRadius.circular(20),
                   ),
+                  child: const Text("Foo"),
                 ),
               ),
             ),
@@ -244,6 +240,7 @@ void runTests() {
                   shape: RoundedRectangleBorder(
                     borderRadius: BorderRadius.circular(20),
                   ),
+                  child: const Text("Foo"),
                 ),
               ),
             ),
@@ -258,6 +255,7 @@ void runTests() {
                   borderRadius: BorderRadius.circular(20),
                   color: Colors.white,
                 ),
+                child: const Text("Foo"),
               ),
             ),
           ),
@@ -271,6 +269,7 @@ void runTests() {
                   color: Colors.white,
                   shape: BoxShape.circle,
                 ),
+                child: const Text("Foo"),
               ),
             ),
           ),
@@ -284,6 +283,7 @@ void runTests() {
                   borderRadius: BorderRadius.circular(20),
                   border: Border.all(),
                 ),
+                child: const Text("Foo"),
               ),
             ),
           ),
@@ -298,6 +298,7 @@ void runTests() {
                     borderRadius: BorderRadius.circular(20),
                     color: Colors.white,
                   ),
+                  child: const Text("Foo"),
                 ),
               ),
             ),
@@ -308,7 +309,10 @@ void runTests() {
               child: SizedBox(
                 width: 200,
                 height: 100,
-                child: ColoredBox(color: Colors.white),
+                child: ColoredBox(
+                  color: Colors.white,
+                  child: Text("Foo"),
+                ),
               ),
             ),
           ),

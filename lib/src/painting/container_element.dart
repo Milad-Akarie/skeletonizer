@@ -78,12 +78,11 @@ class ContainerElement extends AncestorElement {
   @override
   void paint(PaintingContext context, Offset offset, Paint shaderPaint) {
     final shiftedRect = rect.shift(offset);
-    if (drawContainer) {
+    final hasDescendents = descendents.isNotEmpty;
+    if (drawContainer || !hasDescendents) {
       if (color != null) {
-        final treatAsBone = descendents.isEmpty;
         final surfacePaint = Paint()..color = color ?? Colors.white;
-        final drawElevation =
-            descendents.isNotEmpty && elevation != null && elevation! > 0;
+        final drawElevation = descendents.isNotEmpty && elevation != null && elevation! > 0;
 
         if (boxShape == BoxShape.circle) {
           if (boxShadow != null) {
@@ -98,7 +97,7 @@ class ContainerElement extends AncestorElement {
           context.canvas.drawCircle(
             shiftedRect.center,
             shiftedRect.shortestSide / 2,
-            treatAsBone ? shaderPaint : surfacePaint,
+            hasDescendents ? surfacePaint : shaderPaint,
           );
         } else if (borderRadius != null) {
           final rRect = shiftedRect.toRRect(borderRadius!);
@@ -115,21 +114,23 @@ class ContainerElement extends AncestorElement {
               context.canvas.drawRRect(rRect.shift(box.offset), box.toPaint());
             }
           }
-          context.canvas
-              .drawRRect(rRect, treatAsBone ? shaderPaint : surfacePaint);
+          context.canvas.drawRRect(
+            rRect,
+            hasDescendents ? surfacePaint : shaderPaint,
+          );
         } else {
           if (drawElevation) {
-            context.canvas.drawShadow(
-                Path()..addRect(shiftedRect), Colors.black, elevation!, false);
+            context.canvas.drawShadow(Path()..addRect(shiftedRect), Colors.black, elevation!, false);
           }
           if (boxShadow != null) {
             for (final box in boxShadow!) {
-              context.canvas
-                  .drawRect(shiftedRect.shift(box.offset), box.toPaint());
+              context.canvas.drawRect(shiftedRect.shift(box.offset), box.toPaint());
             }
           }
-          context.canvas
-              .drawRect(shiftedRect, treatAsBone ? shaderPaint : surfacePaint);
+          context.canvas.drawRect(
+            shiftedRect,
+            hasDescendents ? surfacePaint : shaderPaint,
+          );
         }
       }
       if (border is Border) {
@@ -142,16 +143,14 @@ class ContainerElement extends AncestorElement {
     }
   }
 
-  void _paintBorder(Paint shaderPaint, Border borderToDraw,
-      PaintingContext context, Rect shiftedRect) {
+  void _paintBorder(Paint shaderPaint, Border borderToDraw, PaintingContext context, Rect shiftedRect) {
     final borderPaint = Paint()
       ..shader = shaderPaint.shader
       ..color = Colors.black
       ..style = PaintingStyle.stroke;
     if (borderToDraw.isUniform) {
       borderPaint.strokeWidth = borderToDraw.top.width;
-      context.canvas.drawRRect(
-          shiftedRect.toRRect(borderRadius ?? BorderRadius.zero), borderPaint);
+      context.canvas.drawRRect(shiftedRect.toRRect(borderRadius ?? BorderRadius.zero), borderPaint);
     } else {
       _paintPresentBorders(
         context.canvas,
