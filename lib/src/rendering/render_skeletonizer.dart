@@ -93,8 +93,7 @@ class RenderSkeletonizer extends RenderProxyBox {
       RenderObject node, List<PaintableElement> elements, Offset offset) {
     // avoid skeletonizing renderers outside of skeletonizer bounds
     //
-    // this may need to shifting by parent offset
-
+    // this may need shifting by parent offset
     if (!paintBounds.containsRect(node.paintBounds)) {
       return;
     }
@@ -157,9 +156,9 @@ class RenderSkeletonizer extends RenderProxyBox {
         } else if (child is RenderTransform) {
           return _handleTransform(child, childOffset, elements);
         } else if (child is RenderImage) {
-          elements.add(LeafElement(rect: childOffset & child.size));
+          return elements.add(LeafElement(rect: childOffset & child.size));
         } else if (child is RenderParagraph) {
-          elements.add(_buildTextBone(child, childOffset));
+          return elements.add(_buildTextBone(child, childOffset));
         } else if (child is RenderPhysicalModel) {
           return elements.add(_buildPhysicalModel(child, childOffset));
         } else if (child is RenderPhysicalShape) {

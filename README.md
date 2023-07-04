@@ -39,7 +39,7 @@ corresponding skeleton-layout.
 
 As the name suggests, skeletonizer will reduce your already existing layouts into mere skeletons and
 apply painting effects on them, typically a shimmer effect. It automatically does the job for you,
-in addition SkeletonAnnotations can be used to change how some widgets are skeletonized.
+in addition skeleton annotations can be used to change how specific widgets are skeletonized.
 
 ## Basic usage
 
@@ -82,9 +82,8 @@ Skeletonizer(ignoreContainers: true)
 ## The need for fake data
 
 In order for skeletonizer to work it actually needs a layout, but in most cases the layout would
-need data to shape which.
-e.g the following ListView ill not render anything unless `users` is populated, so if users is empty
-we have no layout which mean we have nothing to skeletonize.
+need data to shape, e.g the following ListView ill not render anything unless `users` is populated, because if users is empty
+we have no layout which means we have nothing to skeletonize.
 
 ```dart
 Skeletonizer(
@@ -108,7 +107,7 @@ Skeletonizer(
 ```
 
 So the key here is to provide fake data for the layout to shape until the real data is fetched form
-backend, so we would such a setup in our build method
+the server, and we would have such a setup in our build method:
 
 ```dart
  
@@ -148,7 +147,7 @@ or by utilizing the `enabled` flag
 ```
 
 Now we have our layout but one issue remains, if you run the above example you'll get an error in
-your console stating that an invalid url was passed to `NetworkImage` which is true because our fake
+your console stating that an invalid url was passed to `NetworkImage` which is legit because our fake
 avatar url is an empty string, in such cases we need to make sure NetworkImage is not in our widget
 tree when skeletonizer is enabled and we do that by using a skeleton annotation
 called `Skeleton.replace` ..read more about annotations below.
@@ -209,7 +208,7 @@ Skeletonizer.of(context).enabled;
 ## Annotations
 
 We can use annotations to change how some widgets should be skeletonized, skeleton annotations have
-no effect on the real layout as they're only hold information for skeletonizer to use when it's
+no effect on the real layout as they only hold information for skeletonizer to use when it's
 enabled.
 
 ### Skeleton.ignore
@@ -285,7 +284,7 @@ Card(
 ### Skeleton.replace
 
 Widgets annotated with `Skeleton.replace` will be replaced when skeletonizer is enabled and the
-replacement will be skeletonized, This is good for widgets that can render with fake data
+replacement will be skeletonized, This is good for widgets that can not render with fake data
 like `Image.network()`
 
 ```dart
@@ -293,7 +292,7 @@ Card(
   child: ListTile(
     title: Text('The title goes here'),
     subtitle: Text('Subtitle here'),
-    trailing: Skeleton.replace( // the icon will be replaced when skeletonizer is on
+    trailing: Skeleton.replace( // the icon will be replaced when skeletonizer is enabled
         width: 50, // the width of the replacement
         height: 50, // the height of the replacement
         replacment: // defaults to a DecoratedBox
@@ -358,7 +357,7 @@ Skeleton.unite(
 
 ### Loading effects
 
-Skeletonizer has 3 different parting effects to choose from and which can be customized to your
+Skeletonizer has 3 different painting effects to choose from which can be customized to your
 liking.
 
 **Note: Loading effects are disturbed by Gif optimization, these look much better on flutter**

@@ -1,4 +1,5 @@
-
+## 0.1.2
+- improve docs
 ## 0.1.1
 - Fix containers with no descendants should not be ignored
 - Add tutorial article link to documentation

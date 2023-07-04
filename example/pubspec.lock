@@ -75,14 +75,6 @@ packages:
     description: flutter
     source: sdk
     version: "0.0.0"
-  gap:
-    dependency: "direct main"
-    description:
-      name: gap
-      sha256: "976fa1e405d7d8249b3d2ec0e18a1eac116f0a86430c29a7485dff6f5326f03a"
-      url: "https://pub.dev"
-    source: hosted
-    version: "3.0.0"
   js:
     dependency: transitive
     description:
@@ -131,21 +123,13 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "1.8.3"
-  shimmer:
-    dependency: "direct main"
-    description:
-      name: shimmer
-      sha256: "5f88c883a22e9f9f299e5ba0e4f7e6054857224976a5d9f839d4ebdc94a14ac9"
-      url: "https://pub.dev"
-    source: hosted
-    version: "3.0.0"
   skeletonizer:
     dependency: "direct main"
     description:
       path: ".."
       relative: true
     source: path
-    version: "0.1.0"
+    version: "0.1.2"
   sky_engine:
     dependency: transitive
     description: flutter
@@ -209,4 +193,4 @@ packages:
     version: "2.1.4"
 sdks:
   dart: ">=3.0.0 <4.0.0"
-  flutter: ">=3.7.0"
+  flutter: ">=1.17.0"

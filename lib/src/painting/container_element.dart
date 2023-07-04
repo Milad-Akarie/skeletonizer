@@ -82,7 +82,8 @@ class ContainerElement extends AncestorElement {
     if (drawContainer || !hasDescendents) {
       if (color != null) {
         final surfacePaint = Paint()..color = color ?? Colors.white;
-        final drawElevation = descendents.isNotEmpty && elevation != null && elevation! > 0;
+        final drawElevation =
+            descendents.isNotEmpty && elevation != null && elevation! > 0;
 
         if (boxShape == BoxShape.circle) {
           if (boxShadow != null) {
@@ -120,11 +121,13 @@ class ContainerElement extends AncestorElement {
           );
         } else {
           if (drawElevation) {
-            context.canvas.drawShadow(Path()..addRect(shiftedRect), Colors.black, elevation!, false);
+            context.canvas.drawShadow(
+                Path()..addRect(shiftedRect), Colors.black, elevation!, false);
           }
           if (boxShadow != null) {
             for (final box in boxShadow!) {
-              context.canvas.drawRect(shiftedRect.shift(box.offset), box.toPaint());
+              context.canvas
+                  .drawRect(shiftedRect.shift(box.offset), box.toPaint());
             }
           }
           context.canvas.drawRect(
@@ -143,14 +146,16 @@ class ContainerElement extends AncestorElement {
     }
   }
 
-  void _paintBorder(Paint shaderPaint, Border borderToDraw, PaintingContext context, Rect shiftedRect) {
+  void _paintBorder(Paint shaderPaint, Border borderToDraw,
+      PaintingContext context, Rect shiftedRect) {
     final borderPaint = Paint()
       ..shader = shaderPaint.shader
       ..color = Colors.black
       ..style = PaintingStyle.stroke;
     if (borderToDraw.isUniform) {
       borderPaint.strokeWidth = borderToDraw.top.width;
-      context.canvas.drawRRect(shiftedRect.toRRect(borderRadius ?? BorderRadius.zero), borderPaint);
+      context.canvas.drawRRect(
+          shiftedRect.toRRect(borderRadius ?? BorderRadius.zero), borderPaint);
     } else {
       _paintPresentBorders(
         context.canvas,
