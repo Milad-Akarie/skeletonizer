@@ -43,7 +43,7 @@ in addition skeleton annotations can be used to change how specific widgets are 
 
 ## Basic usage
 
-Simply wrap your layout with `Skeletonizer` widget
+Simply wrap your layout with `Skeletonizer` widget or `SliverSkeletonizer` | `Skeletonizer.sliver` for sliver widgets.
 
 ```dart
 

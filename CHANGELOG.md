@@ -1,3 +1,5 @@
+## 0.2.0
+- Add SliverSkeletonizer and Skeletonizer.sliver to handle sliver widgets.
 ## 0.1.2
 - improve docs
 ## 0.1.1

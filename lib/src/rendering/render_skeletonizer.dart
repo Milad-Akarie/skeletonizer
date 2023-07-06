@@ -13,7 +13,7 @@ const double _kQuarterTurnsInRadians = math.pi / 2.0;
 
 /// Builds a renderer object that overrides the painting operation
 /// by stripping the original renderers to a list of [PaintableElement]
-class RenderSkeletonizer extends RenderProxyBox {
+class RenderSkeletonizer extends RenderProxyBox with _RenderSkeletonBase<RenderBox> {
   /// Default constructor
   RenderSkeletonizer({
     required bool enabled,
@@ -31,6 +31,9 @@ class RenderSkeletonizer extends RenderProxyBox {
 
   TextDirection _textDirection;
 
+  @override
+  TextDirection get textDirection => _textDirection;
+
   set textDirection(TextDirection value) {
     if (_textDirection != value) {
       _textDirection = value;
@@ -40,6 +43,9 @@ class RenderSkeletonizer extends RenderProxyBox {
   }
 
   SkeletonizerConfigData _config;
+
+  @override
+  SkeletonizerConfigData get config => _config;
 
   set config(SkeletonizerConfigData value) {
     if (_config != value) {
@@ -51,6 +57,9 @@ class RenderSkeletonizer extends RenderProxyBox {
 
   Brightness _brightness;
 
+  @override
+  Brightness get brightness => _brightness;
+
   set brightness(Brightness value) {
     if (_brightness != value) {
       _brightness = value;
@@ -60,6 +69,9 @@ class RenderSkeletonizer extends RenderProxyBox {
   }
 
   bool _enabled;
+
+  @override
+  bool get enabled => _enabled;
 
   set enabled(bool value) {
     if (_enabled != value) {
@@ -71,12 +83,128 @@ class RenderSkeletonizer extends RenderProxyBox {
 
   double _animationValue = 0;
 
+  @override
+  double get animationValue => _animationValue;
+
   set animationValue(double value) {
     if (_animationValue != value) {
       _animationValue = value;
       markNeedsPaint();
     }
   }
+
+  @override
+  bool hitTest(BoxHitTestResult result, {required Offset position}) {
+    return !_enabled && super.hitTest(result, position: position);
+  }
+}
+
+/// Builds a sliver renderer object that overrides the painting operation
+/// by stripping the original renderers to a list of [PaintableElement]
+class RenderSliverSkeletonizer extends RenderProxySliver with _RenderSkeletonBase<RenderSliver> {
+  /// Default constructor
+  RenderSliverSkeletonizer({
+    required bool enabled,
+    required TextDirection textDirection,
+    required double animationValue,
+    required Brightness brightness,
+    RenderSliver? child,
+    required SkeletonizerConfigData config,
+  })  : _animationValue = animationValue,
+        _enabled = enabled,
+        _textDirection = textDirection,
+        _brightness = brightness,
+        _config = config,
+        super(child);
+
+  TextDirection _textDirection;
+
+  @override
+  TextDirection get textDirection => _textDirection;
+
+  set textDirection(TextDirection value) {
+    if (_textDirection != value) {
+      _textDirection = value;
+      _needsSkeletonizing = true;
+      markNeedsPaint();
+    }
+  }
+
+  SkeletonizerConfigData _config;
+
+  @override
+  SkeletonizerConfigData get config => _config;
+
+  set config(SkeletonizerConfigData value) {
+    if (_config != value) {
+      _config = value;
+      _needsSkeletonizing = true;
+      markNeedsPaint();
+    }
+  }
+
+  Brightness _brightness;
+
+  @override
+  Brightness get brightness => _brightness;
+
+  set brightness(Brightness value) {
+    if (_brightness != value) {
+      _brightness = value;
+      _needsSkeletonizing = true;
+      markNeedsPaint();
+    }
+  }
+
+  bool _enabled;
+
+  @override
+  bool get enabled => _enabled;
+
+  set enabled(bool value) {
+    if (_enabled != value) {
+      _enabled = value;
+      _needsSkeletonizing = true;
+      markNeedsPaint();
+    }
+  }
+
+  double _animationValue = 0;
+
+  @override
+  double get animationValue => _animationValue;
+
+  set animationValue(double value) {
+    if (_animationValue != value) {
+      _animationValue = value;
+      markNeedsPaint();
+    }
+  }
+
+  @override
+  bool hitTest(SliverHitTestResult result, {required double mainAxisPosition, required double crossAxisPosition}) {
+    if (!_enabled) return false;
+    return super.hitTest(result, mainAxisPosition: mainAxisPosition, crossAxisPosition: crossAxisPosition);
+  }
+}
+
+/// Builds a renderer object that overrides the painting operation
+/// by stripping the original renderers to a list of [PaintableElement]
+mixin _RenderSkeletonBase<R extends RenderObject> on RenderObjectWithChildMixin<R> {
+  /// The text direction used to resolve Directional geometries
+  TextDirection get textDirection;
+
+  /// The resolved skeletonizer theme data
+  SkeletonizerConfigData get config;
+
+  /// The selected brightness
+  Brightness get brightness;
+
+  /// Whether the skeletonizer is enabled
+  bool get enabled;
+
+  /// The value to animate painting effects
+  double get animationValue;
 
   void _skeletonize() {
     _needsSkeletonizing = false;
@@ -89,8 +217,7 @@ class RenderSkeletonizer extends RenderProxyBox {
   @visibleForTesting
   final paintableElements = <PaintableElement>[];
 
-  void _skeletonizeRecursively(
-      RenderObject node, List<PaintableElement> elements, Offset offset) {
+  void _skeletonizeRecursively(RenderObject node, List<PaintableElement> elements, Offset offset) {
     // avoid skeletonizing renderers outside of skeletonizer bounds
     //
     // this may need shifting by parent offset
@@ -127,12 +254,9 @@ class RenderSkeletonizer extends RenderProxyBox {
         } else if (child.annotation is UniteDescendents) {
           final descendents = _getDescendents(child.child!, childOffset);
           final (rect, borderRadius) = _union(descendents);
-          final effectiveBorderRadius = (child.annotation as UniteDescendents)
-                  .borderRadius
-                  ?.resolve(_textDirection) ??
-              borderRadius;
-          elements.add(
-              LeafElement(rect: rect, borderRadius: effectiveBorderRadius));
+          final effectiveBorderRadius =
+              (child.annotation as UniteDescendents).borderRadius?.resolve(textDirection) ?? borderRadius;
+          elements.add(LeafElement(rect: rect, borderRadius: effectiveBorderRadius));
           return;
         }
       }
@@ -141,7 +265,7 @@ class RenderSkeletonizer extends RenderProxyBox {
           ShadedElement(
             offset: childOffset,
             renderObject: child,
-            canvasSize: size,
+            canvasSize: paintBounds.size,
           ),
         );
       } else if (child is RenderBox) {
@@ -171,7 +295,7 @@ class RenderSkeletonizer extends RenderProxyBox {
                 rect: childOffset & child.size,
                 color: (child.widget as ColoredBox).color,
                 descendents: _getDescendents(child, childOffset),
-                drawContainer: !_config.ignoreContainers),
+                drawContainer: !config.ignoreContainers),
           );
         } else if (child is RenderRotatedBox) {
           final element = _buildRotatedBox(child, childOffset);
@@ -185,8 +309,7 @@ class RenderSkeletonizer extends RenderProxyBox {
     });
   }
 
-  void _handleClipRRect(RenderClipRRect child, Offset childOffset,
-      List<PaintableElement> elements) {
+  void _handleClipRRect(RenderClipRRect child, Offset childOffset, List<PaintableElement> elements) {
     final descendents = _getDescendents(child, childOffset);
     if (child.clipBehavior == Clip.none) {
       elements.addAll(descendents);
@@ -195,7 +318,7 @@ class RenderSkeletonizer extends RenderProxyBox {
       if (child.clipper != null) {
         clipRect = child.clipper!.getClip(child.size);
       } else {
-        final borderRadius = child.borderRadius.resolve(_textDirection);
+        final borderRadius = child.borderRadius.resolve(textDirection);
         clipRect = (childOffset & child.size).toRRect(borderRadius);
       }
       elements.add(
@@ -208,8 +331,7 @@ class RenderSkeletonizer extends RenderProxyBox {
     }
   }
 
-  void _handlePathClip(RenderClipPath child, Offset childOffset,
-      List<PaintableElement> elements) {
+  void _handlePathClip(RenderClipPath child, Offset childOffset, List<PaintableElement> elements) {
     final descendents = _getDescendents(child, childOffset);
     final clipper = child.clipper;
     if (child.clipBehavior == Clip.none) {
@@ -225,8 +347,7 @@ class RenderSkeletonizer extends RenderProxyBox {
     }
   }
 
-  void _handleOvalClip(RenderClipOval child, Offset childOffset,
-      List<PaintableElement> elements) {
+  void _handleOvalClip(RenderClipOval child, Offset childOffset, List<PaintableElement> elements) {
     final descendents = _getDescendents(child, childOffset);
     if (child.clipBehavior == Clip.none) {
       elements.addAll(descendents);
@@ -242,15 +363,14 @@ class RenderSkeletonizer extends RenderProxyBox {
     }
   }
 
-  void _handleTransform(RenderTransform child, Offset childOffset,
-      List<PaintableElement> elements) {
+  void _handleTransform(RenderTransform child, Offset childOffset, List<PaintableElement> elements) {
     final descendents = _getDescendents(child, childOffset);
     if (descendents.isNotEmpty) {
       elements.add(
         TransformElement(
           matrix4: _debugValueOfType<Matrix4>(child)!.clone(),
           size: child.size,
-          textDirection: _textDirection,
+          textDirection: textDirection,
           origin: child.origin,
           alignment: child.alignment,
           descendents: descendents,
@@ -260,8 +380,7 @@ class RenderSkeletonizer extends RenderProxyBox {
     }
   }
 
-  void _handleClipRect(RenderClipRect child, Offset childOffset,
-      List<PaintableElement> elements) {
+  void _handleClipRect(RenderClipRect child, Offset childOffset, List<PaintableElement> elements) {
     final descendents = _getDescendents(child, childOffset);
     if (child.clipBehavior == Clip.none) {
       elements.addAll(descendents);
@@ -303,15 +422,13 @@ class RenderSkeletonizer extends RenderProxyBox {
           biggestDescendent = descendent.textSize;
           borderRadius = descendent.borderRadius;
         }
-        expanded =
-            expanded.expandToInclude(descendent.offset & descendent.textSize);
+        expanded = expanded.expandToInclude(descendent.offset & descendent.textSize);
       }
     }
     return (expanded, borderRadius);
   }
 
-  List<PaintableElement> _getDescendents(
-      RenderObject child, Offset childOffset) {
+  List<PaintableElement> _getDescendents(RenderObject child, Offset childOffset) {
     final descendents = <PaintableElement>[];
     _skeletonizeRecursively(child, descendents, childOffset);
     return descendents;
@@ -335,46 +452,41 @@ class RenderSkeletonizer extends RenderProxyBox {
       textSize: painter.size,
       textAlign: node.textAlign,
       textDirection: node.textDirection,
-      justifyMultiLines: _config.justifyMultiLineText,
+      justifyMultiLines: config.justifyMultiLineText,
       lines: painter.computeLineMetrics(),
       offset: offset,
-      borderRadius: _config.textBorderRadius.usesHeightFactor
-          ? BorderRadius.circular(
-              fontSize * _config.textBorderRadius.heightPercentage!)
-          : _config.textBorderRadius.borderRadius!.resolve(_textDirection),
+      borderRadius: config.textBorderRadius.usesHeightFactor
+          ? BorderRadius.circular(fontSize * config.textBorderRadius.heightPercentage!)
+          : config.textBorderRadius.borderRadius!.resolve(textDirection),
     );
   }
 
   ContainerElement _buildDecoratedBox(RenderDecoratedBox node, Offset offset) {
-    final boxDecoration = node.decoration is BoxDecoration
-        ? (node.decoration as BoxDecoration)
-        : const BoxDecoration();
+    final boxDecoration = node.decoration is BoxDecoration ? (node.decoration as BoxDecoration) : const BoxDecoration();
     return ContainerElement(
       rect: offset & node.size,
       border: boxDecoration.border,
-      borderRadius: boxDecoration.borderRadius?.resolve(_textDirection),
+      borderRadius: boxDecoration.borderRadius?.resolve(textDirection),
       descendents: _getDescendents(node, offset),
       color: boxDecoration.color,
       boxShape: boxDecoration.shape,
       boxShadow: boxDecoration.boxShadow,
-      drawContainer: !_config.ignoreContainers,
+      drawContainer: !config.ignoreContainers,
     );
   }
 
-  TransformElement? _buildRotatedBox(
-      RenderRotatedBox child, Offset childOffset) {
+  TransformElement? _buildRotatedBox(RenderRotatedBox child, Offset childOffset) {
     final descendents = _getDescendents(child, childOffset);
     if (descendents.isNotEmpty) {
       final transChild = child.child!;
       final transform = Matrix4.identity()
         ..translate(child.size.width / 2.0, child.size.height / 2.0)
         ..rotateZ(_kQuarterTurnsInRadians * (child.quarterTurns % 4))
-        ..translate(
-            -transChild.size.width / 2.0, -transChild.size.height / 2.0);
+        ..translate(-transChild.size.width / 2.0, -transChild.size.height / 2.0);
       return TransformElement(
         matrix4: transform,
         descendents: descendents,
-        textDirection: _textDirection,
+        textDirection: textDirection,
         size: child.size,
         offset: childOffset,
       );
@@ -389,13 +501,7 @@ class RenderSkeletonizer extends RenderProxyBox {
   }
 
   T? _debugValueOfType<T>(RenderObject node) {
-    return _debugProperties(node).firstWhereOrNull((e) => e.value is T)?.value
-        as T?;
-  }
-
-  @override
-  bool hitTest(BoxHitTestResult result, {required Offset position}) {
-    return !_enabled && super.hitTest(result, position: position);
+    return _debugProperties(node).firstWhereOrNull((e) => e.value is T)?.value as T?;
   }
 
   bool _needsSkeletonizing = true;
@@ -408,18 +514,17 @@ class RenderSkeletonizer extends RenderProxyBox {
 
   @override
   void paint(PaintingContext context, Offset offset) {
-    if (!_enabled) {
+    if (!enabled) {
       return super.paint(context, offset);
     }
     if (_needsSkeletonizing) _skeletonize();
-    final paint = _config.effect.createPaint(_animationValue, offset & size);
+    final paint = config.effect.createPaint(animationValue, offset & paintBounds.size);
     for (final element in paintableElements) {
       element.paint(context, offset, paint);
     }
   }
 
-  PaintableElement _buildPhysicalShape(
-      RenderPhysicalShape node, Offset offset) {
+  PaintableElement _buildPhysicalShape(RenderPhysicalShape node, Offset offset) {
     final isButton = node.findParentWithName('_RenderInputPadding') != null;
     final shape = (node.clipper as ShapeBorderClipper).shape;
     BorderRadiusGeometry? borderRadius;
@@ -428,14 +533,10 @@ class RenderSkeletonizer extends RenderProxyBox {
     } else if (shape is StadiumBorder) {
       borderRadius = BorderRadius.circular(node.size.height);
     }
-    var descendents =
-        isButton ? const <PaintableElement>[] : _getDescendents(node, offset);
+    var descendents = isButton ? const <PaintableElement>[] : _getDescendents(node, offset);
 
-    if (borderRadius != null &&
-        node.clipBehavior != Clip.none &&
-        descendents.isNotEmpty) {
-      final clipRect =
-          (offset & node.size).toRRect(borderRadius.resolve(_textDirection));
+    if (borderRadius != null && node.clipBehavior != Clip.none && descendents.isNotEmpty) {
+      final clipRect = (offset & node.size).toRRect(borderRadius.resolve(textDirection));
       descendents = [
         ClipRRectElement(
           clip: clipRect,
@@ -450,16 +551,13 @@ class RenderSkeletonizer extends RenderProxyBox {
       descendents: descendents,
       color: node.color,
       boxShape: shape is CircleBorder ? BoxShape.circle : BoxShape.rectangle,
-      borderRadius: borderRadius?.resolve(_textDirection),
-      drawContainer: !_config.ignoreContainers,
+      borderRadius: borderRadius?.resolve(textDirection),
+      drawContainer: !config.ignoreContainers,
     );
   }
 
-  ContainerElement _buildPhysicalModel(
-      RenderPhysicalModel node, Offset offset) {
-    final shape = node.clipper == null
-        ? null
-        : (node.clipper as ShapeBorderClipper).shape;
+  ContainerElement _buildPhysicalModel(RenderPhysicalModel node, Offset offset) {
+    final shape = node.clipper == null ? null : (node.clipper as ShapeBorderClipper).shape;
     BorderRadiusGeometry? borderRadius;
     if (shape is RoundedRectangleBorder) {
       borderRadius = shape.borderRadius;
@@ -472,8 +570,8 @@ class RenderSkeletonizer extends RenderProxyBox {
       descendents: _getDescendents(node, offset),
       color: node.color,
       boxShape: shape is CircleBorder ? BoxShape.circle : BoxShape.rectangle,
-      borderRadius: borderRadius?.resolve(_textDirection),
-      drawContainer: !_config.ignoreContainers,
+      borderRadius: borderRadius?.resolve(textDirection),
+      drawContainer: !config.ignoreContainers,
     );
   }
 }

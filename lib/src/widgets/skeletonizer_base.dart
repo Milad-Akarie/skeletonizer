@@ -56,3 +56,58 @@ class SkeletonizerBase extends SingleChildRenderObjectWidget {
       ..textDirection = textDirection;
   }
 }
+/// Builds a [RenderSkeletonizer]
+class SliverSkeletonizerBase extends SingleChildRenderObjectWidget {
+  /// The default constructor
+  const SliverSkeletonizerBase({
+    super.key,
+    required super.child,
+    required this.enabled,
+    required this.animationValue,
+    required this.brightness,
+    required this.textDirection,
+    required this.config,
+  });
+
+  /// If false the widget tree will painted
+  /// as is
+  final bool enabled;
+
+  /// The value to animate painting effects
+  final double animationValue;
+
+  /// The used brightness
+  final Brightness brightness;
+
+  /// The scoped text direction
+  /// used to resolve Directional geometries e.g [BorderRadiusDirectional]
+  final TextDirection textDirection;
+
+  /// The resolved skeletonizer theme data
+  final SkeletonizerConfigData config;
+
+  @override
+  RenderSliverSkeletonizer createRenderObject(BuildContext context) {
+    return RenderSliverSkeletonizer(
+      enabled: enabled,
+      animationValue: animationValue,
+      brightness: brightness,
+      textDirection: textDirection,
+      config: config,
+    );
+  }
+
+  @override
+  void updateRenderObject(
+      BuildContext context,
+      covariant RenderSliverSkeletonizer renderObject,
+      ) {
+    renderObject
+      ..enabled = enabled
+      ..animationValue = animationValue
+      ..brightness = brightness
+      ..config = config
+      ..textDirection = textDirection;
+  }
+}
+
