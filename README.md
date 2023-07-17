@@ -266,6 +266,7 @@ Card(
 ### Skeleton.shade
 
 Widgets annotated with `Skeleton.shade` will not be skeletonized but will be shaded by a shader mask.
+
 **Note**: CustomPainter widgets need to be explicitly annotated with `Skeleton.shade` to be shaded.
 
 ```dart
@@ -355,7 +356,7 @@ Skeleton.unite(
 ![](https://github.com/Milad-Akarie/skeletonizer/blob/main/art/united_skeleton_demo2.gif?raw=true)
 
 ### Skeleton.coloredBox
-ColoredBox and Container widgets with non-null color build a private _RenderColoredBox which is not accessible,this annotation is used to pass the color to the render tree
+`ColoredBox` and `Container` widgets with non-null color build a private _RenderColoredBox which is not accessible, this annotation is used to pass the color to the render tree.
 
 
 ## Customization

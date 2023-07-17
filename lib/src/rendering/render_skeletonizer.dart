@@ -181,7 +181,7 @@ class RenderSliverSkeletonizer extends RenderProxySliver
   @override
   bool hitTest(SliverHitTestResult result,
       {required double mainAxisPosition, required double crossAxisPosition}) {
-    if (!_enabled) return false;
+    if (_enabled) return false;
     return super.hitTest(result,
         mainAxisPosition: mainAxisPosition,
         crossAxisPosition: crossAxisPosition);

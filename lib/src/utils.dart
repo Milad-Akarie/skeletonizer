@@ -28,7 +28,6 @@ extension RenderObjectX on RenderObject {
       ? (debugCreator as DebugCreator).element.widget
       : null;
 
-
   /// Finds the first [RenderSemanticsAnnotations] in above this render object
   RenderSemanticsAnnotations? findFirstAnnotation() {
     RenderSemanticsAnnotations? find(AbstractNode box) {
