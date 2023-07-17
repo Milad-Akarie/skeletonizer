@@ -88,6 +88,33 @@ class Skeleton extends StatelessWidget {
     UniteDescendents annotation = const UniteDescendents(),
   }) : annotation = unite ? annotation : _none;
 
+
+  /// Used to annotate a [ColoredBox] or [Container] with a color not 'Decoration'
+  ///
+  /// ColoredBox and Container widgets with non-null color build a private
+  /// _RenderColoredBox which is not accessible to the render tree.
+  /// this annotation is used to pass the color to the render tree
+  Skeleton.coloredBox({
+    super.key,
+    required this.child,
+    Color? color,
+  })  : assert(child is ColoredBox || child is Container),
+        annotation = ColoredBoxAnnotation(color: _getColor(child, color));
+
+  static Color _getColor(Widget child, Color? color) {
+    if (color != null) {
+      return color;
+    } else if (child is ColoredBox) {
+      return child.color;
+    } else if (child is Container) {
+      assert(child.color != null,'do not use this annotation with Container that has null color');
+      return child.color!;
+    }
+    throw AssertionError(
+      'color must not be null or child must be ColoredBox or Container with non-null color',
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     return _AnnotatedSkeleton(
@@ -156,6 +183,16 @@ class UniteDescendents extends SkeletonAnnotation {
   final BorderRadiusGeometry? borderRadius;
 }
 
+/// A workaround for [ColoredBox] and [Container.color] cases
+/// as they do not have a public [RenderObject] to be used
+class ColoredBoxAnnotation extends SkeletonAnnotation {
+  /// Default constructor
+  const ColoredBoxAnnotation({required this.color});
+
+  /// The color of the box
+  final Color color;
+}
+
 /// Replace the original element when [Skeletonizer.enabled] is true
 class _SkeletonReplace extends Skeleton {
   /// Default constructor
@@ -205,8 +242,6 @@ class _SkeletonShade extends Skeleton {
   @override
   Widget build(BuildContext context) {
     final userShaderMask = shade && Skeletonizer.of(context).enabled;
-    return userShaderMask
-        ? SkeletonShaderMask(child: super.build(context))
-        : super.build(context);
+    return userShaderMask ? SkeletonShaderMask(child: super.build(context)) : super.build(context);
   }
 }

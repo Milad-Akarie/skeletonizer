@@ -28,6 +28,11 @@ abstract class Skeletonizer extends StatefulWidget {
   /// Whether to justify multi line text bones
   final bool? justifyMultiLineText;
 
+  /// The color of the container elements
+  /// this includes [Container], [Card], [DecoratedBox] ..etc
+  ///
+  /// if null the actual color will be used
+  final Color? containersColor;
   /// Default constructor
   const Skeletonizer._({
     super.key,
@@ -37,6 +42,7 @@ abstract class Skeletonizer extends StatefulWidget {
     this.textBoneBorderRadius,
     this.ignoreContainers,
     this.justifyMultiLineText,
+    this.containersColor,
   });
 
   /// Creates a [Skeletonizer] widget
@@ -48,6 +54,7 @@ abstract class Skeletonizer extends StatefulWidget {
     TextBoneBorderRadius? textBoneBorderRadius,
     bool? ignoreContainers,
     bool? justifyMultiLineText,
+    Color? containersColor,
   }) = _Skeletonizer;
 
 
@@ -60,6 +67,7 @@ abstract class Skeletonizer extends StatefulWidget {
     TextBoneBorderRadius? textBoneBorderRadius,
     bool? ignoreContainers,
     bool? justifyMultiLineText,
+    Color? containersColor,
   }) = SliverSkeletonizer;
 
 
@@ -124,6 +132,7 @@ class SkeletonizerState extends State<Skeletonizer> with TickerProviderStateMixi
       textBorderRadius: widget.textBoneBorderRadius,
       ignoreContainers: widget.ignoreContainers,
       justifyMultiLineText: widget.justifyMultiLineText,
+      containersColor: widget.containersColor,
     );
     if (resolvedConfig != _config) {
       _config = resolvedConfig;
@@ -208,6 +217,7 @@ class _Skeletonizer extends Skeletonizer {
     super.textBoneBorderRadius,
     super.ignoreContainers,
     super.justifyMultiLineText,
+    super.containersColor,
   }) : super._();
 
   @override
@@ -237,6 +247,7 @@ class SliverSkeletonizer extends Skeletonizer {
     super.textBoneBorderRadius,
     super.ignoreContainers,
     super.justifyMultiLineText,
+    super.containersColor,
   }) : super._();
 
   @override

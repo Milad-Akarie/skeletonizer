@@ -20,12 +20,19 @@ class SkeletonizerConfigData {
   /// the dependents
   final bool ignoreContainers;
 
+  /// The color of the container elements
+  /// this includes [Container], [Card], [DecoratedBox] ..etc
+  ///
+  /// if null the actual color will be used
+  final Color? containersColor;
+
   /// Default constructor
   const SkeletonizerConfigData({
     this.effect = const ShimmerEffect(),
     this.justifyMultiLineText = true,
     this.textBorderRadius = _defaultTextBoneBorderRadius,
     this.ignoreContainers = false,
+    this.containersColor,
   });
 
   /// Builds a light themed instance
@@ -34,6 +41,7 @@ class SkeletonizerConfigData {
     this.justifyMultiLineText = true,
     this.textBorderRadius = _defaultTextBoneBorderRadius,
     this.ignoreContainers = false,
+    this.containersColor,
   });
 
   /// Builds a dark themed instance
@@ -42,6 +50,7 @@ class SkeletonizerConfigData {
       baseColor: Color(0xFF3A3A3A),
       highlightColor: Color(0xFF424242),
     ),
+    this.containersColor,
     this.justifyMultiLineText = true,
     this.textBorderRadius = _defaultTextBoneBorderRadius,
     this.ignoreContainers = false,
@@ -55,12 +64,14 @@ class SkeletonizerConfigData {
           effect == other.effect &&
           justifyMultiLineText == other.justifyMultiLineText &&
           ignoreContainers == other.ignoreContainers &&
+          containersColor == other.containersColor &&
           textBorderRadius == other.textBorderRadius;
 
   @override
   int get hashCode =>
       effect.hashCode ^
       textBorderRadius.hashCode ^
+      containersColor.hashCode ^
       justifyMultiLineText.hashCode ^
       ignoreContainers.hashCode;
 
@@ -70,12 +81,14 @@ class SkeletonizerConfigData {
     TextBoneBorderRadius? textBorderRadius,
     bool? justifyMultiLineText,
     bool? ignoreContainers,
+    Color? containersColor,
   }) {
     return SkeletonizerConfigData(
       effect: effect ?? this.effect,
       textBorderRadius: textBorderRadius ?? this.textBorderRadius,
       justifyMultiLineText: justifyMultiLineText ?? this.justifyMultiLineText,
       ignoreContainers: ignoreContainers ?? this.ignoreContainers,
+      containersColor: containersColor ?? this.containersColor,
     );
   }
 }

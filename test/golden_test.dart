@@ -45,17 +45,13 @@ void runTests() {
           GoldenTestScenario(
             name: ' With TextAlign.center',
             child: const Skeletonizer(
-              child: SizedBox(
-                  width: double.infinity,
-                  child: Text('English', textAlign: TextAlign.center)),
+              child: SizedBox(width: double.infinity, child: Text('English', textAlign: TextAlign.center)),
             ),
           ),
           GoldenTestScenario(
             name: ' With TextAlign.right',
             child: const Skeletonizer(
-              child: SizedBox(
-                  width: double.infinity,
-                  child: Text('English', textAlign: TextAlign.right)),
+              child: SizedBox(width: double.infinity, child: Text('English', textAlign: TextAlign.right)),
             ),
           ),
           GoldenTestScenario(
@@ -193,11 +189,13 @@ void runTests() {
           ),
           GoldenTestScenario(
             name: 'ColoredBox',
-            child: const Skeletonizer(
+            child:  Skeletonizer(
               child: SizedBox(
                 width: 200,
                 height: 100,
-                child: ColoredBox(color: Colors.white),
+                child: Skeleton.coloredBox(
+                  child: const ColoredBox(color: Colors.white),
+                ),
               ),
             ),
           ),
@@ -522,7 +520,9 @@ void runTests() {
               child: ClipRRect(
                 borderRadius: BorderRadius.circular(20),
                 child: Container(
-                  color: Colors.green,
+                  decoration: const BoxDecoration(
+                    color: Colors.green,
+                  ),
                   width: 100,
                   height: 50,
                 ),
@@ -536,7 +536,9 @@ void runTests() {
                 borderRadius: BorderRadius.circular(20),
                 clipBehavior: Clip.none,
                 child: Container(
-                  color: Colors.green,
+                  decoration: const BoxDecoration(
+                    color: Colors.green,
+                  ),
                   width: 100,
                   height: 50,
                 ),
@@ -548,7 +550,9 @@ void runTests() {
             child: Skeletonizer(
               child: ClipOval(
                 child: Container(
-                  color: Colors.green,
+                  decoration: const BoxDecoration(
+                    color: Colors.green,
+                  ),
                   width: 100,
                   height: 50,
                 ),
@@ -561,7 +565,9 @@ void runTests() {
               child: ClipOval(
                 clipBehavior: Clip.none,
                 child: Container(
-                  color: Colors.green,
+                  decoration: const BoxDecoration(
+                    color: Colors.green,
+                  ),
                   width: 100,
                   height: 50,
                 ),
@@ -574,7 +580,9 @@ void runTests() {
               child: ClipPath(
                 clipper: TestPathClipper(),
                 child: Container(
-                  color: Colors.green,
+                  decoration: const BoxDecoration(
+                    color: Colors.green,
+                  ),
                   width: 100,
                   height: 50,
                 ),
@@ -588,7 +596,9 @@ void runTests() {
                 clipper: TestPathClipper(),
                 clipBehavior: Clip.none,
                 child: Container(
-                  color: Colors.green,
+                  decoration: const BoxDecoration(
+                    color: Colors.green,
+                  ),
                   width: 100,
                   height: 50,
                 ),
@@ -616,7 +626,9 @@ void runTests() {
               child: Transform.scale(
                 scale: 1.3,
                 child: Container(
-                  color: Colors.green,
+                  decoration: const BoxDecoration(
+                    color: Colors.green,
+                  ),
                   width: 50,
                   height: 50,
                 ),
@@ -629,7 +641,9 @@ void runTests() {
               child: Transform.translate(
                 offset: const Offset(50, 0),
                 child: Container(
-                  color: Colors.green,
+                  decoration: const BoxDecoration(
+                    color: Colors.green,
+                  ),
                   width: 50,
                   height: 50,
                 ),
@@ -642,7 +656,9 @@ void runTests() {
               child: Transform.rotate(
                 angle: 1,
                 child: Container(
-                  color: Colors.green,
+                  decoration: const BoxDecoration(
+                    color: Colors.green,
+                  ),
                   width: 50,
                   height: 50,
                 ),
@@ -655,7 +671,9 @@ void runTests() {
               child: RotatedBox(
                 quarterTurns: 2,
                 child: Container(
-                  color: Colors.green,
+                  decoration: const BoxDecoration(
+                    color: Colors.green,
+                  ),
                   width: 50,
                   height: 70,
                 ),

@@ -2,13 +2,13 @@ import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:skeletonizer/src/painting/painting.dart';
 import 'package:skeletonizer/src/utils.dart';
+import 'package:skeletonizer/src/widgets/skeleton.dart';
 
 import 'helpers.dart';
 import 'utils.dart';
 
 void main() {
-  testWidgets('Card widgets should be resolved to ContainerElements',
-      (tester) async {
+  testWidgets('Card widgets should be resolved to ContainerElements', (tester) async {
     final skeletonizer = await tester.pumpSkeletonizerApp(
       Align(
         alignment: Alignment.topLeft,
@@ -34,9 +34,7 @@ void main() {
     );
   });
 
-  testWidgets(
-      'Card widgets with child should be resolved to ContainerElements with descendants',
-      (tester) async {
+  testWidgets('Card widgets with child should be resolved to ContainerElements with descendants', (tester) async {
     const text = TextSpan(text: 'foo', style: TextStyle(fontSize: 14));
     final skeletonizer = await tester.pumpSkeletonizerApp(
       Align(
@@ -46,8 +44,7 @@ void main() {
           width: 100,
           child: Card(
             color: Colors.white,
-            shape:
-                RoundedRectangleBorder(borderRadius: BorderRadius.circular(4)),
+            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(4)),
             elevation: 1,
             margin: EdgeInsets.zero,
             child: Align(
@@ -72,8 +69,7 @@ void main() {
     );
   });
 
-  testWidgets('Material widgets should be resolved to ContainerElements',
-      (tester) async {
+  testWidgets('Material widgets should be resolved to ContainerElements', (tester) async {
     final skeletonizer = await tester.pumpSkeletonizerApp(
       Align(
         alignment: Alignment.topLeft,
@@ -98,8 +94,7 @@ void main() {
     );
   });
 
-  testWidgets('Container widgets should be resolved to ContainerElements',
-      (tester) async {
+  testWidgets('Container widgets should be resolved to ContainerElements', (tester) async {
     final skeletonizer = await tester.pumpSkeletonizerApp(
       Align(
         alignment: Alignment.topLeft,
@@ -107,10 +102,7 @@ void main() {
           width: 100,
           height: 100,
           decoration: const BoxDecoration(
-              color: Colors.white,
-              shape: BoxShape.circle,
-              border: Border(),
-              boxShadow: [BoxShadow()]),
+              color: Colors.white, shape: BoxShape.circle, border: Border(), boxShadow: [BoxShadow()]),
         ),
       ),
     );
@@ -129,14 +121,16 @@ void main() {
     );
   });
 
-  testWidgets('ColoredBox widgets should be resolved to ContainerElements',
-      (tester) async {
+  testWidgets('ColoredBox widgets should be resolved to ContainerElements', (tester) async {
     final skeletonizer = await tester.pumpSkeletonizerApp(
-      const Align(
+      Align(
         alignment: Alignment.topLeft,
-        child: ColoredBox(color: Colors.white),
+        child: Skeleton.coloredBox(
+          child: const ColoredBox(color: Colors.white),
+        ),
       ),
     );
+
     expect(
       [
         ContainerElement(
@@ -149,8 +143,7 @@ void main() {
     );
   });
 
-  testWidgets('Text widgets should be resolved to TextElements',
-      (tester) async {
+  testWidgets('Text widgets should be resolved to TextElements', (tester) async {
     const text = TextSpan(text: 'foo', style: TextStyle(fontSize: 14));
     final skeletonizer = await tester.pumpSkeletonizerApp(
       Align(
@@ -164,19 +157,15 @@ void main() {
     );
   });
 
-  testWidgets('ClipRRect widgets should be resolved to RRectClipElements',
-      (tester) async {
+  testWidgets('ClipRRect widgets should be resolved to RRectClipElements', (tester) async {
     const text = TextSpan(text: 'foo', style: TextStyle(fontSize: 14));
     final skeletonizer = await tester.pumpSkeletonizerApp(
       Align(
         alignment: Alignment.topLeft,
         child: ClipRRect(
           borderRadius: BorderRadius.circular(4),
-          child: SizedBox(
-              width: 100,
-              height: 20,
-              child: Align(
-                  alignment: Alignment.topLeft, child: RichText(text: text))),
+          child:
+              SizedBox(width: 100, height: 20, child: Align(alignment: Alignment.topLeft, child: RichText(text: text))),
         ),
       ),
     );
@@ -193,18 +182,14 @@ void main() {
     );
   });
 
-  testWidgets('ClipRect widgets should be resolved to RectClipElements',
-      (tester) async {
+  testWidgets('ClipRect widgets should be resolved to RectClipElements', (tester) async {
     const text = TextSpan(text: 'foo', style: TextStyle(fontSize: 14));
     final skeletonizer = await tester.pumpSkeletonizerApp(
       Align(
         alignment: Alignment.topLeft,
         child: ClipRect(
-          child: SizedBox(
-              width: 100,
-              height: 20,
-              child: Align(
-                  alignment: Alignment.topLeft, child: RichText(text: text))),
+          child:
+              SizedBox(width: 100, height: 20, child: Align(alignment: Alignment.topLeft, child: RichText(text: text))),
         ),
       ),
     );
@@ -219,18 +204,14 @@ void main() {
       skeletonizer.paintableElements,
     );
   });
-  testWidgets('ClipOval widgets should be resolved to OvalClipElements',
-      (tester) async {
+  testWidgets('ClipOval widgets should be resolved to OvalClipElements', (tester) async {
     const text = TextSpan(text: 'foo', style: TextStyle(fontSize: 14));
     final skeletonizer = await tester.pumpSkeletonizerApp(
       Align(
         alignment: Alignment.topLeft,
         child: ClipRect(
-          child: SizedBox(
-              width: 100,
-              height: 20,
-              child: Align(
-                  alignment: Alignment.topLeft, child: RichText(text: text))),
+          child:
+              SizedBox(width: 100, height: 20, child: Align(alignment: Alignment.topLeft, child: RichText(text: text))),
         ),
       ),
     );
@@ -246,8 +227,7 @@ void main() {
     );
   });
 
-  testWidgets('ClipPath widgets should be resolved to PathClipElements',
-      (tester) async {
+  testWidgets('ClipPath widgets should be resolved to PathClipElements', (tester) async {
     const text = TextSpan(text: 'foo', style: TextStyle(fontSize: 14));
     final skeletonizer = await tester.pumpSkeletonizerApp(
       Align(

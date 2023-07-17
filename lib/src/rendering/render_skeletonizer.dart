@@ -1,15 +1,10 @@
-import 'package:collection/collection.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/rendering.dart';
 import 'package:flutter/widgets.dart';
 import 'package:skeletonizer/skeletonizer.dart';
 import 'package:skeletonizer/src/rendering/render_skeleton_shader_mask.dart';
-import 'dart:math' as math;
-
 import 'package:skeletonizer/src/utils.dart';
 import 'package:skeletonizer/src/painting/painting.dart';
-
-const double _kQuarterTurnsInRadians = math.pi / 2.0;
 
 /// Builds a renderer object that overrides the painting operation
 /// by stripping the original renderers to a list of [PaintableElement]
@@ -221,43 +216,50 @@ mixin _RenderSkeletonBase<R extends RenderObject> on RenderObjectWithChildMixin<
     // avoid skeletonizing renderers outside of skeletonizer bounds
     //
     // this may need shifting by parent offset
-    if (!paintBounds.containsRect(node.paintBounds)) {
+    if (!paintBounds.intersectsWith(node.paintBounds)) {
       return;
     }
 
     node.visitChildren((child) {
       var childOffset = offset;
-      if (child.hasParentData) {
+      if (node is! RenderTransform && node is! RenderRotatedBox && child.hasParentData) {
         final transform = Matrix4.identity();
-        if (node is! RenderTransform && node is! RenderRotatedBox) {
-          node.applyPaintTransform(child, transform);
-          childOffset = MatrixUtils.transformPoint(transform, offset);
-        }
+        node.applyPaintTransform(child, transform);
+        childOffset = MatrixUtils.transformPoint(transform, offset);
       }
 
       // avoid skeletonizing renderers outside of parent bounds
-      if (!node.paintBounds.containsRect(child.paintBounds)) {
+      if (!node.paintBounds.intersectsWith(child.paintBounds)) {
         return;
       }
 
       if (child is RenderSkeletonAnnotation) {
-        if (child.annotation is IgnoreDescendants) {
+        final annotation = child.annotation;
+        if (annotation is IgnoreDescendants) {
           return;
         }
-        if (child.annotation is KeepOriginal) {
+        if (annotation is KeepOriginal) {
           return elements.add(
             OriginalElement(
               offset: childOffset,
               renderObject: child.child!,
             ),
           );
-        } else if (child.annotation is UniteDescendents) {
+        } else if (annotation is UniteDescendents) {
           final descendents = _getDescendents(child.child!, childOffset);
           final (rect, borderRadius) = _union(descendents);
-          final effectiveBorderRadius =
-              (child.annotation as UniteDescendents).borderRadius?.resolve(textDirection) ?? borderRadius;
+          final effectiveBorderRadius = annotation.borderRadius?.resolve(textDirection) ?? borderRadius;
           elements.add(LeafElement(rect: rect, borderRadius: effectiveBorderRadius));
           return;
+        } else if (annotation is ColoredBoxAnnotation) {
+          final descendents = _getDescendents(child.child!, childOffset);
+          return elements.add(
+            ContainerElement(
+              descendents: descendents,
+              rect: childOffset & child.size,
+              color:annotation.color,
+            ),
+          );
         }
       }
       if (child is RenderSkeletonShaderMask) {
@@ -289,20 +291,15 @@ mixin _RenderSkeletonBase<R extends RenderObject> on RenderObjectWithChildMixin<
           return elements.add(_buildPhysicalShape(child, childOffset));
         } else if (child is RenderDecoratedBox) {
           return elements.add(_buildDecoratedBox(child, childOffset));
-        } else if (child.widget is ColoredBox) {
-          return elements.add(
-            ContainerElement(
-                rect: childOffset & child.size,
-                color: (child.widget as ColoredBox).color,
-                descendents: _getDescendents(child, childOffset),
-                drawContainer: !config.ignoreContainers),
-          );
         } else if (child is RenderRotatedBox) {
-          final element = _buildRotatedBox(child, childOffset);
-          if (element != null) {
-            elements.add(element);
-          }
-          return;
+          return _handleRotatedBox(child, elements, childOffset);
+        } else if (child is RenderProxyBox) {
+          // return elements.add(
+          //   OriginalElement(
+          //     offset: childOffset,
+          //     renderObject: child,
+          //   ),
+          // );
         }
       }
       _skeletonizeRecursively(child, elements, childOffset);
@@ -366,13 +363,12 @@ mixin _RenderSkeletonBase<R extends RenderObject> on RenderObjectWithChildMixin<
   void _handleTransform(RenderTransform child, Offset childOffset, List<PaintableElement> elements) {
     final descendents = _getDescendents(child, childOffset);
     if (descendents.isNotEmpty) {
+      final Matrix4 matrix = Matrix4.identity();
+      child.applyPaintTransform(child.child!, matrix);
       elements.add(
         TransformElement(
-          matrix4: _debugValueOfType<Matrix4>(child)!.clone(),
+          matrix4: matrix,
           size: child.size,
-          textDirection: textDirection,
-          origin: child.origin,
-          alignment: child.alignment,
           descendents: descendents,
           offset: childOffset,
         ),
@@ -468,40 +464,27 @@ mixin _RenderSkeletonBase<R extends RenderObject> on RenderObjectWithChildMixin<
       border: boxDecoration.border,
       borderRadius: boxDecoration.borderRadius?.resolve(textDirection),
       descendents: _getDescendents(node, offset),
-      color: boxDecoration.color,
+      color: config.containersColor ?? boxDecoration.color,
       boxShape: boxDecoration.shape,
       boxShadow: boxDecoration.boxShadow,
       drawContainer: !config.ignoreContainers,
     );
   }
 
-  TransformElement? _buildRotatedBox(RenderRotatedBox child, Offset childOffset) {
+  void _handleRotatedBox(RenderRotatedBox child, List<PaintableElement> elements, Offset childOffset) {
     final descendents = _getDescendents(child, childOffset);
     if (descendents.isNotEmpty) {
-      final transChild = child.child!;
-      final transform = Matrix4.identity()
-        ..translate(child.size.width / 2.0, child.size.height / 2.0)
-        ..rotateZ(_kQuarterTurnsInRadians * (child.quarterTurns % 4))
-        ..translate(-transChild.size.width / 2.0, -transChild.size.height / 2.0);
-      return TransformElement(
-        matrix4: transform,
-        descendents: descendents,
-        textDirection: textDirection,
-        size: child.size,
-        offset: childOffset,
+      final matrix = Matrix4.identity();
+      child.applyPaintTransform(child.child!, matrix);
+      elements.add(
+        TransformElement(
+          matrix4: matrix,
+          descendents: descendents,
+          size: child.size,
+          offset: childOffset,
+        ),
       );
     }
-    return null;
-  }
-
-  List<DiagnosticsNode> _debugProperties(Diagnosticable node) {
-    final builder = DiagnosticPropertiesBuilder();
-    node.debugFillProperties(builder);
-    return builder.properties;
-  }
-
-  T? _debugValueOfType<T>(RenderObject node) {
-    return _debugProperties(node).firstWhereOrNull((e) => e.value is T)?.value as T?;
   }
 
   bool _needsSkeletonizing = true;
@@ -525,7 +508,7 @@ mixin _RenderSkeletonBase<R extends RenderObject> on RenderObjectWithChildMixin<
   }
 
   PaintableElement _buildPhysicalShape(RenderPhysicalShape node, Offset offset) {
-    final isButton = node.findParentWithName('_RenderInputPadding') != null;
+    final isButton = node.findFirstAnnoation()?.properties.button == true;
     final shape = (node.clipper as ShapeBorderClipper).shape;
     BorderRadiusGeometry? borderRadius;
     if (shape is RoundedRectangleBorder) {
@@ -549,7 +532,7 @@ mixin _RenderSkeletonBase<R extends RenderObject> on RenderObjectWithChildMixin<
       rect: offset & node.size,
       elevation: node.elevation,
       descendents: descendents,
-      color: node.color,
+      color: config.containersColor ?? node.color,
       boxShape: shape is CircleBorder ? BoxShape.circle : BoxShape.rectangle,
       borderRadius: borderRadius?.resolve(textDirection),
       drawContainer: !config.ignoreContainers,
@@ -564,11 +547,12 @@ mixin _RenderSkeletonBase<R extends RenderObject> on RenderObjectWithChildMixin<
     } else if (shape is StadiumBorder) {
       borderRadius = BorderRadius.circular(node.size.height);
     }
+
     return ContainerElement(
       rect: offset & node.size,
       elevation: node.elevation,
       descendents: _getDescendents(node, offset),
-      color: node.color,
+      color: config.containersColor ?? node.color,
       boxShape: shape is CircleBorder ? BoxShape.circle : BoxShape.rectangle,
       borderRadius: borderRadius?.resolve(textDirection),
       drawContainer: !config.ignoreContainers,
