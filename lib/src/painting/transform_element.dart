@@ -7,6 +7,7 @@ import 'package:skeletonizer/src/painting/painting.dart';
 class TransformElement extends AncestorElement {
   /// see [RenderTransform.matrix]
   final Matrix4 matrix4;
+
   /// see [RenderTransform.size]
   final Size size;
 
@@ -16,7 +17,6 @@ class TransformElement extends AncestorElement {
     required super.descendents,
     required this.size,
     required super.offset,
-
   });
 
   @override
@@ -29,8 +29,7 @@ class TransformElement extends AncestorElement {
           super == (other);
 
   @override
-  int get hashCode =>
-      matrix4.hashCode  ^ size.hashCode ^ super.hashCode;
+  int get hashCode => matrix4.hashCode ^ size.hashCode ^ super.hashCode;
 
   @override
   Rect get rect => offset & size;

@@ -56,6 +56,7 @@ class SkeletonizerBase extends SingleChildRenderObjectWidget {
       ..textDirection = textDirection;
   }
 }
+
 /// Builds a [RenderSkeletonizer]
 class SliverSkeletonizerBase extends SingleChildRenderObjectWidget {
   /// The default constructor
@@ -99,9 +100,9 @@ class SliverSkeletonizerBase extends SingleChildRenderObjectWidget {
 
   @override
   void updateRenderObject(
-      BuildContext context,
-      covariant RenderSliverSkeletonizer renderObject,
-      ) {
+    BuildContext context,
+    covariant RenderSliverSkeletonizer renderObject,
+  ) {
     renderObject
       ..enabled = enabled
       ..animationValue = animationValue
@@ -110,4 +111,3 @@ class SliverSkeletonizerBase extends SingleChildRenderObjectWidget {
       ..textDirection = textDirection;
   }
 }
-

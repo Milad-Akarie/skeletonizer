@@ -33,6 +33,7 @@ abstract class Skeletonizer extends StatefulWidget {
   ///
   /// if null the actual color will be used
   final Color? containersColor;
+
   /// Default constructor
   const Skeletonizer._({
     super.key,
@@ -57,7 +58,6 @@ abstract class Skeletonizer extends StatefulWidget {
     Color? containersColor,
   }) = _Skeletonizer;
 
-
   /// Creates a [SliverSkeletonizer] widget
   const factory Skeletonizer.sliver({
     Key? key,
@@ -70,7 +70,6 @@ abstract class Skeletonizer extends StatefulWidget {
     Color? containersColor,
   }) = SliverSkeletonizer;
 
-
   @override
   State<Skeletonizer> createState() => SkeletonizerState();
 
@@ -81,7 +80,8 @@ abstract class Skeletonizer extends StatefulWidget {
 
   /// Depends on the the nearest SkeletonizerScope if any otherwise it throws
   static SkeletonizerScope of(BuildContext context) {
-    final scope = context.dependOnInheritedWidgetOfExactType<SkeletonizerScope>();
+    final scope =
+        context.dependOnInheritedWidgetOfExactType<SkeletonizerScope>();
     assert(() {
       if (scope == null) {
         throw FlutterError(
@@ -100,7 +100,8 @@ abstract class Skeletonizer extends StatefulWidget {
 }
 
 /// The state of [Skeletonizer] widget
-class SkeletonizerState extends State<Skeletonizer> with TickerProviderStateMixin<Skeletonizer> {
+class SkeletonizerState extends State<Skeletonizer>
+    with TickerProviderStateMixin<Skeletonizer> {
   AnimationController? _animationController;
 
   late bool _enabled = widget.enabled;
@@ -125,7 +126,9 @@ class SkeletonizerState extends State<Skeletonizer> with TickerProviderStateMixi
     _textDirection = Directionality.of(context);
     final isDarkMode = _brightness == Brightness.dark;
     var resolvedConfig = SkeletonizerConfig.maybeOf(context) ??
-        (isDarkMode ? const SkeletonizerConfigData.dark() : const SkeletonizerConfigData.light());
+        (isDarkMode
+            ? const SkeletonizerConfigData.dark()
+            : const SkeletonizerConfigData.light());
 
     resolvedConfig = resolvedConfig.copyWith(
       effect: widget.effect,
@@ -279,12 +282,16 @@ class SkeletonizerBuildData {
 
   /// Whether skeletonizing is enabled
   final bool enabled;
+
   /// The skeletonizer configuration
   final SkeletonizerConfigData config;
+
   /// The brightness of the theme
   final Brightness brightness;
+
   /// The text direction of the theme
   final TextDirection textDirection;
+
   /// The animation value
   final double animationValue;
 }
@@ -293,7 +300,8 @@ class SkeletonizerBuildData {
 /// to the descent widgets
 class SkeletonizerScope extends InheritedWidget {
   /// Default constructor
-  const SkeletonizerScope({super.key, required super.child, required this.enabled});
+  const SkeletonizerScope(
+      {super.key, required super.child, required this.enabled});
 
   /// Whether skeletonizing is enabled
   final bool enabled;

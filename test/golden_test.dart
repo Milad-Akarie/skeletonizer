@@ -45,13 +45,17 @@ void runTests() {
           GoldenTestScenario(
             name: ' With TextAlign.center',
             child: const Skeletonizer(
-              child: SizedBox(width: double.infinity, child: Text('English', textAlign: TextAlign.center)),
+              child: SizedBox(
+                  width: double.infinity,
+                  child: Text('English', textAlign: TextAlign.center)),
             ),
           ),
           GoldenTestScenario(
             name: ' With TextAlign.right',
             child: const Skeletonizer(
-              child: SizedBox(width: double.infinity, child: Text('English', textAlign: TextAlign.right)),
+              child: SizedBox(
+                  width: double.infinity,
+                  child: Text('English', textAlign: TextAlign.right)),
             ),
           ),
           GoldenTestScenario(
@@ -189,7 +193,7 @@ void runTests() {
           ),
           GoldenTestScenario(
             name: 'ColoredBox',
-            child:  Skeletonizer(
+            child: Skeletonizer(
               child: SizedBox(
                 width: 200,
                 height: 100,

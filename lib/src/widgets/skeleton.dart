@@ -88,7 +88,6 @@ class Skeleton extends StatelessWidget {
     UniteDescendents annotation = const UniteDescendents(),
   }) : annotation = unite ? annotation : _none;
 
-
   /// Used to annotate a [ColoredBox] or [Container] with a color not 'Decoration'
   ///
   /// ColoredBox and Container widgets with non-null color build a private
@@ -107,7 +106,8 @@ class Skeleton extends StatelessWidget {
     } else if (child is ColoredBox) {
       return child.color;
     } else if (child is Container) {
-      assert(child.color != null,'do not use this annotation with Container that has null color');
+      assert(child.color != null,
+          'do not use this annotation with Container that has null color');
       return child.color!;
     }
     throw AssertionError(
@@ -242,6 +242,8 @@ class _SkeletonShade extends Skeleton {
   @override
   Widget build(BuildContext context) {
     final userShaderMask = shade && Skeletonizer.of(context).enabled;
-    return userShaderMask ? SkeletonShaderMask(child: super.build(context)) : super.build(context);
+    return userShaderMask
+        ? SkeletonShaderMask(child: super.build(context))
+        : super.build(context);
   }
 }
