@@ -2,14 +2,14 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/rendering.dart';
 import 'package:flutter/widgets.dart';
 import 'package:skeletonizer/skeletonizer.dart';
-import 'package:skeletonizer/src/rendering/render_skeleton_shader_mask.dart';
+import 'package:skeletonizer/src/rendering/skeletonizer_paint_context.dart';
 import 'package:skeletonizer/src/utils.dart';
 import 'package:skeletonizer/src/painting/painting.dart';
+import 'dart:ui' as ui;
 
 /// Builds a renderer object that overrides the painting operation
 /// by stripping the original renderers to a list of [PaintableElement]
-class RenderSkeletonizer extends RenderProxyBox
-    with _RenderSkeletonBase<RenderBox> {
+class RenderSkeletonizer extends RenderProxyBox with _RenderSkeletonBase<RenderBox> {
   /// Default constructor
   RenderSkeletonizer({
     required bool enabled,
@@ -97,8 +97,7 @@ class RenderSkeletonizer extends RenderProxyBox
 
 /// Builds a sliver renderer object that overrides the painting operation
 /// by stripping the original renderers to a list of [PaintableElement]
-class RenderSliverSkeletonizer extends RenderProxySliver
-    with _RenderSkeletonBase<RenderSliver> {
+class RenderSliverSkeletonizer extends RenderProxySliver with _RenderSkeletonBase<RenderSliver> {
   /// Default constructor
   RenderSliverSkeletonizer({
     required bool enabled,
@@ -179,19 +178,15 @@ class RenderSliverSkeletonizer extends RenderProxySliver
   }
 
   @override
-  bool hitTest(SliverHitTestResult result,
-      {required double mainAxisPosition, required double crossAxisPosition}) {
+  bool hitTest(SliverHitTestResult result, {required double mainAxisPosition, required double crossAxisPosition}) {
     if (_enabled) return false;
-    return super.hitTest(result,
-        mainAxisPosition: mainAxisPosition,
-        crossAxisPosition: crossAxisPosition);
+    return super.hitTest(result, mainAxisPosition: mainAxisPosition, crossAxisPosition: crossAxisPosition);
   }
 }
 
 /// Builds a renderer object that overrides the painting operation
 /// by stripping the original renderers to a list of [PaintableElement]
-mixin _RenderSkeletonBase<R extends RenderObject>
-    on RenderObjectWithChildMixin<R> {
+mixin _RenderSkeletonBase<R extends RenderObject> on RenderObjectWithChildMixin<R> {
   /// The text direction used to resolve Directional geometries
   TextDirection get textDirection;
 
@@ -218,8 +213,7 @@ mixin _RenderSkeletonBase<R extends RenderObject>
   @visibleForTesting
   final paintableElements = <PaintableElement>[];
 
-  void _skeletonizeRecursively(
-      RenderObject node, List<PaintableElement> elements, Offset offset) {
+  void _skeletonizeRecursively(RenderObject node, List<PaintableElement> elements, Offset offset) {
     // avoid skeletonizing renderers outside of skeletonizer bounds
     //
     // this may need shifting by parent offset
@@ -229,9 +223,7 @@ mixin _RenderSkeletonBase<R extends RenderObject>
 
     node.visitChildren((child) {
       var childOffset = offset;
-      if (node is! RenderTransform &&
-          node is! RenderRotatedBox &&
-          child.hasParentData) {
+      if (node is! RenderTransform && node is! RenderRotatedBox && child.hasParentData) {
         final transform = Matrix4.identity();
         node.applyPaintTransform(child, transform);
         childOffset = MatrixUtils.transformPoint(transform, offset);
@@ -242,46 +234,7 @@ mixin _RenderSkeletonBase<R extends RenderObject>
         return;
       }
 
-      if (child is RenderSkeletonAnnotation) {
-        final annotation = child.annotation;
-        if (annotation is IgnoreDescendants) {
-          return;
-        }
-        if (annotation is KeepOriginal) {
-          return elements.add(
-            OriginalElement(
-              offset: childOffset,
-              renderObject: child.child!,
-            ),
-          );
-        } else if (annotation is UniteDescendents) {
-          final descendents = _getDescendents(child.child!, childOffset);
-          final (rect, borderRadius) = _union(descendents);
-          final effectiveBorderRadius =
-              annotation.borderRadius?.resolve(textDirection) ?? borderRadius;
-          elements.add(
-              LeafElement(rect: rect, borderRadius: effectiveBorderRadius));
-          return;
-        } else if (annotation is ColoredBoxAnnotation) {
-          final descendents = _getDescendents(child.child!, childOffset);
-          return elements.add(
-            ContainerElement(
-              descendents: descendents,
-              rect: childOffset & child.size,
-              color: annotation.color,
-            ),
-          );
-        }
-      }
-      if (child is RenderSkeletonShaderMask) {
-        return elements.add(
-          ShadedElement(
-            offset: childOffset,
-            renderObject: child,
-            canvasSize: paintBounds.size,
-          ),
-        );
-      } else if (child is RenderBox) {
+      if (child is RenderBox) {
         if (child is RenderClipRRect) {
           return _handleClipRRect(child, childOffset, elements);
         } else if (child is RenderClipPath) {
@@ -317,8 +270,7 @@ mixin _RenderSkeletonBase<R extends RenderObject>
     });
   }
 
-  void _handleClipRRect(RenderClipRRect child, Offset childOffset,
-      List<PaintableElement> elements) {
+  void _handleClipRRect(RenderClipRRect child, Offset childOffset, List<PaintableElement> elements) {
     final descendents = _getDescendents(child, childOffset);
     if (child.clipBehavior == Clip.none) {
       elements.addAll(descendents);
@@ -340,8 +292,7 @@ mixin _RenderSkeletonBase<R extends RenderObject>
     }
   }
 
-  void _handlePathClip(RenderClipPath child, Offset childOffset,
-      List<PaintableElement> elements) {
+  void _handlePathClip(RenderClipPath child, Offset childOffset, List<PaintableElement> elements) {
     final descendents = _getDescendents(child, childOffset);
     final clipper = child.clipper;
     if (child.clipBehavior == Clip.none) {
@@ -357,8 +308,7 @@ mixin _RenderSkeletonBase<R extends RenderObject>
     }
   }
 
-  void _handleOvalClip(RenderClipOval child, Offset childOffset,
-      List<PaintableElement> elements) {
+  void _handleOvalClip(RenderClipOval child, Offset childOffset, List<PaintableElement> elements) {
     final descendents = _getDescendents(child, childOffset);
     if (child.clipBehavior == Clip.none) {
       elements.addAll(descendents);
@@ -374,8 +324,7 @@ mixin _RenderSkeletonBase<R extends RenderObject>
     }
   }
 
-  void _handleTransform(RenderTransform child, Offset childOffset,
-      List<PaintableElement> elements) {
+  void _handleTransform(RenderTransform child, Offset childOffset, List<PaintableElement> elements) {
     final descendents = _getDescendents(child, childOffset);
     if (descendents.isNotEmpty) {
       final Matrix4 matrix = Matrix4.identity();
@@ -391,8 +340,7 @@ mixin _RenderSkeletonBase<R extends RenderObject>
     }
   }
 
-  void _handleClipRect(RenderClipRect child, Offset childOffset,
-      List<PaintableElement> elements) {
+  void _handleClipRect(RenderClipRect child, Offset childOffset, List<PaintableElement> elements) {
     final descendents = _getDescendents(child, childOffset);
     if (child.clipBehavior == Clip.none) {
       elements.addAll(descendents);
@@ -434,15 +382,13 @@ mixin _RenderSkeletonBase<R extends RenderObject>
           biggestDescendent = descendent.textSize;
           borderRadius = descendent.borderRadius;
         }
-        expanded =
-            expanded.expandToInclude(descendent.offset & descendent.textSize);
+        expanded = expanded.expandToInclude(descendent.offset & descendent.textSize);
       }
     }
     return (expanded, borderRadius);
   }
 
-  List<PaintableElement> _getDescendents(
-      RenderObject child, Offset childOffset) {
+  List<PaintableElement> _getDescendents(RenderObject child, Offset childOffset) {
     final descendents = <PaintableElement>[];
     _skeletonizeRecursively(child, descendents, childOffset);
     return descendents;
@@ -470,16 +416,13 @@ mixin _RenderSkeletonBase<R extends RenderObject>
       lines: painter.computeLineMetrics(),
       offset: offset,
       borderRadius: config.textBorderRadius.usesHeightFactor
-          ? BorderRadius.circular(
-              fontSize * config.textBorderRadius.heightPercentage!)
+          ? BorderRadius.circular(fontSize * config.textBorderRadius.heightPercentage!)
           : config.textBorderRadius.borderRadius!.resolve(textDirection),
     );
   }
 
   ContainerElement _buildDecoratedBox(RenderDecoratedBox node, Offset offset) {
-    final boxDecoration = node.decoration is BoxDecoration
-        ? (node.decoration as BoxDecoration)
-        : const BoxDecoration();
+    final boxDecoration = node.decoration is BoxDecoration ? (node.decoration as BoxDecoration) : const BoxDecoration();
     return ContainerElement(
       rect: offset & node.size,
       border: boxDecoration.border,
@@ -492,8 +435,7 @@ mixin _RenderSkeletonBase<R extends RenderObject>
     );
   }
 
-  void _handleRotatedBox(RenderRotatedBox child,
-      List<PaintableElement> elements, Offset childOffset) {
+  void _handleRotatedBox(RenderRotatedBox child, List<PaintableElement> elements, Offset childOffset) {
     final descendents = _getDescendents(child, childOffset);
     if (descendents.isNotEmpty) {
       final matrix = Matrix4.identity();
@@ -518,20 +460,32 @@ mixin _RenderSkeletonBase<R extends RenderObject>
   }
 
   @override
+  bool get isRepaintBoundary => true;
+
+  @override
   void paint(PaintingContext context, Offset offset) {
     if (!enabled) {
       return super.paint(context, offset);
     }
-    if (_needsSkeletonizing) _skeletonize();
-    final paint =
-        config.effect.createPaint(animationValue, offset & paintBounds.size);
-    for (final element in paintableElements) {
-      element.paint(context, offset, paint);
-    }
+    final paint = config.effect.createPaint(animationValue, offset & paintBounds.size);
+    final skeletonizerContext = SkeletonizerPaintingContext(
+      layer: layer!,
+      estimatedBounds: paintBounds,
+      parentCanvas: context.canvas,
+      shaderPaint: paint,
+      rootOffset: offset,
+    );
+    super.paint(skeletonizerContext, offset);
+
+    // if (_needsSkeletonizing) _skeletonize();
+    // final paint =
+    //     config.effect.createPaint(animationValue, offset & paintBounds.size);
+    // for (final element in paintableElements) {
+    //   element.paint(context, offset, paint);
+    // }
   }
 
-  PaintableElement _buildPhysicalShape(
-      RenderPhysicalShape node, Offset offset) {
+  PaintableElement _buildPhysicalShape(RenderPhysicalShape node, Offset offset) {
     final isButton = node.findFirstAnnotation()?.properties.button == true;
     final shape = (node.clipper as ShapeBorderClipper).shape;
     BorderRadiusGeometry? borderRadius;
@@ -540,14 +494,10 @@ mixin _RenderSkeletonBase<R extends RenderObject>
     } else if (shape is StadiumBorder) {
       borderRadius = BorderRadius.circular(node.size.height);
     }
-    var descendents =
-        isButton ? const <PaintableElement>[] : _getDescendents(node, offset);
+    var descendents = isButton ? const <PaintableElement>[] : _getDescendents(node, offset);
 
-    if (borderRadius != null &&
-        node.clipBehavior != Clip.none &&
-        descendents.isNotEmpty) {
-      final clipRect =
-          (offset & node.size).toRRect(borderRadius.resolve(textDirection));
+    if (borderRadius != null && node.clipBehavior != Clip.none && descendents.isNotEmpty) {
+      final clipRect = (offset & node.size).toRRect(borderRadius.resolve(textDirection));
       descendents = [
         ClipRRectElement(
           clip: clipRect,
@@ -567,11 +517,8 @@ mixin _RenderSkeletonBase<R extends RenderObject>
     );
   }
 
-  ContainerElement _buildPhysicalModel(
-      RenderPhysicalModel node, Offset offset) {
-    final shape = node.clipper == null
-        ? null
-        : (node.clipper as ShapeBorderClipper).shape;
+  ContainerElement _buildPhysicalModel(RenderPhysicalModel node, Offset offset) {
+    final shape = node.clipper == null ? null : (node.clipper as ShapeBorderClipper).shape;
     BorderRadiusGeometry? borderRadius;
     if (shape is RoundedRectangleBorder) {
       borderRadius = shape.borderRadius;

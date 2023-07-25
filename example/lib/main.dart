@@ -39,9 +39,7 @@ class _SkeletonizerDemoPageState extends State<SkeletonizerDemoPage> {
         padding: const EdgeInsets.only(bottom: 0, right: 4),
         child: FloatingActionButton(
           child: Icon(
-            _enabled
-                ? Icons.hourglass_bottom_rounded
-                : Icons.hourglass_disabled_outlined,
+            _enabled ? Icons.hourglass_bottom_rounded : Icons.hourglass_disabled_outlined,
           ),
           onPressed: () {
             setState(() {
@@ -52,24 +50,112 @@ class _SkeletonizerDemoPageState extends State<SkeletonizerDemoPage> {
       ),
       body: Skeletonizer(
         enabled: _enabled,
-        child: ListView.builder(
-          itemCount: 7,
-          padding: const EdgeInsets.all(16),
-          itemBuilder: (context, index) {
-            return Card(
-              child: ListTile(
-                title: Text('Item number $index as title'),
-                subtitle: const Text('Subtitle here'),
-                trailing: const CircleAvatar(
-                  child: Skeleton.ignore(
-                    child: Icon(Icons.ac_unit, size: 32),
+        effect: const SoldColorEffect(color: Colors.green),
+        // effect: const ShimmerEffect(
+        //   highlightColor: Colors.green,
+        // ),
+        child: true
+            ? Center(
+                child: Card(
+                    child: Padding(
+                  padding: const EdgeInsets.all(8.0),
+                  child: Column(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      Skeleton.shade(
+                        child: Container(
+                          decoration: const BoxDecoration(
+                            borderRadius: BorderRadius.all(
+                              Radius.circular(40),
+                            ),
+                          ),
+                          child: const Column(
+                            mainAxisSize: MainAxisSize.min,
+                            children: [
+                              Text(
+                                'Hello World! how are you?',
+                                style: TextStyle(fontSize: 20),
+                              ),
+                              SizedBox(height: 8),
+                              Text('Hello World! how are '),
+                            ],
+                          ),
+                        ),
+                      ),
+                      const SizedBox(height: 8),
+                      SizedBox(
+                        width: 100,
+                        height: 100,
+                        child: Container(
+                          decoration: const BoxDecoration(
+                              color: Colors.red,
+                              borderRadius: BorderRadius.all(
+                                Radius.circular(20),
+                              )),
+                          child: const Center(child: Text('Hello')),
+                        ),
+                      ),
+                    ],
                   ),
-                ),
-              ),
-            );
-          },
-        ),
+                )),
+              )
+            : false
+                ? Column(
+                    children: [
+                      for (int i = 0; i < 7; i++)
+                        const Card(
+                          child: ListTile(
+                            title: Text('Item number as title'),
+                            subtitle: Text('Subtitle here'),
+                            trailing: DecoratedBox(
+                              decoration: BoxDecoration(color: Colors.red),
+                              child: Padding(
+                                padding: EdgeInsets.all(8.0),
+                                child: Skeleton.ignore(
+                                  child: Icon(Icons.ac_unit),
+                                ),
+                              ),
+                            ),
+                          ),
+                        ),
+                    ],
+                  )
+                : ListView.builder(
+                    itemCount: 7,
+                    padding: const EdgeInsets.all(16),
+                    itemBuilder: (context, index) {
+                      return Card(
+                        child: ListTile(
+                          title: Text('Item number $index as title'),
+                          subtitle: const Text('Subtitle here'),
+                          trailing: const Skeleton.unite(
+                            borderRadius: BorderRadius.all(
+                              Radius.circular(20),
+                            ),
+                            child: CircleAvatar(
+                              child: Icon(Icons.ac_unit, size: 32),
+                            ),
+                          ),
+                        ),
+                      );
+                    },
+                  ),
       ),
     );
+  }
+}
+
+class MyPainter extends CustomPainter {
+  @override
+  void paint(Canvas canvas, Size size) {
+    // draw a circle with defined paint
+    final paint = Paint()..color = Colors.red;
+
+    canvas.drawCircle(const Offset(50, 50), 40, paint);
+  }
+
+  @override
+  bool shouldRepaint(covariant CustomPainter oldDelegate) {
+    return true;
   }
 }

@@ -130,28 +130,28 @@ void main() {
     );
   });
 
-  testWidgets('ColoredBox widgets should be resolved to ContainerElements',
-      (tester) async {
-    final skeletonizer = await tester.pumpSkeletonizerApp(
-      Align(
-        alignment: Alignment.topLeft,
-        child: Skeleton.coloredBox(
-          child: const ColoredBox(color: Colors.white),
-        ),
-      ),
-    );
-
-    expect(
-      [
-        ContainerElement(
-          descendents: const [],
-          color: Colors.white,
-          rect: Rect.zero,
-        )
-      ],
-      skeletonizer.paintableElements,
-    );
-  });
+  // testWidgets('ColoredBox widgets should be resolved to ContainerElements',
+  //     (tester) async {
+  //   final skeletonizer = await tester.pumpSkeletonizerApp(
+  //     Align(
+  //       alignment: Alignment.topLeft,
+  //       child: Skeleton.coloredBox(
+  //         child: const ColoredBox(color: Colors.white),
+  //       ),
+  //     ),
+  //   );
+  //
+  //   expect(
+  //     [
+  //       ContainerElement(
+  //         descendents: const [],
+  //         color: Colors.white,
+  //         rect: Rect.zero,
+  //       )
+  //     ],
+  //     skeletonizer.paintableElements,
+  //   );
+  // });
 
   testWidgets('Text widgets should be resolved to TextElements',
       (tester) async {

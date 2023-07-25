@@ -111,3 +111,4 @@ class SliverSkeletonizerBase extends SingleChildRenderObjectWidget {
       ..textDirection = textDirection;
   }
 }
+

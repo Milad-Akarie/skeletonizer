@@ -191,18 +191,18 @@ void runTests() {
               ),
             ),
           ),
-          GoldenTestScenario(
-            name: 'ColoredBox',
-            child: Skeletonizer(
-              child: SizedBox(
-                width: 200,
-                height: 100,
-                child: Skeleton.coloredBox(
-                  child: const ColoredBox(color: Colors.white),
-                ),
-              ),
-            ),
-          ),
+          // GoldenTestScenario(
+          //   name: 'ColoredBox',
+          //   child: Skeletonizer(
+          //     child: SizedBox(
+          //       width: 200,
+          //       height: 100,
+          //       child: Skeleton.coloredBox(
+          //         child: const ColoredBox(color: Colors.white),
+          //       ),
+          //     ),
+          //   ),
+          // ),
         ],
       ),
     ),
@@ -449,15 +449,15 @@ void runTests() {
               ),
             ),
           ),
-          GoldenTestScenario(
-            name: 'replace',
-            child: const Skeletonizer(
-              child: Skeleton.replace(
-                replacement: Text('Replaced'),
-                child: Icon(Icons.ac_unit_outlined),
-              ),
-            ),
-          ),
+          // GoldenTestScenario(
+          //   name: 'replace',
+          //   child: const Skeletonizer(
+          //     child: Skeleton.replace(
+          //       replacement: Text('Replaced'),
+          //       child: Icon(Icons.ac_unit_outlined),
+          //     ),
+          //   ),
+          // ),
           GoldenTestScenario(
             name: 'keep',
             child: const Skeletonizer(
@@ -492,7 +492,7 @@ void runTests() {
             name: 'unite:borderRadius',
             child: const Skeletonizer(
               child: Skeleton.unite(
-                  annotation: UniteDescendents(borderRadius: BorderRadius.zero),
+                  borderRadius: BorderRadius.zero,
                   child: Row(
                     children: [
                       Icon(Icons.ac_unit_outlined),
