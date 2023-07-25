@@ -1,6 +1,5 @@
 import 'package:flutter/cupertino.dart';
 import 'package:skeletonizer/skeletonizer.dart';
-import 'package:skeletonizer/src/painting/painting.dart';
 
 const _defaultTextBoneBorderRadius = TextBoneBorderRadius.fromHeightFactor(.5);
 

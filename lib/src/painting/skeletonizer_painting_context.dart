@@ -21,16 +21,15 @@ class SkeletonizerPaintingContext extends PaintingContext {
 
   Rect get maskRect => estimatedBounds.shift(rootOffset);
 
-  ActualPaintingContext createActualContext(Rect estimatedBounds) {
-    return ActualPaintingContext(
+  _ActualPaintingContext createActualContext(Rect estimatedBounds) {
+    return _ActualPaintingContext(
       layer,
       estimatedBounds,
       parentCanvas,
     );
   }
 
-
-  TextDirection? textDirection ;
+  TextDirection? textDirection;
 
   @override
   ui.Canvas get canvas => SkeletonizerCanvas(
@@ -54,10 +53,10 @@ class SkeletonizerPaintingContext extends PaintingContext {
 
   @override
   void paintChild(RenderObject child, ui.Offset offset) {
-    if (child is RenderDecoratedBox) {
-      // print(child.child);
+    if (child is RenderBox && child is RenderObjectWithChildMixin) {
+      final subChild = (child as RenderObjectWithChildMixin).child;
       _rectMap[offset & child.size] = RectConfig(
-        treatAsBone: child.child?.hasSize != true,
+        treatAsBone: subChild == null,
         // overrideColor: Colors.blue,
       );
     }
@@ -314,8 +313,8 @@ class SkeletonizerLayer extends ContainerLayer {
   }
 }
 
-class ActualPaintingContext extends PaintingContext {
-  ActualPaintingContext(
+class _ActualPaintingContext extends PaintingContext {
+  _ActualPaintingContext(
     super.containerLayer,
     super.estimatedBounds,
     this.canvas,

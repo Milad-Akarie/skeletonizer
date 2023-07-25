@@ -62,26 +62,22 @@ class _SkeletonizerDemoPageState extends State<SkeletonizerDemoPage> {
                   child: Column(
                     mainAxisSize: MainAxisSize.min,
                     children: [
-                      Skeleton.shade(
-                        child: Container(
-                          decoration: const BoxDecoration(
-                            borderRadius: BorderRadius.all(
-                              Radius.circular(40),
-                            ),
-                          ),
-                          child: const Column(
-                            mainAxisSize: MainAxisSize.min,
-                            children: [
-                              Text(
-                                'Hello World! how are you?',
-                                style: TextStyle(fontSize: 20),
-                              ),
-                              SizedBox(height: 8),
-                              Text('Hello World! how are '),
-                            ],
-                          ),
-                        ),
-                      ),
+                       Container(
+                       color: Colors.purple,
+                         width: 100,
+                         height: 200,
+                         // child: const Column(
+                         //   mainAxisSize: MainAxisSize.min,
+                         //   children: [
+                         //     Text(
+                         //       'Hello World! how are you?',
+                         //       style: TextStyle(fontSize: 20),
+                         //     ),
+                         //     SizedBox(height: 8),
+                         //     Text('Hello World! how are '),
+                         //   ],
+                         // ),
+                       ),
                       const SizedBox(height: 8),
                       SizedBox(
                         width: 100,

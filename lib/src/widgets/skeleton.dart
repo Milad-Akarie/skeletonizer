@@ -1,7 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
-import 'package:skeletonizer/src/rendering/skeletonizer_paint_context.dart';
-import 'package:skeletonizer/src/rendering/uniting_canvas.dart';
+import 'package:skeletonizer/skeletonizer.dart';
+import 'package:skeletonizer/src/painting/skeletonizer_painting_context.dart';
+import 'package:skeletonizer/src/painting/uniting_painting_context.dart';
 import 'package:skeletonizer/src/utils.dart';
 
 typedef SkeletonizerPainter = void Function(
@@ -45,6 +46,24 @@ abstract class Skeleton extends SingleChildRenderObjectWidget {
     required Widget child,
     bool shade,
   }) = _SkeletonShaderMask;
+
+  static SkeletonReplace replace({
+    Key? key,
+    required Widget child,
+    bool replace = true,
+    double? width,
+    double? height,
+    Widget replacement = const DecoratedBox(
+      decoration: BoxDecoration(color: Colors.black),
+    ),
+  }) =>
+      SkeletonReplace(
+        replace: replace,
+        width: width,
+        height: height,
+        replacement: replacement,
+        child: child,
+      );
 }
 
 abstract class _BasicSkeleton extends Skeleton {
@@ -131,7 +150,6 @@ class _UnitingSkeleton extends _BasicSkeleton {
   }
 }
 
-/// Delegates a [SkeletonAnnotation] to the render tree
 class _RenderBasicSkeleton extends RenderProxyBox {
   /// Default constructor
   _RenderBasicSkeleton({
@@ -260,37 +278,39 @@ class _RenderSkeletonShaderMask extends RenderProxyBox {
 }
 
 // /// Replace the original element when [Skeletonizer.enabled] is true
-// class _SkeletonReplace extends SkeletonXx {
-//   /// Default constructor
-//   const _SkeletonReplace({
-//     super.key,
-//     required super.child,
-//     this.replace = false,
-//     this.width,
-//     this.height,
-//     this.replacement = const DecoratedBox(
-//       decoration: BoxDecoration(color: Colors.black),
-//     ),
-//   }) : super._(annotation: const ReplaceOriginal());
-//
-//   /// The width nad height of the replacement
-//   final double? width, height;
-//
-//   /// Whether replacing is enabled
-//   final bool replace;
-//
-//   /// The replacement widget
-//   final Widget replacement;
-//
-//   @override
-//   Widget build(BuildContext context) {
-//     final doReplace = replace || !Skeletonizer.of(context).enabled;
-//     return doReplace
-//         ? super.build(context)
-//         : SizedBox(
-//             width: width,
-//             height: height,
-//             child: replacement,
-//           );
-//   }
-// }
+class SkeletonReplace extends StatelessWidget {
+  /// Default constructor
+  const SkeletonReplace({
+    super.key,
+    required this.child,
+    this.replace = true,
+    this.width,
+    this.height,
+    this.replacement = const DecoratedBox(
+      decoration: BoxDecoration(color: Colors.black),
+    ),
+  });
+
+  final Widget child;
+
+  /// The width nad height of the replacement
+  final double? width, height;
+
+  /// Whether replacing is enabled
+  final bool replace;
+
+  /// The replacement widget
+  final Widget replacement;
+
+  @override
+  Widget build(BuildContext context) {
+    final doReplace = replace && Skeletonizer.maybeOf(context)?.enabled == true;
+    return doReplace
+        ? SizedBox(
+            width: width,
+            height: height,
+            child: replacement,
+          )
+        : child;
+  }
+}
