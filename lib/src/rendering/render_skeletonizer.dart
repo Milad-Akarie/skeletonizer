@@ -205,6 +205,7 @@ mixin _RenderSkeletonBase<R extends RenderObject> on RenderObjectWithChildMixin<
       parentCanvas: context.canvas,
       shaderPaint: paint,
       rootOffset: offset,
+      config: config,
     );
     super.paint(skeletonizerContext, offset);
   }

@@ -8,15 +8,13 @@ class UnitingCanvas implements Canvas {
   BorderRadius? borderRadius;
   Size biggestDescendent = Size.zero;
 
-  /// Draws a rectangle on the canvas where the [paragraph]
-  /// would otherwise be rendered
   @override
   void drawParagraph(ui.Paragraph paragraph, ui.Offset offset) {
     final rect = offset & Size(paragraph.width, paragraph.height);
     unitedRect = unitedRect.expandToInclude(rect);
     if (rect.size > biggestDescendent) {
       biggestDescendent = rect.size;
-      borderRadius = BorderRadius.circular(paragraph.height/2);
+      borderRadius = BorderRadius.circular(paragraph.height / 2);
     }
   }
 
@@ -60,7 +58,12 @@ class UnitingCanvas implements Canvas {
 
   @override
   void drawCircle(ui.Offset c, double radius, ui.Paint paint) {
-    unitedRect = unitedRect.expandToInclude(Rect.fromCircle(center: c, radius: radius));
+    final rect = Rect.fromCircle(center: c, radius: radius);
+    unitedRect = unitedRect.expandToInclude(rect);
+    if(rect.size > biggestDescendent) {
+      biggestDescendent = rect.size;
+      borderRadius = BorderRadius.circular(radius);
+    }
   }
 
   @override
@@ -73,7 +76,9 @@ class UnitingCanvas implements Canvas {
 
   @override
   void drawImage(ui.Image image, ui.Offset offset, ui.Paint paint) {
-    unitedRect = unitedRect.expandToInclude(offset & Size(image.width.toDouble(), image.height.toDouble()));
+    unitedRect = unitedRect.expandToInclude(
+      offset & Size(image.width.toDouble(), image.height.toDouble()),
+    );
   }
 
   @override

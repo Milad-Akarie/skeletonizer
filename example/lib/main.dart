@@ -54,46 +54,20 @@ class _SkeletonizerDemoPageState extends State<SkeletonizerDemoPage> {
         // effect: const ShimmerEffect(
         //   highlightColor: Colors.green,
         // ),
+        // ignoreContainers: true,
+        justifyMultiLineText: true,
         child: true
-            ? Center(
-                child: Card(
-                    child: Padding(
-                  padding: const EdgeInsets.all(8.0),
-                  child: Column(
-                    mainAxisSize: MainAxisSize.min,
-                    children: [
-                       Container(
-                       color: Colors.purple,
-                         width: 100,
-                         height: 200,
-                         // child: const Column(
-                         //   mainAxisSize: MainAxisSize.min,
-                         //   children: [
-                         //     Text(
-                         //       'Hello World! how are you?',
-                         //       style: TextStyle(fontSize: 20),
-                         //     ),
-                         //     SizedBox(height: 8),
-                         //     Text('Hello World! how are '),
-                         //   ],
-                         // ),
-                       ),
-                      const SizedBox(height: 8),
-                      SizedBox(
-                        width: 100,
-                        height: 100,
-                        child: Container(
-                          decoration: const BoxDecoration(
-                              color: Colors.red,
-                              borderRadius: BorderRadius.all(
-                                Radius.circular(20),
-                              )),
-                          child: const Center(child: Text('Hello')),
-                        ),
-                      ),
-                    ],
-                  ),
-                )),
+            ? const Padding(
+                padding: EdgeInsets.all(16.0),
+                child: Column(
+                  children: [
+                    Text(
+                      'It is a long established fact that a reader will be distracted by the readable content of a page when looking at its layout',
+                      style: TextStyle(fontSize: 20),
+                    ),
+
+                  ],
+                ),
               )
             : false
                 ? Column(
@@ -124,13 +98,10 @@ class _SkeletonizerDemoPageState extends State<SkeletonizerDemoPage> {
                         child: ListTile(
                           title: Text('Item number $index as title'),
                           subtitle: const Text('Subtitle here'),
-                          trailing: const Skeleton.unite(
-                            borderRadius: BorderRadius.all(
-                              Radius.circular(20),
-                            ),
-                            child: CircleAvatar(
-                              child: Icon(Icons.ac_unit, size: 32),
-                            ),
+                          trailing: Image.network(
+                            'https://picsum.photos/200',
+                            width: 50,
+                            height: 50,
                           ),
                         ),
                       );

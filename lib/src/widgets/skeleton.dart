@@ -85,11 +85,12 @@ abstract class _BasicSkeleton extends Skeleton {
   @override
   void updateRenderObject(
     BuildContext context,
-    covariant _RenderBasicSkeleton renderObject,
+    covariant _RenderBasicSkeleton   renderObject,
   ) {
     renderObject
       ..textDirection = Directionality.of(context)
       ..enabled = enabled;
+
   }
 
   void paint(
@@ -99,7 +100,7 @@ abstract class _BasicSkeleton extends Skeleton {
   );
 }
 
-class _IgnoreSkeleton extends _BasicSkeleton {
+class _IgnoreSkeleton extends Skeleton {
   const _IgnoreSkeleton({
     Key? key,
     required Widget child,
@@ -107,8 +108,16 @@ class _IgnoreSkeleton extends _BasicSkeleton {
   }) : super(key: key, child: child, enabled: ignore);
 
   @override
-  void paint(SkeletonizerPaintingContext context, _, __) {
-    /// we do not paint anything
+  RenderObject createRenderObject(BuildContext context) {
+    return RenderIgnoredSkeleton(enabled: enabled);
+  }
+
+  @override
+  void updateRenderObject(
+    BuildContext context,
+    covariant RenderIgnoredSkeleton renderObject,
+  ) {
+    renderObject.enabled = enabled;
   }
 }
 
@@ -196,6 +205,31 @@ class _RenderBasicSkeleton extends RenderProxyBox {
       return _painter!(context, offset & size, super.paint);
     }
     super.paint(context, offset);
+  }
+}
+
+class RenderIgnoredSkeleton extends RenderProxyBox {
+  /// Default constructor
+  RenderIgnoredSkeleton({
+    RenderBox? child,
+    required bool enabled,
+  }) : _enabled = enabled;
+
+  bool _enabled = true;
+
+  set enabled(bool value) {
+    if (value != _enabled) {
+      _enabled = value;
+      markNeedsPaint();
+    }
+  }
+
+
+  @override
+  void paint(PaintingContext context, Offset offset) {
+    if (!_enabled) {
+      super.paint(context, offset);
+    }
   }
 }
 
