@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:skeletonizer/skeletonizer.dart';
 import 'package:skeletonizer/src/rendering/render_skeletonizer.dart';
+import 'package:skeletonizer/src/widgets/skeletonizer.dart';
 
 /// Builds a [RenderSkeletonizer]
 class SkeletonizerBase extends SingleChildRenderObjectWidget {
@@ -8,38 +8,19 @@ class SkeletonizerBase extends SingleChildRenderObjectWidget {
   const SkeletonizerBase({
     super.key,
     required super.child,
-    required this.enabled,
-    required this.animationValue,
-    required this.brightness,
-    required this.textDirection,
-    required this.config,
+    required this.data,
   });
 
-  /// If false the widget tree will painted
-  /// as is
-  final bool enabled;
-
-  /// The value to animate painting effects
-  final double animationValue;
-
-  /// The used brightness
-  final Brightness brightness;
-
-  /// The scoped text direction
-  /// used to resolve Directional geometries e.g [BorderRadiusDirectional]
-  final TextDirection textDirection;
-
-  /// The resolved skeletonizer theme data
-  final SkeletonizerConfigData config;
+  final SkeletonizerBuildData data;
 
   @override
   RenderSkeletonizer createRenderObject(BuildContext context) {
     return RenderSkeletonizer(
-      enabled: enabled,
-      animationValue: animationValue,
-      brightness: brightness,
-      textDirection: textDirection,
-      config: config,
+      animationValue: data.animationValue,
+      brightness: data.brightness,
+      textDirection: data.textDirection,
+      config: data.config,
+      ignorePointers: data.ignorePointers,
     );
   }
 
@@ -49,11 +30,11 @@ class SkeletonizerBase extends SingleChildRenderObjectWidget {
     covariant RenderSkeletonizer renderObject,
   ) {
     renderObject
-      ..enabled = enabled
-      ..animationValue = animationValue
-      ..brightness = brightness
-      ..config = config
-      ..textDirection = textDirection;
+      ..animationValue = data.animationValue
+      ..brightness = data.brightness
+      ..config = data.config
+      ..ignorePointers = data.ignorePointers
+      ..textDirection = data.textDirection;
   }
 }
 
@@ -63,38 +44,19 @@ class SliverSkeletonizerBase extends SingleChildRenderObjectWidget {
   const SliverSkeletonizerBase({
     super.key,
     required super.child,
-    required this.enabled,
-    required this.animationValue,
-    required this.brightness,
-    required this.textDirection,
-    required this.config,
+    required this.data,
   });
 
-  /// If false the widget tree will painted
-  /// as is
-  final bool enabled;
-
-  /// The value to animate painting effects
-  final double animationValue;
-
-  /// The used brightness
-  final Brightness brightness;
-
-  /// The scoped text direction
-  /// used to resolve Directional geometries e.g [BorderRadiusDirectional]
-  final TextDirection textDirection;
-
-  /// The resolved skeletonizer theme data
-  final SkeletonizerConfigData config;
+  final SkeletonizerBuildData data;
 
   @override
   RenderSliverSkeletonizer createRenderObject(BuildContext context) {
     return RenderSliverSkeletonizer(
-      enabled: enabled,
-      animationValue: animationValue,
-      brightness: brightness,
-      textDirection: textDirection,
-      config: config,
+      animationValue: data.animationValue,
+      brightness: data.brightness,
+      textDirection: data.textDirection,
+      config: data.config,
+      ignorePointers: data.ignorePointers,
     );
   }
 
@@ -104,11 +66,10 @@ class SliverSkeletonizerBase extends SingleChildRenderObjectWidget {
     covariant RenderSliverSkeletonizer renderObject,
   ) {
     renderObject
-      ..enabled = enabled
-      ..animationValue = animationValue
-      ..brightness = brightness
-      ..config = config
-      ..textDirection = textDirection;
+      ..animationValue = data.animationValue
+      ..brightness = data.brightness
+      ..config = data.config
+      ..ignorePointers = data.ignorePointers
+      ..textDirection = data.textDirection;
   }
 }
-

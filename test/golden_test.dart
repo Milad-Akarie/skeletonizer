@@ -191,18 +191,16 @@ void runTests() {
               ),
             ),
           ),
-          // GoldenTestScenario(
-          //   name: 'ColoredBox',
-          //   child: Skeletonizer(
-          //     child: SizedBox(
-          //       width: 200,
-          //       height: 100,
-          //       child: Skeleton.coloredBox(
-          //         child: const ColoredBox(color: Colors.white),
-          //       ),
-          //     ),
-          //   ),
-          // ),
+          GoldenTestScenario(
+            name: 'ColoredBox',
+            child: const Skeletonizer(
+              child: SizedBox(
+                width: 200,
+                height: 100,
+                child:  ColoredBox(color: Colors.white),
+              ),
+            ),
+          ),
         ],
       ),
     ),

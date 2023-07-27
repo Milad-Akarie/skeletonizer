@@ -11,37 +11,35 @@ class SkeletonizerPaintingContext extends PaintingContext {
     required Rect estimatedBounds,
     required this.parentCanvas,
     required this.shaderPaint,
-    required this.rootOffset,
     required this.config,
+    required this.textDirection,
   }) : super(layer, estimatedBounds);
 
   final SkeletonizerConfigData config;
   final ContainerLayer layer;
-  final ui.Canvas parentCanvas;
+  final Canvas parentCanvas;
   final Paint shaderPaint;
-  final Offset rootOffset;
+  final TextDirection textDirection;
   final _treatedAsBone = <Offset, bool>{};
+  final _paragraphConfigs = <Offset, ParagraphConfig>{};
 
-  Rect get maskRect => estimatedBounds.shift(rootOffset);
 
-  ActualPaintingContext createActualContext(Rect estimatedBounds) {
-    return ActualPaintingContext(
+  PaintingContextAdapter createRegularContext(Rect estimatedBounds) {
+    return PaintingContextAdapter(
       layer,
       estimatedBounds,
       parentCanvas,
     );
   }
 
-  TextDirection? textDirection;
+
 
   @override
   ui.Canvas get canvas => SkeletonizerCanvas(
         parentCanvas,
         shaderPaint: shaderPaint,
         config: config,
-        shouldTreatAsBone: (center) {
-          return _treatedAsBone[center] ?? false;
-        },
+        context: this,
       );
 
   @override
@@ -51,17 +49,35 @@ class SkeletonizerPaintingContext extends PaintingContext {
       estimatedBounds: bounds,
       parentCanvas: parentCanvas,
       shaderPaint: shaderPaint,
-      rootOffset: rootOffset,
       config: config,
+      textDirection: textDirection,
     );
   }
 
   @override
   void paintChild(RenderObject child, ui.Offset offset) {
-    if (child is RenderObjectWithChildMixin) {
-      final subChild = child.child;
-      final treatAsBone = subChild == null || subChild is RenderIgnoredSkeleton;
-      _treatedAsBone[child.paintBounds.shift(offset).center] = treatAsBone;
+    final key = child.paintBounds.shift(offset).center;
+    if (_treatedAsBone[key] != true) {
+      if (child is RenderObjectWithChildMixin) {
+        final subChild = child.child;
+        final isIgnored = (subChild is RenderIgnoredSkeleton && subChild.enabled);
+        var treatAsBone = subChild == null || isIgnored;
+        if (child is RenderSemanticsAnnotations) {
+          treatAsBone |= child.properties.button == true;
+        }
+        _treatedAsBone[key] = treatAsBone;
+      }
+    }
+    if (child is RenderParagraph) {
+      final fontSize = (child.text.style?.fontSize ?? 14) * child.textScaleFactor;
+      final borderRadius = config.textBorderRadius.usesHeightFactor
+          ? BorderRadius.circular(fontSize * config.textBorderRadius.heightPercentage!)
+          : config.textBorderRadius.borderRadius?.resolve(textDirection);
+      _paragraphConfigs[offset] = ParagraphConfig(
+        borderRadius: borderRadius,
+        fontSize: fontSize,
+        textAlign: child.textAlign,
+      );
     }
 
     return child.paint(this, offset);
@@ -72,10 +88,11 @@ class SkeletonizerCanvas implements Canvas {
   SkeletonizerCanvas(
     this.parent, {
     required this.shaderPaint,
-    required this.shouldTreatAsBone,
+    required this.context,
     required this.config,
   });
 
+  final SkeletonizerPaintingContext context;
   final Paint shaderPaint;
 
   final SkeletonizerConfigData config;
@@ -83,41 +100,33 @@ class SkeletonizerCanvas implements Canvas {
   /// The parent [Canvas] that handles drawing operations
   final Canvas parent;
 
-  bool Function(Offset center) shouldTreatAsBone;
-
   /// Draws a rectangle on the canvas where the [paragraph]
   /// would otherwise be rendered
   @override
   void drawParagraph(ui.Paragraph paragraph, ui.Offset offset) {
+    final phConfig = context._paragraphConfigs[offset];
+    if (phConfig == null) return;
     final lines = paragraph.computeLineMetrics();
-    final box = paragraph.getBoxesForRange(0, 1).first;
-
-    final height = box.bottom - box.top;
     var yOffset = offset.dy;
-    print(height);
-
     for (var i = 0; i < lines.length; i++) {
       final line = lines[i];
-      final shouldJustify = config.justifyMultiLineText && (lines.length > 1 && i < (lines.length - 1));
+      final shouldJustify = config.justifyMultiLineText &&
+          phConfig.textAlign != TextAlign.center &&
+          (lines.length > 1 && i < (lines.length - 1));
       final width = shouldJustify ? paragraph.width : line.width;
       final rect = Rect.fromLTWH(
         shouldJustify ? offset.dx : line.left + offset.dx,
         yOffset + line.descent,
         width,
-        height,
+        phConfig.fontSize,
       );
-
-      final borderRadius = config.textBorderRadius.usesHeightFactor
-          ? BorderRadius.circular(height / 2)
-          : config.textBorderRadius.borderRadius;
-      if (borderRadius != null) {
-        parent.drawRRect(rect.toRRect(borderRadius.resolve(null)), shaderPaint);
+      if (phConfig.borderRadius != null) {
+        parent.drawRRect(phConfig.borderRadius!.toRRect(rect), shaderPaint);
       } else {
         parent.drawRect(rect, shaderPaint);
       }
       yOffset += line.height;
     }
-    parent.drawParagraph(paragraph, offset);
   }
 
   @override
@@ -194,8 +203,9 @@ class SkeletonizerCanvas implements Canvas {
     ui.Rect src,
     ui.Rect dst,
     ui.Paint paint,
-  ) =>
-      parent.drawRect(dst, shaderPaint);
+  ) {
+    parent.drawRect(dst, shaderPaint);
+  }
 
   @override
   void drawLine(ui.Offset p1, ui.Offset p2, ui.Paint paint) => parent.drawLine(p1, p2, paint);
@@ -221,57 +231,61 @@ class SkeletonizerCanvas implements Canvas {
 
   @override
   void drawPath(ui.Path path, ui.Paint paint) {
-    final treatAsBone = shouldTreatAsBone(path.getBounds().center);
+    if (paint.color.opacity == 0) return;
+    final treatAsBone = context._treatedAsBone[path.getBounds().center] ?? false;
     if (treatAsBone) {
       parent.drawPath(path, shaderPaint);
     } else if (!config.ignoreContainers) {
-      final effectivePaint = Paint()..color = paint.color;
-      if (config.containersColor != null && paint.color.opacity != 0) {
-        effectivePaint.color = config.containersColor!;
+      if (config.containersColor != null) {
+        parent.drawPath(path, paint.cloneWithColor(config.containersColor!));
+      } else {
+        parent.drawPath(path, paint);
       }
-      parent.drawPath(path, effectivePaint);
     }
   }
 
   @override
   void drawRect(ui.Rect rect, ui.Paint paint) {
-    final treatAsBone = shouldTreatAsBone(rect.center);
+    if (paint.color.opacity == 0) return;
+    final treatAsBone = context._treatedAsBone[rect.center] ?? false;
     if (treatAsBone) {
       parent.drawRect(rect, shaderPaint);
     } else if (!config.ignoreContainers) {
-      final effectivePaint = Paint()..color = paint.color;
-      if (config.containersColor != null && paint.color.opacity != 0) {
-        effectivePaint.color = config.containersColor!;
+      if (config.containersColor != null) {
+        parent.drawRect(rect, paint.cloneWithColor(config.containersColor!));
+      } else {
+        parent.drawRect(rect, paint);
       }
-      parent.drawRect(rect, effectivePaint);
     }
   }
 
   @override
   void drawRRect(ui.RRect rrect, ui.Paint paint) {
-    final treatAsBone = shouldTreatAsBone(rrect.center);
+    if (paint.color.opacity == 0) return;
+    final treatAsBone = context._treatedAsBone[rrect.center] ?? false;
     if (treatAsBone) {
       parent.drawRRect(rrect, shaderPaint);
     } else if (!config.ignoreContainers) {
-      final effectivePaint = Paint()..color = paint.color;
-      if (config.containersColor != null && paint.color.opacity != 0) {
-        effectivePaint.color = config.containersColor!;
+      if (config.containersColor != null) {
+        parent.drawRRect(rrect, paint.cloneWithColor(config.containersColor!));
+      } else {
+        parent.drawRRect(rrect, paint);
       }
-      parent.drawRRect(rrect, effectivePaint);
     }
   }
 
   @override
   void drawCircle(ui.Offset c, double radius, ui.Paint paint) {
-    final treatAsBone = shouldTreatAsBone(c);
+    if (paint.color.opacity == 0) return;
+    final treatAsBone = context._treatedAsBone[c] ?? false;
     if (treatAsBone) {
       parent.drawCircle(c, radius, shaderPaint);
     } else if (!config.ignoreContainers) {
-      final effectivePaint = Paint()..color = paint.color;
-      if (config.containersColor != null && paint.color.opacity != 0) {
-        effectivePaint.color = config.containersColor!;
+      if (config.containersColor != null) {
+        parent.drawCircle(c, radius, paint.cloneWithColor(config.containersColor!));
+      } else {
+        parent.drawCircle(c, radius, paint);
       }
-      parent.drawCircle(c, radius, effectivePaint);
     }
   }
 
@@ -371,23 +385,24 @@ class SkeletonizerLayer extends ContainerLayer {
   }
 }
 
-class ActualPaintingContext extends PaintingContext {
-  ActualPaintingContext(
+class PaintingContextAdapter extends PaintingContext {
+  PaintingContextAdapter(
     super.containerLayer,
     super.estimatedBounds,
     this.canvas,
   );
-
   @override
   final ui.Canvas canvas;
 }
 
-class RectConfig {
-  final bool treatAsBone;
-  final Color? overrideColor;
+class ParagraphConfig {
+  final BorderRadius? borderRadius;
+  final double fontSize;
+  final TextAlign textAlign;
 
-  const RectConfig({
-    this.treatAsBone = false,
-    this.overrideColor,
+  const ParagraphConfig({
+    required this.borderRadius,
+    required this.fontSize,
+    required this.textAlign,
   });
 }

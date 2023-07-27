@@ -50,79 +50,30 @@ class _SkeletonizerDemoPageState extends State<SkeletonizerDemoPage> {
       ),
       body: Skeletonizer(
         enabled: _enabled,
-        effect: const SoldColorEffect(color: Colors.green),
-        // effect: const ShimmerEffect(
-        //   highlightColor: Colors.green,
-        // ),
-        // ignoreContainers: true,
-        justifyMultiLineText: true,
-        child: true
-            ? const Padding(
-                padding: EdgeInsets.all(16.0),
-                child: Column(
+        enableCrossFade: true,
+        child: ListView.builder(
+          itemCount: 10,
+          padding: const EdgeInsets.all(16),
+          itemBuilder: (context, index) {
+            return Card(
+              child: ListTile(
+                title: Text('Item number $index as title'),
+                subtitle: const Text('Subtitle here'),
+                trailing: const Row(
+                  mainAxisSize: MainAxisSize.min,
                   children: [
-                    Text(
-                      'It is a long established fact that a reader will be distracted by the readable content of a page when looking at its layout',
-                      style: TextStyle(fontSize: 20),
+                    Icon(Icons.star),
+                    SizedBox(
+                      width: 20,
                     ),
-
+                    Icon(Icons.star),
                   ],
                 ),
-              )
-            : false
-                ? Column(
-                    children: [
-                      for (int i = 0; i < 7; i++)
-                        const Card(
-                          child: ListTile(
-                            title: Text('Item number as title'),
-                            subtitle: Text('Subtitle here'),
-                            trailing: DecoratedBox(
-                              decoration: BoxDecoration(color: Colors.red),
-                              child: Padding(
-                                padding: EdgeInsets.all(8.0),
-                                child: Skeleton.ignore(
-                                  child: Icon(Icons.ac_unit),
-                                ),
-                              ),
-                            ),
-                          ),
-                        ),
-                    ],
-                  )
-                : ListView.builder(
-                    itemCount: 7,
-                    padding: const EdgeInsets.all(16),
-                    itemBuilder: (context, index) {
-                      return Card(
-                        child: ListTile(
-                          title: Text('Item number $index as title'),
-                          subtitle: const Text('Subtitle here'),
-                          trailing: Image.network(
-                            'https://picsum.photos/200',
-                            width: 50,
-                            height: 50,
-                          ),
-                        ),
-                      );
-                    },
-                  ),
+              ),
+            );
+          },
+        ),
       ),
     );
-  }
-}
-
-class MyPainter extends CustomPainter {
-  @override
-  void paint(Canvas canvas, Size size) {
-    // draw a circle with defined paint
-    final paint = Paint()..color = Colors.red;
-
-    canvas.drawCircle(const Offset(50, 50), 40, paint);
-  }
-
-  @override
-  bool shouldRepaint(covariant CustomPainter oldDelegate) {
-    return true;
   }
 }

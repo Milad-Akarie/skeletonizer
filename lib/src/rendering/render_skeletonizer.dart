@@ -1,24 +1,23 @@
-import 'package:flutter/foundation.dart';
+import 'dart:ui';
+
 import 'package:flutter/rendering.dart';
 import 'package:skeletonizer/skeletonizer.dart';
 import 'package:skeletonizer/src/painting/skeletonizer_painting_context.dart';
 
-/// Builds a renderer object that overrides the painting operation
-/// by stripping the original renderers to a list of [PaintableElement]
 class RenderSkeletonizer extends RenderProxyBox with _RenderSkeletonBase<RenderBox> {
   /// Default constructor
   RenderSkeletonizer({
-    required bool enabled,
     required TextDirection textDirection,
     required double animationValue,
     required Brightness brightness,
-    RenderBox? child,
     required SkeletonizerConfigData config,
+    required bool ignorePointers,
+    RenderBox? child,
   })  : _animationValue = animationValue,
-        _enabled = enabled,
         _textDirection = textDirection,
         _brightness = brightness,
         _config = config,
+        _ignorePointers = ignorePointers,
         super(child);
 
   TextDirection _textDirection;
@@ -57,14 +56,13 @@ class RenderSkeletonizer extends RenderProxyBox with _RenderSkeletonBase<RenderB
     }
   }
 
-  bool _enabled;
+  bool _ignorePointers;
 
-  @override
-  bool get enabled => _enabled;
+  bool get ignorePointers => _ignorePointers;
 
-  set enabled(bool value) {
-    if (_enabled != value) {
-      _enabled = value;
+  set ignorePointers(bool value) {
+    if (_ignorePointers != value) {
+      _ignorePointers = value;
       markNeedsPaint();
     }
   }
@@ -83,26 +81,26 @@ class RenderSkeletonizer extends RenderProxyBox with _RenderSkeletonBase<RenderB
 
   @override
   bool hitTest(BoxHitTestResult result, {required Offset position}) {
-    return !_enabled && super.hitTest(result, position: position);
+    if (_ignorePointers) return false;
+    return super.hitTest(result, position: position);
   }
 }
 
 /// Builds a sliver renderer object that overrides the painting operation
-/// by stripping the original renderers to a list of [PaintableElement]
 class RenderSliverSkeletonizer extends RenderProxySliver with _RenderSkeletonBase<RenderSliver> {
   /// Default constructor
   RenderSliverSkeletonizer({
-    required bool enabled,
     required TextDirection textDirection,
     required double animationValue,
     required Brightness brightness,
-    RenderSliver? child,
     required SkeletonizerConfigData config,
+    required bool ignorePointers,
+    RenderSliver? child,
   })  : _animationValue = animationValue,
-        _enabled = enabled,
         _textDirection = textDirection,
         _brightness = brightness,
         _config = config,
+        _ignorePointers = ignorePointers,
         super(child);
 
   TextDirection _textDirection;
@@ -141,15 +139,13 @@ class RenderSliverSkeletonizer extends RenderProxySliver with _RenderSkeletonBas
     }
   }
 
-  bool _enabled;
+  bool _ignorePointers;
 
-  @override
-  bool get enabled => _enabled;
+  bool get ignorePointers => _ignorePointers;
 
-  set enabled(bool value) {
-    if (_enabled != value) {
-      _enabled = value;
-      markNeedsPaint();
+  set ignorePointers(bool value) {
+    if (_ignorePointers != value) {
+      _ignorePointers = value;
     }
   }
 
@@ -167,13 +163,11 @@ class RenderSliverSkeletonizer extends RenderProxySliver with _RenderSkeletonBas
 
   @override
   bool hitTest(SliverHitTestResult result, {required double mainAxisPosition, required double crossAxisPosition}) {
-    if (_enabled) return false;
+    if (_ignorePointers) return false;
     return super.hitTest(result, mainAxisPosition: mainAxisPosition, crossAxisPosition: crossAxisPosition);
   }
 }
 
-/// Builds a renderer object that overrides the painting operation
-/// by stripping the original renderers to a list of [PaintableElement]
 mixin _RenderSkeletonBase<R extends RenderObject> on RenderObjectWithChildMixin<R> {
   /// The text direction used to resolve Directional geometries
   TextDirection get textDirection;
@@ -184,9 +178,6 @@ mixin _RenderSkeletonBase<R extends RenderObject> on RenderObjectWithChildMixin<
   /// The selected brightness
   Brightness get brightness;
 
-  /// Whether the skeletonizer is enabled
-  bool get enabled;
-
   /// The value to animate painting effects
   double get animationValue;
 
@@ -195,16 +186,14 @@ mixin _RenderSkeletonBase<R extends RenderObject> on RenderObjectWithChildMixin<
 
   @override
   void paint(PaintingContext context, Offset offset) {
-    if (!enabled) {
-      return super.paint(context, offset);
-    }
-    final paint = config.effect.createPaint(animationValue, offset & paintBounds.size);
+    final estimatedBounds = paintBounds.shift(offset);
+    final paint = config.effect.createPaint(animationValue, estimatedBounds);
     final skeletonizerContext = SkeletonizerPaintingContext(
       layer: layer!,
-      estimatedBounds: paintBounds,
+      estimatedBounds: estimatedBounds,
+      textDirection: textDirection,
       parentCanvas: context.canvas,
       shaderPaint: paint,
-      rootOffset: offset,
       config: config,
     );
     super.paint(skeletonizerContext, offset);
