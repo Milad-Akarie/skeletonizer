@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:skeletonizer/src/effects/painting_effect.dart';
 import 'package:skeletonizer/src/skeletonizer_config.dart';
-import 'package:skeletonizer/src/widgets/skeletonizer_base.dart';
+import 'package:skeletonizer/src/widgets/skeletonizer_render_object_widget.dart';
 
 /// Paints a skeleton of the [child] widget
 ///
@@ -36,12 +36,6 @@ abstract class Skeletonizer extends StatefulWidget {
 
   final bool ignorePointers;
 
-  final bool enableCrossFade;
-  final Duration crossFadeDuration;
-  final Duration crossFadeReverseDuration;
-  final Curve crossFadeFirstCurve;
-  final Curve crossFadeSecondCurve;
-
   /// Default constructor
   const Skeletonizer._({
     super.key,
@@ -53,11 +47,6 @@ abstract class Skeletonizer extends StatefulWidget {
     this.justifyMultiLineText,
     this.containersColor,
     this.ignorePointers = true,
-    this.enableCrossFade = false,
-    this.crossFadeDuration = const Duration(milliseconds: 300),
-    this.crossFadeReverseDuration = const Duration(milliseconds: 300),
-    this.crossFadeFirstCurve = Curves.easeIn,
-    this.crossFadeSecondCurve = Curves.easeOut,
   });
 
   /// Creates a [Skeletonizer] widget
@@ -71,11 +60,6 @@ abstract class Skeletonizer extends StatefulWidget {
     bool? justifyMultiLineText,
     Color? containersColor,
     bool ignorePointers,
-    bool enableCrossFade,
-    Duration crossFadeDuration,
-    Duration crossFadeReverseDuration,
-    Curve crossFadeFirstCurve,
-    Curve crossFadeSecondCurve,
   }) = _Skeletonizer;
 
   /// Creates a [SliverSkeletonizer] widget
@@ -89,11 +73,6 @@ abstract class Skeletonizer extends StatefulWidget {
     bool? justifyMultiLineText,
     Color? containersColor,
     bool ignorePointers,
-    bool enableCrossFade,
-    Duration crossFadeDuration,
-    Duration crossFadeReverseDuration,
-    Curve crossFadeFirstCurve,
-    Curve crossFadeSecondCurve,
   }) = SliverSkeletonizer;
 
   @override
@@ -139,9 +118,6 @@ class SkeletonizerState extends State<Skeletonizer> with TickerProviderStateMixi
   Brightness _brightness = Brightness.light;
   TextDirection _textDirection = TextDirection.ltr;
 
-
-
-
   @override
   void didChangeDependencies() {
     super.didChangeDependencies();
@@ -161,11 +137,6 @@ class SkeletonizerState extends State<Skeletonizer> with TickerProviderStateMixi
       ignoreContainers: widget.ignoreContainers,
       justifyMultiLineText: widget.justifyMultiLineText,
       containersColor: widget.containersColor,
-      enableCrossFade: widget.enableCrossFade,
-      crossFadeDuration: widget.crossFadeDuration,
-      crossFadeReverseDuration: widget.crossFadeReverseDuration,
-      crossFadeFirstCurve: widget.crossFadeFirstCurve,
-      crossFadeSecondCurve: widget.crossFadeSecondCurve,
     );
     if (resolvedConfig != _config) {
       _config = resolvedConfig;
@@ -253,33 +224,13 @@ class _Skeletonizer extends Skeletonizer {
     super.justifyMultiLineText,
     super.containersColor,
     super.ignorePointers,
-    super.enableCrossFade = false,
-    super.crossFadeDuration = const Duration(milliseconds: 300),
-    super.crossFadeReverseDuration = const Duration(milliseconds: 300),
-    super.crossFadeFirstCurve = Curves.easeIn,
-    super.crossFadeSecondCurve = Curves.easeOut,
-
   }) : super._();
 
   @override
   Widget build(BuildContext context, SkeletonizerBuildData data) {
     return SkeletonizerScope(
       enabled: data.enabled,
-      child: data.config.enableCrossFade
-          ? TweenAnimationBuilder<double>(
-             key: ValueKey(data.enabled),
-              duration: data.enabled ? data.config.crossFadeDuration : data.config.crossFadeReverseDuration,
-              tween: Tween<double>(begin: data.enabled ? 0.0 : 1.0, end: data.enabled ? 1.0 : 0.0),
-              builder: (context, value, _) {
-                return Opacity(
-                  opacity: value,
-                  child: SkeletonizerBase(data: data, child: child),
-                );
-              },
-            )
-          : data.enabled
-              ? SkeletonizerBase(data: data, child: child)
-              : child,
+      child: data.enabled ? SkeletonizerRenderObjectWidget(data: data, child: child) : child,
     );
   }
 }
@@ -297,23 +248,18 @@ class SliverSkeletonizer extends Skeletonizer {
     super.justifyMultiLineText,
     super.containersColor,
     super.ignorePointers,
-    super.enableCrossFade = false,
-    super.crossFadeDuration = const Duration(milliseconds: 300),
-    super.crossFadeReverseDuration = const Duration(milliseconds: 300),
-    super.crossFadeFirstCurve = Curves.easeIn,
-    super.crossFadeSecondCurve = Curves.easeOut,
   }) : super._();
 
   @override
   Widget build(BuildContext context, SkeletonizerBuildData data) {
     return SkeletonizerScope(
       enabled: data.enabled,
-      child: SliverSkeletonizerBase(data: data, child: child),
+      child: data.enabled ? SliverSkeletonizerRenderObjectWidget(data: data, child: child) : child,
     );
   }
 }
 
-/// The data that is passed to the [SkeletonizerBase]
+/// The data that is passed to the [SkeletonizerRenderObjectWidget]
 class SkeletonizerBuildData {
   /// Default constructor
   const SkeletonizerBuildData({

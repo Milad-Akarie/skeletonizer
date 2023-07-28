@@ -25,18 +25,6 @@ class SkeletonizerConfigData {
   /// if null the actual color will be used
   final Color? containersColor;
 
-  final bool enableCrossFade;
-
-  final Duration crossFadeDuration;
-  final Duration crossFadeReverseDuration;
-
-  final Curve crossFadeFirstCurve;
-  final Curve crossFadeSecondCurve;
-
-
-
-
-
   /// Default constructor
   const SkeletonizerConfigData({
     this.effect = const ShimmerEffect(),
@@ -44,12 +32,6 @@ class SkeletonizerConfigData {
     this.textBorderRadius = _defaultTextBoneBorderRadius,
     this.ignoreContainers = false,
     this.containersColor,
-    this.enableCrossFade = false,
-    this.crossFadeDuration = const Duration(milliseconds: 300),
-    this.crossFadeReverseDuration = const Duration(milliseconds: 300),
-    this.crossFadeFirstCurve = Curves.easeIn,
-    this.crossFadeSecondCurve = Curves.easeOut,
-
   });
 
   /// Builds a light themed instance
@@ -59,11 +41,6 @@ class SkeletonizerConfigData {
     this.textBorderRadius = _defaultTextBoneBorderRadius,
     this.ignoreContainers = false,
     this.containersColor,
-    this.enableCrossFade = false,
-    this.crossFadeDuration = const Duration(milliseconds: 300),
-    this.crossFadeReverseDuration = const Duration(milliseconds: 300),
-    this.crossFadeFirstCurve = Curves.easeIn,
-    this.crossFadeSecondCurve = Curves.easeOut,
   });
 
   /// Builds a dark themed instance
@@ -76,13 +53,7 @@ class SkeletonizerConfigData {
     this.justifyMultiLineText = true,
     this.textBorderRadius = _defaultTextBoneBorderRadius,
     this.ignoreContainers = false,
-    this.enableCrossFade = false,
-    this.crossFadeDuration = const Duration(milliseconds: 300),
-    this.crossFadeReverseDuration = const Duration(milliseconds: 300),
-    this.crossFadeFirstCurve = Curves.easeIn,
-    this.crossFadeSecondCurve = Curves.easeOut,
   });
-
 
   @override
   bool operator ==(Object other) =>
@@ -93,12 +64,7 @@ class SkeletonizerConfigData {
           textBorderRadius == other.textBorderRadius &&
           justifyMultiLineText == other.justifyMultiLineText &&
           ignoreContainers == other.ignoreContainers &&
-          containersColor == other.containersColor &&
-          enableCrossFade == other.enableCrossFade &&
-          crossFadeDuration == other.crossFadeDuration &&
-          crossFadeReverseDuration == other.crossFadeReverseDuration &&
-          crossFadeFirstCurve == other.crossFadeFirstCurve &&
-          crossFadeSecondCurve == other.crossFadeSecondCurve;
+          containersColor == other.containersColor;
 
   @override
   int get hashCode =>
@@ -106,12 +72,7 @@ class SkeletonizerConfigData {
       textBorderRadius.hashCode ^
       justifyMultiLineText.hashCode ^
       ignoreContainers.hashCode ^
-      containersColor.hashCode ^
-      enableCrossFade.hashCode ^
-      crossFadeDuration.hashCode ^
-      crossFadeReverseDuration.hashCode ^
-      crossFadeFirstCurve.hashCode ^
-      crossFadeSecondCurve.hashCode;
+      containersColor.hashCode;
 
   /// Clones the instance with overrides
   SkeletonizerConfigData copyWith({
@@ -120,11 +81,6 @@ class SkeletonizerConfigData {
     bool? justifyMultiLineText,
     bool? ignoreContainers,
     Color? containersColor,
-    bool? enableCrossFade,
-    Duration? crossFadeDuration,
-    Duration? crossFadeReverseDuration,
-    Curve? crossFadeFirstCurve,
-    Curve? crossFadeSecondCurve,
   }) {
     return SkeletonizerConfigData(
       effect: effect ?? this.effect,
@@ -132,15 +88,8 @@ class SkeletonizerConfigData {
       justifyMultiLineText: justifyMultiLineText ?? this.justifyMultiLineText,
       ignoreContainers: ignoreContainers ?? this.ignoreContainers,
       containersColor: containersColor ?? this.containersColor,
-      enableCrossFade: enableCrossFade ?? this.enableCrossFade,
-      crossFadeDuration: crossFadeDuration ?? this.crossFadeDuration,
-      crossFadeReverseDuration: crossFadeReverseDuration ?? this.crossFadeReverseDuration,
-      crossFadeFirstCurve: crossFadeFirstCurve ?? this.crossFadeFirstCurve,
-      crossFadeSecondCurve: crossFadeSecondCurve ?? this.crossFadeSecondCurve,
     );
   }
-
-
 }
 
 /// Holds border radius information
@@ -189,10 +138,7 @@ class TextBoneBorderRadius {
           usesHeightFactor == other.usesHeightFactor;
 
   @override
-  int get hashCode =>
-      _borderRadius.hashCode ^
-      _heightPercentage.hashCode ^
-      usesHeightFactor.hashCode;
+  int get hashCode => _borderRadius.hashCode ^ _heightPercentage.hashCode ^ usesHeightFactor.hashCode;
 }
 
 /// Provided the scoped [SkeletonizerConfigData] to descended widgets
@@ -202,15 +148,12 @@ class SkeletonizerConfig extends InheritedWidget {
 
   /// Depends on the the nearest SkeletonizerConfigData if any
   static SkeletonizerConfigData? maybeOf(BuildContext context) {
-    return context
-        .dependOnInheritedWidgetOfExactType<SkeletonizerConfig>()
-        ?.data;
+    return context.dependOnInheritedWidgetOfExactType<SkeletonizerConfig>()?.data;
   }
 
   /// Depends on the the nearest SkeletonizerConfigData if any otherwise it throws
   static SkeletonizerConfigData of(BuildContext context) {
-    final scope =
-        context.dependOnInheritedWidgetOfExactType<SkeletonizerConfig>();
+    final scope = context.dependOnInheritedWidgetOfExactType<SkeletonizerConfig>();
     assert(() {
       if (scope == null) {
         throw FlutterError(

@@ -3,9 +3,9 @@ import 'package:skeletonizer/src/rendering/render_skeletonizer.dart';
 import 'package:skeletonizer/src/widgets/skeletonizer.dart';
 
 /// Builds a [RenderSkeletonizer]
-class SkeletonizerBase extends SingleChildRenderObjectWidget {
+class SkeletonizerRenderObjectWidget extends SingleChildRenderObjectWidget {
   /// The default constructor
-  const SkeletonizerBase({
+  const SkeletonizerRenderObjectWidget({
     super.key,
     required super.child,
     required this.data,
@@ -39,9 +39,9 @@ class SkeletonizerBase extends SingleChildRenderObjectWidget {
 }
 
 /// Builds a [RenderSkeletonizer]
-class SliverSkeletonizerBase extends SingleChildRenderObjectWidget {
+class SliverSkeletonizerRenderObjectWidget extends SingleChildRenderObjectWidget {
   /// The default constructor
-  const SliverSkeletonizerBase({
+  const SliverSkeletonizerRenderObjectWidget({
     super.key,
     required super.child,
     required this.data,

@@ -325,9 +325,7 @@ class _SkeletonReplace extends StatelessWidget implements Skeleton {
     bool replace = true,
     this.width,
     this.height,
-    this.replacement = const DecoratedBox(
-      decoration: BoxDecoration(color: Colors.black),
-    ),
+    this.replacement = const ColoredBox(color: Colors.black),
   }) : enabled = replace;
 
   final Widget child;

@@ -79,7 +79,6 @@ class SkeletonizerPaintingContext extends PaintingContext {
         textAlign: child.textAlign,
       );
     }
-
     return child.paint(this, offset);
   }
 }

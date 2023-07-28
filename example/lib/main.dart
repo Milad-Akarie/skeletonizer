@@ -50,7 +50,6 @@ class _SkeletonizerDemoPageState extends State<SkeletonizerDemoPage> {
       ),
       body: Skeletonizer(
         enabled: _enabled,
-        enableCrossFade: true,
         child: ListView.builder(
           itemCount: 10,
           padding: const EdgeInsets.all(16),
@@ -59,15 +58,10 @@ class _SkeletonizerDemoPageState extends State<SkeletonizerDemoPage> {
               child: ListTile(
                 title: Text('Item number $index as title'),
                 subtitle: const Text('Subtitle here'),
-                trailing: const Row(
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    Icon(Icons.star),
-                    SizedBox(
-                      width: 20,
-                    ),
-                    Icon(Icons.star),
-                  ],
+                trailing: Skeleton.replace(
+                  width: 50,
+                  height: 50,
+                  child: Image.network('https://picsum.photos/100'),
                 ),
               ),
             );
