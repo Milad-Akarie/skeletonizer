@@ -1,3 +1,6 @@
+## 0.4.0 
+- refactor: remove Skeleton.coloredBox because they're not handled automatically by skeletonizer. [Breaking Change]
+- enhance: Skeletonizer now overrides the painting context instead of iterating over render objects which makes much preformat.
 ## 0.3.0 [Breaking Change]
 - Fix crash when running in release mode.
 - ColoredBox and Container with non-null color will need now need to be exclusively wrapped with a
