@@ -11,6 +11,7 @@ class SkeletonizerRenderObjectWidget extends SingleChildRenderObjectWidget {
     required this.data,
   });
 
+  /// The Skeletonizer build data
   final SkeletonizerBuildData data;
 
   @override
@@ -47,6 +48,7 @@ class SliverSkeletonizerRenderObjectWidget extends SingleChildRenderObjectWidget
     required this.data,
   });
 
+  /// The Skeletonizer build data
   final SkeletonizerBuildData data;
 
   @override

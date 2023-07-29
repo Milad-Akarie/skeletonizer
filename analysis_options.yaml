@@ -4,4 +4,4 @@ include: package:flutter_lints/flutter.yaml
 # https://dart.dev/guides/language/analysis-options
 linter:
   rules:
-    public_member_api_docs: false
+    public_member_api_docs: true

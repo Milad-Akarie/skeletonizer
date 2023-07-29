@@ -4,25 +4,36 @@ import 'package:skeletonizer/skeletonizer.dart';
 import 'package:skeletonizer/src/painting/skeletonizer_painting_context.dart';
 import 'package:skeletonizer/src/painting/uniting_painting_context.dart';
 
+
+/// A signature for a function that paints with a [SkeletonizerPaintingContext].
 typedef SkeletonizerPainter = void Function(
   SkeletonizerPaintingContext context,
   Rect paintBounds,
   Painter paint,
 );
 
+//// A signature for a function that paints with a [PaintingContext].
 typedef Painter = void Function(PaintingContext context, Offset offset);
 
+/// An interface for a skeleton annotation widget
+/// skeleton annotation widgets are used to configure or customize how
+/// the skeleton effect is applied to the child widget
 abstract class Skeleton extends Widget {
+
+  /// Default constructor
   const Skeleton({super.key});
 
+  /// Whether the annotation is enabled
   bool get enabled;
 
+  /// Creates a widget that ignores the child when [Skeletonizer.enabled] is true
   const factory Skeleton.ignore({
     Key? key,
     required Widget child,
     bool ignore,
   }) = _IgnoreSkeleton;
 
+  /// Creates a widget that unites the child with its descendants when [Skeletonizer.enabled] is true
   const factory Skeleton.unite({
     Key? key,
     required Widget child,
@@ -30,18 +41,22 @@ abstract class Skeleton extends Widget {
     BorderRadiusGeometry? borderRadius,
   }) = _UnitingSkeleton;
 
+  /// Creates a widget that keeps paints the original child  as is when [Skeletonizer.enabled] is true
   const factory Skeleton.keep({
     Key? key,
     required Widget child,
     bool keep,
   }) = _KeepSkeleton;
 
+  /// Creates a widget that shades the child when [Skeletonizer.enabled] is true
+  /// This works as a [ShaderMask] but with a [SkeletonizerPaintingContext]
   const factory Skeleton.shade({
     Key? key,
     required Widget child,
     bool shade,
   }) = _SkeletonShaderMask;
 
+  /// Creates a widget that replaces the child when [Skeletonizer.enabled] is true
   const factory Skeleton.replace({
     Key? key,
     required Widget child,
@@ -51,6 +66,7 @@ abstract class Skeleton extends Widget {
     Widget replacement,
   }) = _SkeletonReplace;
 
+  /// Creates a widget that ignores pointer events when [Skeletonizer.enabled] is true
   const factory Skeleton.ignorePointer({
     Key? key,
     required Widget child,
@@ -151,7 +167,7 @@ class _UnitingSkeleton extends _BasicSkeleton {
   void paint(SkeletonizerPaintingContext context, Rect paintBounds, Painter paint) {
     final unitingContext = UnitingPaintingContext(context.layer, paintBounds);
     paint(unitingContext, Offset.zero);
-    final canvas = unitingContext.canvas as UnitingCanvas;
+    final canvas = unitingContext.canvas;
     final unitedRect = canvas.unitedRect.shift(paintBounds.topLeft);
     final brRadius = borderRadius?.resolve(context.textDirection) ?? canvas.borderRadius;
     if (brRadius != null) {
@@ -209,6 +225,7 @@ class _RenderBasicSkeleton extends RenderProxyBox {
   }
 }
 
+/// A Render object that paints nothing when skeletonizer is enabled
 class RenderIgnoredSkeleton extends RenderProxyBox {
   /// Default constructor
   RenderIgnoredSkeleton({
@@ -218,6 +235,7 @@ class RenderIgnoredSkeleton extends RenderProxyBox {
 
   bool _enabled = true;
 
+  /// Whether the skeletonizer is enabled
   bool get enabled => _enabled;
 
   set enabled(bool value) {

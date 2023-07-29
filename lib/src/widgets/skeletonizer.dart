@@ -34,6 +34,9 @@ abstract class Skeletonizer extends StatefulWidget {
   /// if null the actual color will be used
   final Color? containersColor;
 
+  /// Whether to ignore pointer events
+  ///
+  /// defaults to true
   final bool ignorePointers;
 
   /// Default constructor
@@ -286,6 +289,9 @@ class SkeletonizerBuildData {
   /// The animation value
   final double animationValue;
 
+  /// Whether to ignore pointer events
+  ///
+  /// defaults to true
   final bool ignorePointers;
 
   @override

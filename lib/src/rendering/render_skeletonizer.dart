@@ -4,6 +4,8 @@ import 'package:flutter/rendering.dart';
 import 'package:skeletonizer/skeletonizer.dart';
 import 'package:skeletonizer/src/painting/skeletonizer_painting_context.dart';
 
+/// Builds a renderer object that overrides the painting operation
+/// and provides a [SkeletonizerPaintingContext] to paint the skeleton effect
 class RenderSkeletonizer extends RenderProxyBox with _RenderSkeletonBase<RenderBox> {
   /// Default constructor
   RenderSkeletonizer({
@@ -58,8 +60,6 @@ class RenderSkeletonizer extends RenderProxyBox with _RenderSkeletonBase<RenderB
 
   bool _ignorePointers;
 
-  bool get ignorePointers => _ignorePointers;
-
   set ignorePointers(bool value) {
     if (_ignorePointers != value) {
       _ignorePointers = value;
@@ -87,6 +87,7 @@ class RenderSkeletonizer extends RenderProxyBox with _RenderSkeletonBase<RenderB
 }
 
 /// Builds a sliver renderer object that overrides the painting operation
+/// and provides a [SkeletonizerPaintingContext] to paint the skeleton effect
 class RenderSliverSkeletonizer extends RenderProxySliver with _RenderSkeletonBase<RenderSliver> {
   /// Default constructor
   RenderSliverSkeletonizer({
@@ -140,8 +141,6 @@ class RenderSliverSkeletonizer extends RenderProxySliver with _RenderSkeletonBas
   }
 
   bool _ignorePointers;
-
-  bool get ignorePointers => _ignorePointers;
 
   set ignorePointers(bool value) {
     if (_ignorePointers != value) {

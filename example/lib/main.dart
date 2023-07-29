@@ -51,22 +51,20 @@ class _SkeletonizerDemoPageState extends State<SkeletonizerDemoPage> {
       body: Skeletonizer(
         enabled: _enabled,
         child: ListView.builder(
-          itemCount: 10,
-          padding: const EdgeInsets.all(16),
-          itemBuilder: (context, index) {
-            return Card(
-              child: ListTile(
-                title: Text('Item number $index as title'),
-                subtitle: const Text('Subtitle here'),
-                trailing: Skeleton.replace(
-                  width: 50,
-                  height: 50,
-                  child: Image.network('https://picsum.photos/100'),
-                ),
+                itemCount: 10,
+                padding: const EdgeInsets.all(16),
+                itemBuilder: (context, index) {
+                  return Card(
+                    child: ListTile(
+                      title: Text('Item number $index as title'),
+                      subtitle: const Text('Subtitle here'),
+                      trailing: const Skeleton.unite(
+                        child: Icon(Icons.ac_unit),
+                      ),
+                    ),
+                  );
+                },
               ),
-            );
-          },
-        ),
       ),
     );
   }
