@@ -3,7 +3,7 @@ import 'dart:ui' as ui;
 
 import 'package:flutter/rendering.dart';
 
- /// A [Canvas] that reports true if it was used to paint anything.
+/// A [Canvas] that reports true if it was used to paint anything.
 class ChildCheckerCanvas implements Canvas {
   /// Whether the [PaintingContext] has any paintable children.
   bool hasPaintableChild = false;

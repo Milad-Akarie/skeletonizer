@@ -88,7 +88,8 @@ abstract class Skeletonizer extends StatefulWidget {
 
   /// Depends on the the nearest SkeletonizerScope if any otherwise it throws
   static SkeletonizerScope of(BuildContext context) {
-    final scope = context.dependOnInheritedWidgetOfExactType<SkeletonizerScope>();
+    final scope =
+        context.dependOnInheritedWidgetOfExactType<SkeletonizerScope>();
     assert(() {
       if (scope == null) {
         throw FlutterError(
@@ -107,7 +108,8 @@ abstract class Skeletonizer extends StatefulWidget {
 }
 
 /// The state of [Skeletonizer] widget
-class SkeletonizerState extends State<Skeletonizer> with TickerProviderStateMixin<Skeletonizer> {
+class SkeletonizerState extends State<Skeletonizer>
+    with TickerProviderStateMixin<Skeletonizer> {
   AnimationController? _animationController;
 
   late bool _enabled = widget.enabled;
@@ -132,7 +134,9 @@ class SkeletonizerState extends State<Skeletonizer> with TickerProviderStateMixi
     _textDirection = Directionality.of(context);
     final isDarkMode = _brightness == Brightness.dark;
     var resolvedConfig = SkeletonizerConfig.maybeOf(context) ??
-        (isDarkMode ? const SkeletonizerConfigData.dark() : const SkeletonizerConfigData.light());
+        (isDarkMode
+            ? const SkeletonizerConfigData.dark()
+            : const SkeletonizerConfigData.light());
 
     resolvedConfig = resolvedConfig.copyWith(
       effect: widget.effect,
@@ -233,7 +237,9 @@ class _Skeletonizer extends Skeletonizer {
   Widget build(BuildContext context, SkeletonizerBuildData data) {
     return SkeletonizerScope(
       enabled: data.enabled,
-      child: data.enabled ? SkeletonizerRenderObjectWidget(data: data, child: child) : child,
+      child: data.enabled
+          ? SkeletonizerRenderObjectWidget(data: data, child: child)
+          : child,
     );
   }
 }
@@ -257,7 +263,9 @@ class SliverSkeletonizer extends Skeletonizer {
   Widget build(BuildContext context, SkeletonizerBuildData data) {
     return SkeletonizerScope(
       enabled: data.enabled,
-      child: data.enabled ? SliverSkeletonizerRenderObjectWidget(data: data, child: child) : child,
+      child: data.enabled
+          ? SliverSkeletonizerRenderObjectWidget(data: data, child: child)
+          : child,
     );
   }
 }
@@ -320,7 +328,8 @@ class SkeletonizerBuildData {
 /// to the descent widgets
 class SkeletonizerScope extends InheritedWidget {
   /// Default constructor
-  const SkeletonizerScope({super.key, required super.child, required this.enabled});
+  const SkeletonizerScope(
+      {super.key, required super.child, required this.enabled});
 
   /// Whether skeletonizing is enabled
   final bool enabled;

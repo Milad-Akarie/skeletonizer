@@ -138,7 +138,10 @@ class TextBoneBorderRadius {
           usesHeightFactor == other.usesHeightFactor;
 
   @override
-  int get hashCode => _borderRadius.hashCode ^ _heightPercentage.hashCode ^ usesHeightFactor.hashCode;
+  int get hashCode =>
+      _borderRadius.hashCode ^
+      _heightPercentage.hashCode ^
+      usesHeightFactor.hashCode;
 }
 
 /// Provided the scoped [SkeletonizerConfigData] to descended widgets
@@ -148,12 +151,15 @@ class SkeletonizerConfig extends InheritedWidget {
 
   /// Depends on the the nearest SkeletonizerConfigData if any
   static SkeletonizerConfigData? maybeOf(BuildContext context) {
-    return context.dependOnInheritedWidgetOfExactType<SkeletonizerConfig>()?.data;
+    return context
+        .dependOnInheritedWidgetOfExactType<SkeletonizerConfig>()
+        ?.data;
   }
 
   /// Depends on the the nearest SkeletonizerConfigData if any otherwise it throws
   static SkeletonizerConfigData of(BuildContext context) {
-    final scope = context.dependOnInheritedWidgetOfExactType<SkeletonizerConfig>();
+    final scope =
+        context.dependOnInheritedWidgetOfExactType<SkeletonizerConfig>();
     assert(() {
       if (scope == null) {
         throw FlutterError(

@@ -39,7 +39,9 @@ class _SkeletonizerDemoPageState extends State<SkeletonizerDemoPage> {
         padding: const EdgeInsets.only(bottom: 0, right: 4),
         child: FloatingActionButton(
           child: Icon(
-            _enabled ? Icons.hourglass_bottom_rounded : Icons.hourglass_disabled_outlined,
+            _enabled
+                ? Icons.hourglass_bottom_rounded
+                : Icons.hourglass_disabled_outlined,
           ),
           onPressed: () {
             setState(() {
@@ -51,18 +53,18 @@ class _SkeletonizerDemoPageState extends State<SkeletonizerDemoPage> {
       body: Skeletonizer(
         enabled: _enabled,
         child: ListView.builder(
-                itemCount: 10,
-                padding: const EdgeInsets.all(16),
-                itemBuilder: (context, index) {
-                  return Card(
-                    child: ListTile(
-                      title: Text('Item number $index as title'),
-                      subtitle: const Text('Subtitle here'),
-                      trailing: const Icon(Icons.ac_unit),
-                    ),
-                  );
-                },
+          itemCount: 10,
+          padding: const EdgeInsets.all(16),
+          itemBuilder: (context, index) {
+            return Card(
+              child: ListTile(
+                title: Text('Item number $index as title'),
+                subtitle: const Text('Subtitle here'),
+                trailing: const Icon(Icons.ac_unit),
               ),
+            );
+          },
+        ),
       ),
     );
   }

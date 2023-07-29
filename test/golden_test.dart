@@ -197,7 +197,7 @@ void runTests() {
               child: SizedBox(
                 width: 200,
                 height: 100,
-                child:  ColoredBox(color: Colors.white),
+                child: ColoredBox(color: Colors.white),
               ),
             ),
           ),
@@ -324,7 +324,6 @@ void runTests() {
       ),
     ),
   );
-
 
   goldenTest(
     'Skeletonize containers and override their color',
