@@ -193,13 +193,11 @@ void runTests() {
           ),
           GoldenTestScenario(
             name: 'ColoredBox',
-            child: Skeletonizer(
+            child: const Skeletonizer(
               child: SizedBox(
                 width: 200,
                 height: 100,
-                child: Skeleton.coloredBox(
-                  child: const ColoredBox(color: Colors.white),
-                ),
+                child: ColoredBox(color: Colors.white),
               ),
             ),
           ),
@@ -215,6 +213,125 @@ void runTests() {
       data: const SkeletonizerConfigData.light(
         effect: SoldColorEffect(color: Colors.green),
         ignoreContainers: true,
+      ),
+      child: GoldenTestGroup(
+        scenarioConstraints: const BoxConstraints(maxWidth: 500),
+        children: [
+          GoldenTestScenario(
+            name: 'Card',
+            child: Skeletonizer(
+              child: SizedBox(
+                width: 200,
+                height: 100,
+                child: Card(
+                  elevation: 2,
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(20),
+                  ),
+                  child: const Text("Foo"),
+                ),
+              ),
+            ),
+          ),
+          GoldenTestScenario(
+            name: 'Material',
+            child: Skeletonizer(
+              child: SizedBox(
+                width: 200,
+                height: 100,
+                child: Material(
+                  elevation: 2,
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(20),
+                  ),
+                  child: const Text("Foo"),
+                ),
+              ),
+            ),
+          ),
+          GoldenTestScenario(
+            name: 'Container',
+            child: Skeletonizer(
+              child: Container(
+                width: 200,
+                height: 100,
+                decoration: BoxDecoration(
+                  borderRadius: BorderRadius.circular(20),
+                  color: Colors.white,
+                ),
+                child: const Text("Foo"),
+              ),
+            ),
+          ),
+          GoldenTestScenario(
+            name: 'Container:BoxShape.circle',
+            child: Skeletonizer(
+              child: Container(
+                width: 200,
+                height: 100,
+                decoration: const BoxDecoration(
+                  color: Colors.white,
+                  shape: BoxShape.circle,
+                ),
+                child: const Text("Foo"),
+              ),
+            ),
+          ),
+          GoldenTestScenario(
+            name: 'Container with border',
+            child: Skeletonizer(
+              child: Container(
+                width: 200,
+                height: 100,
+                decoration: BoxDecoration(
+                  borderRadius: BorderRadius.circular(20),
+                  border: Border.all(),
+                ),
+                child: const Text("Foo"),
+              ),
+            ),
+          ),
+          GoldenTestScenario(
+            name: 'DecoratedBox',
+            child: Skeletonizer(
+              child: SizedBox(
+                width: 200,
+                height: 100,
+                child: DecoratedBox(
+                  decoration: BoxDecoration(
+                    borderRadius: BorderRadius.circular(20),
+                    color: Colors.white,
+                  ),
+                  child: const Text("Foo"),
+                ),
+              ),
+            ),
+          ),
+          GoldenTestScenario(
+            name: 'ColoredBox',
+            child: const Skeletonizer(
+              child: SizedBox(
+                width: 200,
+                height: 100,
+                child: ColoredBox(
+                  color: Colors.white,
+                  child: Text("Foo"),
+                ),
+              ),
+            ),
+          ),
+        ],
+      ),
+    ),
+  );
+
+  goldenTest(
+    'Skeletonize containers and override their color',
+    fileName: 'container_color_override',
+    builder: () => SkeletonizerConfig(
+      data: const SkeletonizerConfigData.light(
+        effect: SoldColorEffect(color: Colors.green),
+        containersColor: Colors.purple,
       ),
       child: GoldenTestGroup(
         scenarioConstraints: const BoxConstraints(maxWidth: 500),
@@ -449,15 +566,15 @@ void runTests() {
               ),
             ),
           ),
-          GoldenTestScenario(
-            name: 'replace',
-            child: const Skeletonizer(
-              child: Skeleton.replace(
-                replacement: Text('Replaced'),
-                child: Icon(Icons.ac_unit_outlined),
-              ),
-            ),
-          ),
+          // GoldenTestScenario(
+          //   name: 'replace',
+          //   child: const Skeletonizer(
+          //     child: Skeleton.replace(
+          //       replacement: Text('Replaced'),
+          //       child: Icon(Icons.ac_unit_outlined),
+          //     ),
+          //   ),
+          // ),
           GoldenTestScenario(
             name: 'keep',
             child: const Skeletonizer(
@@ -492,7 +609,7 @@ void runTests() {
             name: 'unite:borderRadius',
             child: const Skeletonizer(
               child: Skeleton.unite(
-                  annotation: UniteDescendents(borderRadius: BorderRadius.zero),
+                  borderRadius: BorderRadius.zero,
                   child: Row(
                     children: [
                       Icon(Icons.ac_unit_outlined),

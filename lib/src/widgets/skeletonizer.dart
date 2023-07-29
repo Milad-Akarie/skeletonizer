@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:skeletonizer/src/effects/painting_effect.dart';
 import 'package:skeletonizer/src/skeletonizer_config.dart';
-import 'package:skeletonizer/src/widgets/skeletonizer_base.dart';
+import 'package:skeletonizer/src/widgets/skeletonizer_render_object_widget.dart';
 
 /// Paints a skeleton of the [child] widget
 ///
@@ -34,6 +34,11 @@ abstract class Skeletonizer extends StatefulWidget {
   /// if null the actual color will be used
   final Color? containersColor;
 
+  /// Whether to ignore pointer events
+  ///
+  /// defaults to true
+  final bool ignorePointers;
+
   /// Default constructor
   const Skeletonizer._({
     super.key,
@@ -44,6 +49,7 @@ abstract class Skeletonizer extends StatefulWidget {
     this.ignoreContainers,
     this.justifyMultiLineText,
     this.containersColor,
+    this.ignorePointers = true,
   });
 
   /// Creates a [Skeletonizer] widget
@@ -56,6 +62,7 @@ abstract class Skeletonizer extends StatefulWidget {
     bool? ignoreContainers,
     bool? justifyMultiLineText,
     Color? containersColor,
+    bool ignorePointers,
   }) = _Skeletonizer;
 
   /// Creates a [SliverSkeletonizer] widget
@@ -68,6 +75,7 @@ abstract class Skeletonizer extends StatefulWidget {
     bool? ignoreContainers,
     bool? justifyMultiLineText,
     Color? containersColor,
+    bool ignorePointers,
   }) = SliverSkeletonizer;
 
   @override
@@ -207,6 +215,7 @@ class SkeletonizerState extends State<Skeletonizer>
           brightness: _brightness,
           textDirection: _textDirection,
           animationValue: _animationValue,
+          ignorePointers: widget.ignorePointers,
         ),
       );
 }
@@ -221,20 +230,16 @@ class _Skeletonizer extends Skeletonizer {
     super.ignoreContainers,
     super.justifyMultiLineText,
     super.containersColor,
+    super.ignorePointers,
   }) : super._();
 
   @override
   Widget build(BuildContext context, SkeletonizerBuildData data) {
     return SkeletonizerScope(
       enabled: data.enabled,
-      child: SkeletonizerBase(
-        enabled: data.enabled,
-        config: data.config,
-        brightness: data.brightness,
-        textDirection: data.textDirection,
-        animationValue: data.animationValue,
-        child: child,
-      ),
+      child: data.enabled
+          ? SkeletonizerRenderObjectWidget(data: data, child: child)
+          : child,
     );
   }
 }
@@ -251,25 +256,21 @@ class SliverSkeletonizer extends Skeletonizer {
     super.ignoreContainers,
     super.justifyMultiLineText,
     super.containersColor,
+    super.ignorePointers,
   }) : super._();
 
   @override
   Widget build(BuildContext context, SkeletonizerBuildData data) {
     return SkeletonizerScope(
       enabled: data.enabled,
-      child: SliverSkeletonizerBase(
-        enabled: data.enabled,
-        config: data.config,
-        brightness: data.brightness,
-        textDirection: data.textDirection,
-        animationValue: data.animationValue,
-        child: child,
-      ),
+      child: data.enabled
+          ? SliverSkeletonizerRenderObjectWidget(data: data, child: child)
+          : child,
     );
   }
 }
 
-/// The data that is passed to the [SkeletonizerBase]
+/// The data that is passed to the [SkeletonizerRenderObjectWidget]
 class SkeletonizerBuildData {
   /// Default constructor
   const SkeletonizerBuildData({
@@ -278,6 +279,7 @@ class SkeletonizerBuildData {
     required this.brightness,
     required this.textDirection,
     required this.animationValue,
+    required this.ignorePointers,
   });
 
   /// Whether skeletonizing is enabled
@@ -294,6 +296,32 @@ class SkeletonizerBuildData {
 
   /// The animation value
   final double animationValue;
+
+  /// Whether to ignore pointer events
+  ///
+  /// defaults to true
+  final bool ignorePointers;
+
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      other is SkeletonizerBuildData &&
+          runtimeType == other.runtimeType &&
+          enabled == other.enabled &&
+          config == other.config &&
+          brightness == other.brightness &&
+          textDirection == other.textDirection &&
+          animationValue == other.animationValue &&
+          ignorePointers == other.ignorePointers;
+
+  @override
+  int get hashCode =>
+      enabled.hashCode ^
+      config.hashCode ^
+      brightness.hashCode ^
+      textDirection.hashCode ^
+      animationValue.hashCode ^
+      ignorePointers.hashCode;
 }
 
 /// Provides the skeletonizer activation information

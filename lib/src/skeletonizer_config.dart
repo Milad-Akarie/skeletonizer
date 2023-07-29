@@ -1,6 +1,5 @@
 import 'package:flutter/cupertino.dart';
 import 'package:skeletonizer/skeletonizer.dart';
-import 'package:skeletonizer/src/painting/painting.dart';
 
 const _defaultTextBoneBorderRadius = TextBoneBorderRadius.fromHeightFactor(.5);
 
@@ -62,18 +61,18 @@ class SkeletonizerConfigData {
       other is SkeletonizerConfigData &&
           runtimeType == other.runtimeType &&
           effect == other.effect &&
+          textBorderRadius == other.textBorderRadius &&
           justifyMultiLineText == other.justifyMultiLineText &&
           ignoreContainers == other.ignoreContainers &&
-          containersColor == other.containersColor &&
-          textBorderRadius == other.textBorderRadius;
+          containersColor == other.containersColor;
 
   @override
   int get hashCode =>
       effect.hashCode ^
       textBorderRadius.hashCode ^
-      containersColor.hashCode ^
       justifyMultiLineText.hashCode ^
-      ignoreContainers.hashCode;
+      ignoreContainers.hashCode ^
+      containersColor.hashCode;
 
   /// Clones the instance with overrides
   SkeletonizerConfigData copyWith({
