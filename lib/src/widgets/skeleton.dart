@@ -120,15 +120,20 @@ class _IgnoreSkeleton extends SingleChildRenderObjectWidget
 
   @override
   RenderObject createRenderObject(BuildContext context) {
-    return RenderIgnoredSkeleton(enabled: enabled);
+    return RenderIgnoredSkeleton(enabled: enabled && isSkeletonizerEnabled(context));
   }
 
+  bool isSkeletonizerEnabled(BuildContext context) {
+    final skeletonizer = Skeletonizer.maybeOf(context);
+    return skeletonizer?.enabled == true;
+  }
   @override
   void updateRenderObject(
     BuildContext context,
     covariant RenderIgnoredSkeleton renderObject,
   ) {
-    renderObject.enabled = enabled;
+
+    renderObject.enabled = enabled && isSkeletonizerEnabled(context);
   }
 }
 

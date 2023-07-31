@@ -2,9 +2,10 @@ import 'dart:typed_data';
 import 'dart:ui' as ui;
 
 import 'package:flutter/rendering.dart';
+import 'package:skeletonizer/skeletonizer.dart';
 
 /// A [Canvas] that reports true if it was used to paint anything.
-class ChildCheckerCanvas implements Canvas {
+class LeafCheckerCanvas implements Canvas {
   /// Whether the [PaintingContext] has any paintable children.
   bool hasPaintableChild = false;
 
@@ -161,6 +162,7 @@ class ChildCheckerCanvas implements Canvas {
     double elevation,
     bool transparentOccluder,
   ) {
+
     hasPaintableChild = true;
   }
 
@@ -213,15 +215,28 @@ class ChildCheckerCanvas implements Canvas {
 
 /// A [PaintingContext] that checks if a RenderObject has any
 /// paintable children.
-class ChildCheckerPaintingContext extends PaintingContext {
-  /// Creates a [ChildCheckerPaintingContext] with the given [containerLayer] and [estimatedBounds].
-  ChildCheckerPaintingContext(super.containerLayer, super.estimatedBounds);
+class LeafCheckerPainingContext extends PaintingContext {
+  /// Creates a [LeafCheckerPainingContext] with the given [containerLayer] and [estimatedBounds].
+  LeafCheckerPainingContext(super.containerLayer, super.estimatedBounds);
 
   @override
-  final ChildCheckerCanvas canvas = ChildCheckerCanvas();
+  final LeafCheckerCanvas canvas = LeafCheckerCanvas();
+
+
+  @override
+  PaintingContext createChildContext(ContainerLayer childLayer, ui.Rect bounds) {
+    return LeafCheckerPainingContext(childLayer, bounds);
+  }
 
   @override
   void paintChild(RenderObject child, ui.Offset offset) {
-    child.paint(this, offset);
+    /// If the child has any paintable children, then it is not a leaf node.
+    if(!canvas.hasPaintableChild || !(child is RenderIgnoredSkeleton && child.enabled)) {
+      child.paint(this, offset);
+    }
+
+
   }
+
+
 }

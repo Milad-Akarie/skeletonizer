@@ -28,7 +28,7 @@ class SkeletonizerDemoPage extends StatefulWidget {
 
 class _SkeletonizerDemoPageState extends State<SkeletonizerDemoPage> {
   bool _enabled = true;
-
+  final  _links = <int,LayerLink>{};
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -52,15 +52,19 @@ class _SkeletonizerDemoPageState extends State<SkeletonizerDemoPage> {
       ),
       body: Skeletonizer(
         enabled: _enabled,
+        effect: const SoldColorEffect(color: Colors.green),
         child: ListView.builder(
-          itemCount: 10,
+          itemCount: 5,
           padding: const EdgeInsets.all(16),
           itemBuilder: (context, index) {
-            return Card(
-              child: ListTile(
-                title: Text('Item number $index as title'),
-                subtitle: const Text('Subtitle here'),
-                trailing: const Icon(Icons.ac_unit),
+            return CompositedTransformTarget(
+              link: _links.putIfAbsent(index, () => LayerLink()),
+              child: Card(
+                child: ListTile(
+                  title: Text('Item number $index as title'),
+                  subtitle: const Text('Subtitle here'),
+                  trailing: const CircleAvatar(child: Skeleton.ignore(child: Icon(Icons.ac_unit))),
+                ),
               ),
             );
           },

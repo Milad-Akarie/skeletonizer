@@ -14,15 +14,9 @@ extension PaintX on Paint {
       ..imageFilter = imageFilter
       ..invertColors = invertColors
       ..isAntiAlias = isAntiAlias
-      ..maskFilter = maskFilter
       ..strokeCap = strokeCap
       ..strokeJoin = strokeJoin
-      ..strokeMiterLimit = strokeMiterLimit
-      ..strokeWidth = strokeWidth
-      ..style = style
       ..maskFilter = maskFilter
-      ..strokeJoin = strokeJoin
-      ..strokeMiterLimit = strokeMiterLimit
       ..strokeWidth = strokeWidth
       ..style = style;
   }

@@ -3,7 +3,7 @@ import 'dart:ui' as ui;
 
 import 'package:flutter/rendering.dart';
 import 'package:skeletonizer/skeletonizer.dart';
-import 'package:skeletonizer/src/painting/child_checker_painting_context.dart';
+import 'package:skeletonizer/src/painting/leaf_checker_painting_context.dart';
 import 'package:skeletonizer/src/utils.dart';
 
 /// A painting context that draws a skeleton of of widgets
@@ -33,7 +33,7 @@ class SkeletonizerPaintingContext extends PaintingContext {
 
   /// The [TextDirection] of the context
   final TextDirection textDirection;
-  final _treatedAsBone = <Offset, bool>{};
+  final _treatedAsLeaf = <Offset, bool>{};
   final _paragraphConfigs = <Offset, _ParagraphConfig>{};
 
   /// Creates a [PaintingContextAdapter] that draws on parent canvas
@@ -49,11 +49,10 @@ class SkeletonizerPaintingContext extends PaintingContext {
   ui.Canvas get canvas => SkeletonizerCanvas(parentCanvas, this);
 
   @override
-  PaintingContext createChildContext(
-      ContainerLayer childLayer, ui.Rect bounds) {
+  PaintingContext createChildContext(ContainerLayer childLayer, ui.Rect bounds) {
     return SkeletonizerPaintingContext(
       layer: childLayer,
-      estimatedBounds: bounds,
+      estimatedBounds: estimatedBounds,
       parentCanvas: parentCanvas,
       shaderPaint: shaderPaint,
       config: config,
@@ -64,31 +63,27 @@ class SkeletonizerPaintingContext extends PaintingContext {
   @override
   void paintChild(RenderObject child, ui.Offset offset) {
     final key = child.paintBounds.shift(offset).center;
-    if (_treatedAsBone[key] != true) {
+    if (_treatedAsLeaf[key] != true) {
       if (child is RenderObjectWithChildMixin) {
         final subChild = child.child;
-        final isIgnored =
-            (subChild is RenderIgnoredSkeleton && subChild.enabled);
-        var treatAsBone = subChild == null || isIgnored;
+        final isIgnored = (subChild is RenderIgnoredSkeleton && subChild.enabled);
+        var treatAaLeaf = subChild == null || isIgnored;
         if (child is RenderSemanticsAnnotations) {
-          treatAsBone |= child.properties.button == true;
+          treatAaLeaf |= child.properties.button == true;
         }
-        if (treatAsBone != true) {
-          final childCheckerContext =
-              ChildCheckerPaintingContext(layer, child.paintBounds);
-          subChild!.paint(childCheckerContext, Offset.zero);
-          treatAsBone = !childCheckerContext.canvas.hasPaintableChild;
+        if (treatAaLeaf != true) {
+          final leafCheckerContext = LeafCheckerPainingContext(layer, child.paintBounds);
+          subChild!.paint(leafCheckerContext, Offset.zero);
+          treatAaLeaf = !leafCheckerContext.canvas.hasPaintableChild;
         }
-
-        _treatedAsBone[key] = treatAsBone;
+        _treatedAsLeaf[key] = treatAaLeaf;
       }
     }
+
     if (child is RenderParagraph) {
-      final fontSize =
-          (child.text.style?.fontSize ?? 14) * child.textScaleFactor;
+      final fontSize = (child.text.style?.fontSize ?? 14) * child.textScaleFactor;
       final borderRadius = config.textBorderRadius.usesHeightFactor
-          ? BorderRadius.circular(
-              fontSize * config.textBorderRadius.heightPercentage!)
+          ? BorderRadius.circular(fontSize * config.textBorderRadius.heightPercentage!)
           : config.textBorderRadius.borderRadius?.resolve(textDirection);
       _paragraphConfigs[offset] = _ParagraphConfig(
         borderRadius: borderRadius,
@@ -96,7 +91,14 @@ class SkeletonizerPaintingContext extends PaintingContext {
         textAlign: child.textAlign,
       );
     }
-    return child.paint(this, offset);
+
+    /// This an offset correction for descendants of [RenderLeaderLayer]
+    /// as they are not painted at offset(0,0)
+    if (layer is LeaderLayer && offset == Offset.zero) {
+      offset = (layer as LeaderLayer).offset;
+    }
+
+    child.paint(this, offset);
   }
 }
 
@@ -145,12 +147,10 @@ class SkeletonizerCanvas implements Canvas {
   }
 
   @override
-  void clipPath(ui.Path path, {bool doAntiAlias = true}) =>
-      parent.clipPath(path, doAntiAlias: doAntiAlias);
+  void clipPath(ui.Path path, {bool doAntiAlias = true}) => parent.clipPath(path, doAntiAlias: doAntiAlias);
 
   @override
-  void clipRRect(ui.RRect rrect, {bool doAntiAlias = true}) =>
-      parent.clipRRect(rrect, doAntiAlias: doAntiAlias);
+  void clipRRect(ui.RRect rrect, {bool doAntiAlias = true}) => parent.clipRRect(rrect, doAntiAlias: doAntiAlias);
 
   @override
   void clipRect(
@@ -191,13 +191,12 @@ class SkeletonizerCanvas implements Canvas {
       );
 
   @override
-  void drawColor(ui.Color color, ui.BlendMode blendMode) =>
-      parent.drawColor(color, blendMode);
+  void drawColor(ui.Color color, ui.BlendMode blendMode) => parent.drawColor(color, blendMode);
 
   @override
   void drawDRRect(ui.RRect outer, ui.RRect inner, ui.Paint paint) {
     if (paint.color.opacity == 0) return;
-    final treatAsBone = context._treatedAsBone[outer.center] ?? false;
+    final treatAsBone = context._treatedAsLeaf[outer.center] ?? false;
     if (treatAsBone) {
       parent.drawDRRect(
         outer,
@@ -250,8 +249,7 @@ class SkeletonizerCanvas implements Canvas {
   }
 
   @override
-  void drawLine(ui.Offset p1, ui.Offset p2, ui.Paint paint) =>
-      parent.drawLine(p1, p2, paint);
+  void drawLine(ui.Offset p1, ui.Offset p2, ui.Paint paint) => parent.drawLine(p1, p2, paint);
 
   @override
   void drawOval(ui.Rect rect, ui.Paint paint) => parent.drawOval(rect, paint);
@@ -275,8 +273,7 @@ class SkeletonizerCanvas implements Canvas {
   @override
   void drawPath(ui.Path path, ui.Paint paint) {
     if (paint.color.opacity == 0) return;
-    final treatAsBone =
-        context._treatedAsBone[path.getBounds().center] ?? false;
+    final treatAsBone = context._treatedAsLeaf[path.getBounds().center] ?? false;
     if (treatAsBone) {
       parent.drawPath(path, paint.copyWith(shader: _shaderPaint.shader));
     } else if (!_config.ignoreContainers) {
@@ -291,7 +288,7 @@ class SkeletonizerCanvas implements Canvas {
   @override
   void drawRect(ui.Rect rect, ui.Paint paint) {
     if (paint.color.opacity == 0) return;
-    final treatAsBone = context._treatedAsBone[rect.center] ?? false;
+    final treatAsBone = context._treatedAsLeaf[rect.center] ?? false;
     if (treatAsBone) {
       parent.drawRect(rect, paint.copyWith(shader: _shaderPaint.shader));
     } else if (!_config.ignoreContainers) {
@@ -306,13 +303,12 @@ class SkeletonizerCanvas implements Canvas {
   @override
   void drawRRect(ui.RRect rrect, ui.Paint paint) {
     if (paint.color.opacity == 0) return;
-    final treatAsBone = context._treatedAsBone[rrect.center] ?? false;
+    final treatAsBone = context._treatedAsLeaf[rrect.center] ?? false;
     if (treatAsBone) {
       parent.drawRRect(rrect, paint.copyWith(shader: _shaderPaint.shader));
     } else if (!_config.ignoreContainers) {
       if (_config.containersColor != null) {
-        parent.drawRRect(
-            rrect, paint.copyWith(color: _config.containersColor!));
+        parent.drawRRect(rrect, paint.copyWith(color: _config.containersColor!));
       } else {
         parent.drawRRect(rrect, paint);
       }
@@ -322,13 +318,12 @@ class SkeletonizerCanvas implements Canvas {
   @override
   void drawCircle(ui.Offset c, double radius, ui.Paint paint) {
     if (paint.color.opacity == 0) return;
-    final treatAsBone = context._treatedAsBone[c] ?? false;
+    final treatAsBone = context._treatedAsLeaf[c] ?? false;
     if (treatAsBone) {
       parent.drawCircle(c, radius, paint.copyWith(shader: _shaderPaint.shader));
     } else if (!_config.ignoreContainers) {
       if (_config.containersColor != null) {
-        parent.drawCircle(
-            c, radius, paint.copyWith(color: _config.containersColor!));
+        parent.drawCircle(c, radius, paint.copyWith(color: _config.containersColor!));
       } else {
         parent.drawCircle(c, radius, paint);
       }
@@ -396,8 +391,7 @@ class SkeletonizerCanvas implements Canvas {
   void save() => parent.save();
 
   @override
-  void saveLayer(ui.Rect? bounds, ui.Paint paint) =>
-      parent.saveLayer(bounds, paint);
+  void saveLayer(ui.Rect? bounds, ui.Paint paint) => parent.saveLayer(bounds, paint);
 
   @override
   void scale(double sx, [double? sy]) => parent.scale(sx, sy);
@@ -435,6 +429,11 @@ class PaintingContextAdapter extends PaintingContext {
 
   @override
   final ui.Canvas canvas;
+
+  @override
+  PaintingContext createChildContext(ContainerLayer childLayer, ui.Rect bounds) {
+    return PaintingContextAdapter(childLayer, bounds, canvas);
+  }
 
   @override
   void paintChild(RenderObject child, ui.Offset offset) {
