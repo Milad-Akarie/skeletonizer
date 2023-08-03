@@ -67,11 +67,13 @@ Skeletonizer(
 
 
 #### Skeletonizer with default config
+**Note: all the following shimmer effects are disturbed by the gif optimization**
+![Click here for HD video demo](https://github.com/Milad-Akarie/skeletonizer/blob/main/art/skeletonizer_demo_video.mp4?raw=true)
 
-![](https://github.com/Milad-Akarie/skeletonizer/blob/main/art/skeletonizer_demo_1_video.mp4?raw=true)
+![](https://github.com/Milad-Akarie/skeletonizer/blob/main/art/skeletonizer_demo_1.gif?raw=true)
 
 #### Skeletonizer with no containers
-**Note: all the following shimmer effects are disturbed by the gif optimization**
+
 ```dart
 
 Skeletonizer(ignoreContainers: true)
