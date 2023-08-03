@@ -64,14 +64,14 @@ Skeletonizer(
 )
 ```
 
-**Note: all the following shimmer effects are disturbed by the gif optimization**
+
 
 #### Skeletonizer with default config
 
-![](https://github.com/Milad-Akarie/skeletonizer/blob/main/art/skeletonizer_demo_1.gif?raw=true)
+![](https://github.com/Milad-Akarie/skeletonizer/blob/main/art/skeletonizer_demo_1_video.mp4?raw=true)
 
 #### Skeletonizer with no containers
-
+**Note: all the following shimmer effects are disturbed by the gif optimization**
 ```dart
 
 Skeletonizer(ignoreContainers: true)
@@ -229,21 +229,22 @@ Card(
 
 ![](https://github.com/Milad-Akarie/skeletonizer/blob/main/art/ignored_skeleton_demo.gif?raw=true)
 
-Ignored multiple descendants demo
+### Skeleton.leaf
+Widgets annotated with `Skeleton.leaf` marks containers as leafs, leafs are painted using the shader paint.
 
 ```dart
-Card(
-  child: Skeleton.ignore( // all descendents will be ignored
+Skeleton.leaf(
+   child : Card(
     child: ListTile(
-      title: Text('The title goes here'),
-      subtitle: Text('Subtitle here'),
-      trailing: Icon(Icons.ac_unit, size: 40),
-    ),
-  ),
+        title: Text('The title goes here'),
+        subtitle: Text('Subtitle here'),
+        trailing: Icon(Icons.ac_unit, size: 40),
+      ),
+  )
 )
 ```
+![](https://github.com/Milad-Akarie/skeletonizer/blob/main/art/leaf_skeleton_demo.gif?raw=true)
 
-![](https://github.com/Milad-Akarie/skeletonizer/blob/main/art/ignored_skeleton_demo2.gif?raw=true)
 
 ### Skeleton.keep
 
@@ -332,33 +333,9 @@ Card(
 
 ![](https://github.com/Milad-Akarie/skeletonizer/blob/main/art/united_skeleton_demo.gif?raw=true)
 
-This annotation can also be used to merge a while layout and present it as one
-
-```dart
-Skeleton.unite(
-  child: Card(
-    child: ListTile(
-      title: Text('Item number 1 as title'),
-      subtitle: Text('Subtitle here'),
-      trailing: Row(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          Icon(Icons.ac_unit, size: 32),
-          SizedBox(width: 8),
-          Icon(Icons.access_alarm, size: 32),
-        ],
-      ),
-    ),
-  ),
-)
-```
-
-![](https://github.com/Milad-Akarie/skeletonizer/blob/main/art/united_skeleton_demo2.gif?raw=true)
-
 ### Skeleton.ignorePointers
 Widgets annotated with `Skeleton.ignorePointers` will ignore pointer events when skeletonizer is enabled.
  
-
 
 ## Customization
 

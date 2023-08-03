@@ -192,13 +192,13 @@ mixin _RenderSkeletonBase<R extends RenderObject>
   @override
   void paint(PaintingContext context, Offset offset) {
     final estimatedBounds = paintBounds.shift(offset);
-    final paint = config.effect.createPaint(animationValue, estimatedBounds);
+    final shaderPaint = config.effect.createPaint(animationValue, estimatedBounds);
     final skeletonizerContext = SkeletonizerPaintingContext(
       layer: layer!,
       estimatedBounds: estimatedBounds,
       textDirection: textDirection,
       parentCanvas: context.canvas,
-      shaderPaint: paint,
+      shaderPaint: shaderPaint,
       config: config,
     );
     super.paint(skeletonizerContext, offset);

@@ -346,7 +346,6 @@ class _RenderSkeletonShaderMask extends RenderProxyBox {
           ..shader = context.shaderPaint.shader
           ..maskRect = context.estimatedBounds
           ..blendMode = BlendMode.srcATop;
-
         final childContext = context.createRegularContext(offset & size);
         childContext.pushLayer(layer!, super.paint, offset);
         assert(() {

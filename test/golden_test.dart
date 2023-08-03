@@ -113,10 +113,12 @@ void runTests() {
               child: SizedBox(
                 width: 200,
                 height: 100,
-                child: Card(
-                  elevation: 2,
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(20),
+                child: Skeleton.leaf(
+                  child: Card(
+                    elevation: 2,
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(20),
+                    ),
                   ),
                 ),
               ),
@@ -124,14 +126,16 @@ void runTests() {
           ),
           GoldenTestScenario(
             name: 'Material',
-            child: Skeletonizer(
-              child: SizedBox(
-                width: 200,
-                height: 100,
-                child: Material(
-                  elevation: 2,
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(20),
+            child: SizedBox(
+              width: 200,
+              height: 100,
+              child: Skeletonizer(
+                child: Skeleton.leaf(
+                  child: Material(
+                    elevation: 2,
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(20),
+                    ),
                   ),
                 ),
               ),
@@ -140,12 +144,14 @@ void runTests() {
           GoldenTestScenario(
             name: 'Container',
             child: Skeletonizer(
-              child: Container(
-                width: 200,
-                height: 100,
-                decoration: BoxDecoration(
-                  borderRadius: BorderRadius.circular(20),
-                  color: Colors.white,
+              child: Skeleton.leaf(
+                child: Container(
+                  width: 200,
+                  height: 100,
+                  decoration: BoxDecoration(
+                    borderRadius: BorderRadius.circular(20),
+                    color: Colors.white,
+                  ),
                 ),
               ),
             ),
@@ -153,12 +159,14 @@ void runTests() {
           GoldenTestScenario(
             name: 'Container with border',
             child: Skeletonizer(
-              child: Container(
-                width: 200,
-                height: 100,
-                decoration: BoxDecoration(
-                  borderRadius: BorderRadius.circular(20),
-                  border: Border.all(),
+              child: Skeleton.leaf(
+                child: Container(
+                  width: 200,
+                  height: 100,
+                  decoration: BoxDecoration(
+                    borderRadius: BorderRadius.circular(20),
+                    border: Border.all(),
+                  ),
                 ),
               ),
             ),
@@ -166,12 +174,14 @@ void runTests() {
           GoldenTestScenario(
             name: 'Container:BoxShape.circle',
             child: Skeletonizer(
-              child: Container(
-                width: 200,
-                height: 100,
-                decoration: const BoxDecoration(
-                  color: Colors.white,
-                  shape: BoxShape.circle,
+              child: Skeleton.leaf(
+                child: Container(
+                  width: 200,
+                  height: 100,
+                  decoration: const BoxDecoration(
+                    color: Colors.white,
+                    shape: BoxShape.circle,
+                  ),
                 ),
               ),
             ),

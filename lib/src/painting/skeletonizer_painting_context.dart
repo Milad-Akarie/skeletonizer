@@ -1,7 +1,6 @@
 import 'dart:typed_data';
 import 'dart:ui' as ui;
 
-import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
 import 'package:skeletonizer/skeletonizer.dart';
 import 'package:skeletonizer/src/utils.dart';
@@ -93,8 +92,7 @@ class SkeletonizerPaintingContext extends PaintingContext {
     } else if (child is RenderObjectWithChildMixin) {
       final key = child.paintBounds.shift(offset).center;
       final subChild = child.child;
-      final isIgnored = (subChild is RenderIgnoredSkeleton && subChild.enabled);
-      var treatAaLeaf = subChild == null || isIgnored;
+      var treatAaLeaf = subChild == null || (subChild is RenderIgnoredSkeleton && subChild.enabled);
       if (child is RenderSemanticsAnnotations) {
         treatAaLeaf |= child.properties.button == true;
       }
@@ -466,11 +464,6 @@ class PaintingContextAdapter extends PaintingContext {
 
   @override
   final ui.Canvas canvas;
-
-  @override
-  PaintingContext createChildContext(ContainerLayer childLayer, ui.Rect bounds) {
-    return PaintingContextAdapter(childLayer, bounds, canvas);
-  }
 
   @override
   void paintChild(RenderObject child, ui.Offset offset) {
