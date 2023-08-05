@@ -41,9 +41,7 @@ class _SkeletonizerDemoPageState extends State<SkeletonizerDemoPage> {
           padding: const EdgeInsets.only(bottom: 110),
           child: FloatingActionButton(
             child: Icon(
-              _enabled
-                  ? Icons.hourglass_bottom_rounded
-                  : Icons.hourglass_disabled_outlined,
+              _enabled ? Icons.hourglass_bottom_rounded : Icons.hourglass_disabled_outlined,
             ),
             onPressed: () {
               setState(() {
@@ -55,55 +53,19 @@ class _SkeletonizerDemoPageState extends State<SkeletonizerDemoPage> {
       ),
       body: Skeletonizer(
         enabled: _enabled,
-        child: false
-            ? const Padding(
-                padding: EdgeInsets.all(20.0),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Padding(
-                      padding: EdgeInsets.symmetric(horizontal: 8),
-                      child: Skeleton.keep(child: Text('Default')),
-                    ),
-                    SizedBox(height: 8),
-                    Card(
-                      child: ListTile(
-                        title: Text('Item number 1 as title'),
-                        subtitle: Text('Subtitle here'),
-                        trailing: Icon(Icons.ac_unit, size: 40),
-                      ),
-                    ),
-                    SizedBox(height: 8),
-                    Padding(
-                      padding: EdgeInsets.symmetric(horizontal: 8),
-                      child: Skeleton.keep(child: Text('Kept skeleton')),
-                    ),
-                    SizedBox(height: 8),
-                    Card(
-                      child: ListTile(
-                        title: Text('Item number 1 as title'),
-                        subtitle: Text('Subtitle here'),
-                        trailing: Skeleton.keep(
-                          child: Icon(Icons.ac_unit, size: 40),
-                        ),
-                      ),
-                    ),
-                  ],
-                ),
-              )
-            : ListView.builder(
-                itemCount: 6,
-                padding: const EdgeInsets.all(16),
-                itemBuilder: (context, index) {
-                  return Card(
-                    child: ListTile(
-                      title: Text('Item number $index as title'),
-                      subtitle: const Text('Subtitle here'),
-                      trailing: const Icon(Icons.ac_unit),
-                    ),
-                  );
-                },
+        child: ListView.builder(
+          itemCount: 6,
+          padding: const EdgeInsets.all(16),
+          itemBuilder: (context, index) {
+            return Card(
+              child: ListTile(
+                title: Text('Item number $index as title'),
+                subtitle: const Text('Subtitle here'),
+                trailing: const Icon(Icons.ac_unit),
               ),
+            );
+          },
+        ),
       ),
     );
   }
