@@ -20,7 +20,7 @@ class PulseEffect extends PaintingEffect {
       : super(reverse: true);
 
   @override
-  Paint createPaint(double t, Rect rect,TextDirection? textDirection) {
+  Paint createPaint(double t, Rect rect, TextDirection? textDirection) {
     final color = Color.lerp(from, to, t)!;
 
     // We're creating a shader here because [ShadedElement] component

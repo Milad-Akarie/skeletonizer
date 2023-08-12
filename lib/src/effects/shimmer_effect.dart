@@ -49,7 +49,7 @@ abstract class ShimmerEffect extends PaintingEffect {
   }) = _RawShimmerEffect;
 
   @override
-  Paint createPaint(double t, Rect rect,TextDirection? textDirection) {
+  Paint createPaint(double t, Rect rect, TextDirection? textDirection) {
     return Paint()
       ..shader = LinearGradient(
         colors: colors,
@@ -58,7 +58,7 @@ abstract class ShimmerEffect extends PaintingEffect {
         end: end,
         tileMode: tileMode,
         transform: _SlidingGradientTransform(offset: t),
-      ).createShader(rect,textDirection: textDirection);
+      ).createShader(rect, textDirection: textDirection);
   }
 }
 
@@ -172,7 +172,8 @@ class _SlidingGradientTransform extends GradientTransform {
 
   @override
   Matrix4? transform(Rect bounds, {TextDirection? textDirection}) {
-     final resolvedOffset = textDirection == TextDirection.rtl ? -offset : offset;
+    final resolvedOffset =
+        textDirection == TextDirection.rtl ? -offset : offset;
     return Matrix4.translationValues(bounds.width * resolvedOffset, 0.0, 0.0);
   }
 }
