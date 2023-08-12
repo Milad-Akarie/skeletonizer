@@ -1,10 +1,23 @@
+## 0.6.0
+
+- Add RTL Support
+- Use own layer to paint instead of RenderObject.layer
+
 ## 0.5.0
-- Add Skeleton.leaf annotation to mark container widgets as leaf widget so they can be painted with shader paint.
+
+- Add Skeleton.leaf annotation to mark container widgets as leaf widget so they can be painted with
+  shader paint.
 - Handle mis-positioned painting of RenderLeaderLayer children.
-## 0.4.0 
-- refactor: remove Skeleton.coloredBox because they're not handled automatically by skeletonizer. [Breaking Change]
-- enhance: Skeletonizer now overrides the painting context instead of iterating over render objects which makes it much preformat.
+
+## 0.4.0
+
+- refactor: remove Skeleton.coloredBox because they're now handled automatically by
+  skeletonizer. [Breaking Change]
+- enhance: Skeletonizer now overrides the painting context instead of iterating over render objects
+  which makes it much preformat.
+
 ## 0.3.0 [Breaking Change]
+
 - Fix crash when running in release mode.
 - ColoredBox and Container with non-null color will need now need to be exclusively wrapped with a
   Skeleton.coloredBox annotation widget due to platform limitations.

@@ -1,6 +1,6 @@
 name: skeletonizer
 description: Converts already built widgets into skeleton loaders with no extra effort.
-version: 0.5.0
+version: 0.6.0
 homepage: https://github.com/Milad-Akarie/skeletonizer
 screenshots:
   - description: 'Example of skeletonizer in action.'

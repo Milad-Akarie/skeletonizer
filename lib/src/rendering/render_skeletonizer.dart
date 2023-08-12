@@ -6,8 +6,7 @@ import 'package:skeletonizer/src/painting/skeletonizer_painting_context.dart';
 
 /// Builds a renderer object that overrides the painting operation
 /// and provides a [SkeletonizerPaintingContext] to paint the skeleton effect
-class RenderSkeletonizer extends RenderProxyBox
-    with _RenderSkeletonBase<RenderBox> {
+class RenderSkeletonizer extends RenderProxyBox with _RenderSkeletonBase<RenderBox> {
   /// Default constructor
   RenderSkeletonizer({
     required TextDirection textDirection,
@@ -182,9 +181,6 @@ mixin _RenderSkeletonBase<R extends RenderObject> on RenderObjectWithChildMixin<
   double get animationValue;
 
   @override
-  bool get isRepaintBoundary => true;
-
-  @override
   void paint(PaintingContext context, Offset offset) {
     final estimatedBounds = paintBounds.shift(offset);
     final shaderPaint = config.effect.createPaint(
@@ -192,14 +188,18 @@ mixin _RenderSkeletonBase<R extends RenderObject> on RenderObjectWithChildMixin<
       estimatedBounds,
       textDirection,
     );
-    final skeletonizerContext = SkeletonizerPaintingContext(
-      layer: layer!,
-      estimatedBounds: estimatedBounds,
-      textDirection: textDirection,
-      parentCanvas: context.canvas,
-      shaderPaint: shaderPaint,
-      config: config,
-    );
-    super.paint(skeletonizerContext, offset);
+    layer ??= ContainerLayer();
+    context.pushLayer(layer!, (context, offset) {
+      final skeletonizerContext = SkeletonizerPaintingContext(
+        layer: layer!,
+        estimatedBounds: estimatedBounds,
+        textDirection: textDirection,
+        parentCanvas: context.canvas,
+        shaderPaint: shaderPaint,
+        config: config,
+      );
+      super.paint(skeletonizerContext, offset);
+    }, offset);
   }
+
 }
