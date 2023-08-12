@@ -14,7 +14,7 @@ class SoldColorEffect extends PaintingEffect {
   }) : super(duration: Duration.zero);
 
   @override
-  Paint createPaint(double t, Rect rect) {
+  Paint createPaint(double t, Rect rect,TextDirection? textDirection) {
     // We're creating a shader here because [ShadedElement] component
     // will use a shader mask to shade original elements
     //

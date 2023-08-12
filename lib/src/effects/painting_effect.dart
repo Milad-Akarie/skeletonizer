@@ -26,5 +26,5 @@ abstract class PaintingEffect {
   /// Evaluates the painting effect at animation value [t]
   ///
   /// typically used to create shaders e.g [LinearGradient] shaders
-  Paint createPaint(double t, Rect rect);
+  Paint createPaint(double t, Rect rect,TextDirection? textDirection);
 }

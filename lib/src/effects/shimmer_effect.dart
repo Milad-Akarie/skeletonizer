@@ -49,7 +49,7 @@ abstract class ShimmerEffect extends PaintingEffect {
   }) = _RawShimmerEffect;
 
   @override
-  Paint createPaint(double t, Rect rect) {
+  Paint createPaint(double t, Rect rect,TextDirection? textDirection) {
     return Paint()
       ..shader = LinearGradient(
         colors: colors,
@@ -58,7 +58,7 @@ abstract class ShimmerEffect extends PaintingEffect {
         end: end,
         tileMode: tileMode,
         transform: _SlidingGradientTransform(offset: t),
-      ).createShader(rect);
+      ).createShader(rect,textDirection: textDirection);
   }
 }
 
@@ -69,8 +69,8 @@ class _ShimmerEffect extends ShimmerEffect {
   const _ShimmerEffect({
     this.baseColor = const Color(0xFFEBEBF4),
     this.highlightColor = const Color(0xFFF4F4F4),
-    this.begin = const Alignment(-1.0, -0.3),
-    this.end = const Alignment(1.0, 0.3),
+    this.begin = const AlignmentDirectional(-1.0, -0.3),
+    this.end = const AlignmentDirectional(1.0, 0.3),
     super.duration,
   }) : super._(lowerBound: -.5, upperBound: 1.5);
 
@@ -133,8 +133,8 @@ class _RawShimmerEffect extends ShimmerEffect {
   const _RawShimmerEffect({
     required this.colors,
     this.stops,
-    this.begin = const Alignment(-1.0, -0.3),
-    this.end = const Alignment(1.0, 0.3),
+    this.begin = const AlignmentDirectional(-1.0, -0.3),
+    this.end = const AlignmentDirectional(1.0, 0.3),
     this.tileMode = TileMode.clamp,
     super.lowerBound = -0.5,
     super.upperBound = 1.5,
@@ -172,6 +172,7 @@ class _SlidingGradientTransform extends GradientTransform {
 
   @override
   Matrix4? transform(Rect bounds, {TextDirection? textDirection}) {
-    return Matrix4.translationValues(bounds.width * offset, 0.0, 0.0);
+     final resolvedOffset = textDirection == TextDirection.rtl ? -offset : offset;
+    return Matrix4.translationValues(bounds.width * resolvedOffset, 0.0, 0.0);
   }
 }
