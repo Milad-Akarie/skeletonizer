@@ -1,3 +1,8 @@
+## 0.7.0
+
+- Fix: in some cases skeleton is drawn out of clip-bounds
+- Refactor: clean up internal API and remove some unnecessary properties
+
 ## 0.6.0
 
 - Add RTL Support
