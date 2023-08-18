@@ -199,12 +199,11 @@ mixin _RenderSkeletonBase<R extends RenderObject>
       final skeletonizerContext = SkeletonizerPaintingContext(
         layer: layer!,
         estimatedBounds: estimatedBounds,
-        textDirection: textDirection,
-        parentCanvas: context.canvas,
         shaderPaint: shaderPaint,
         config: config,
       );
       super.paint(skeletonizerContext, offset);
+      skeletonizerContext.stopRecordingIfNeeded();
     }, offset);
   }
 }
