@@ -41,7 +41,7 @@ class SkeletonizerPaintingContext extends PaintingContext {
       layer: layer,
       shaderPaint: shaderPaint,
       config: config,
-      estimatedBounds: estimatedBounds,
+      estimatedBounds: rect,
     );
     painter(context, rect.topLeft);
     context.stopRecordingIfNeeded();
@@ -57,7 +57,7 @@ class SkeletonizerPaintingContext extends PaintingContext {
       ContainerLayer childLayer, ui.Rect bounds) {
     return SkeletonizerPaintingContext(
       layer: childLayer,
-      estimatedBounds: estimatedBounds,
+      estimatedBounds: bounds,
       shaderPaint: shaderPaint,
       config: config,
     );
@@ -83,8 +83,6 @@ class SkeletonizerPaintingContext extends PaintingContext {
         fontSize: fontSize,
         textAlign: child.textAlign,
       );
-    } else if (child is RenderLeaderLayer) {
-      return child.child!.paint(this, offset);
     } else if (child is RenderObjectWithChildMixin) {
       final key = child.paintBounds.shift(offset).center;
       final subChild = child.child;

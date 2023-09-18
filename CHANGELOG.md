@@ -1,3 +1,8 @@
+
+## 0.8.0
+- Fix: Skeletonized widgets are not clipped inside of expandable parents.
+- refactor: clean up some code
+
 ## 0.7.0
 
 - Fix: in some cases skeleton is drawn out of clip-bounds
