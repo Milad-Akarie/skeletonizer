@@ -1,4 +1,5 @@
-
+## 0.9.0
+- Enhance text skeletonizing implementation, which also fixes #16 (SelectableText not being skeletonized).
 ## 0.8.0
 - Fix: Skeletonized widgets are not clipped inside of expandable parents.
 - refactor: clean up some code
