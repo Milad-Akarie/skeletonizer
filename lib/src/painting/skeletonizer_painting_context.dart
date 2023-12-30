@@ -1,6 +1,8 @@
+import 'dart:math';
 import 'dart:typed_data';
 import 'dart:ui' as ui;
 
+import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
 import 'package:skeletonizer/skeletonizer.dart';
 import 'package:skeletonizer/src/utils.dart';
@@ -26,7 +28,6 @@ class SkeletonizerPaintingContext extends PaintingContext {
   final Paint shaderPaint;
 
   final _treatedAsLeaf = <Offset, bool>{};
-  final _paragraphConfigs = <Offset, _ParagraphConfig>{};
 
   /// Creates a default child painting context
   void createDefaultContext(Rect rect, Painter paint) {
@@ -53,8 +54,7 @@ class SkeletonizerPaintingContext extends PaintingContext {
   ui.Canvas get canvas => SkeletonizerCanvas(super.canvas, this);
 
   @override
-  PaintingContext createChildContext(
-      ContainerLayer childLayer, ui.Rect bounds) {
+  PaintingContext createChildContext(ContainerLayer childLayer, ui.Rect bounds) {
     return SkeletonizerPaintingContext(
       layer: childLayer,
       estimatedBounds: bounds,
@@ -71,23 +71,10 @@ class SkeletonizerPaintingContext extends PaintingContext {
 
   @override
   void paintChild(RenderObject child, ui.Offset offset) {
-    if (child is RenderParagraph) {
-      final fontSize =
-          (child.text.style?.fontSize ?? 14) * child.textScaleFactor;
-      final borderRadius = config.textBorderRadius.usesHeightFactor
-          ? BorderRadius.circular(
-              fontSize * config.textBorderRadius.heightPercentage!)
-          : config.textBorderRadius.borderRadius?.resolve(child.textDirection);
-      _paragraphConfigs[offset] = _ParagraphConfig(
-        borderRadius: borderRadius,
-        fontSize: fontSize,
-        textAlign: child.textAlign,
-      );
-    } else if (child is RenderObjectWithChildMixin) {
+    if (child is RenderObjectWithChildMixin) {
       final key = child.paintBounds.shift(offset).center;
       final subChild = child.child;
-      var treatAaLeaf = subChild == null ||
-          (subChild is RenderIgnoredSkeleton && subChild.enabled);
+      var treatAaLeaf = subChild == null || (subChild is RenderIgnoredSkeleton && subChild.enabled);
       if (child is RenderSemanticsAnnotations) {
         treatAaLeaf |= child.properties.button == true;
       }
@@ -117,38 +104,45 @@ class SkeletonizerCanvas implements Canvas {
   @override
   void drawParagraph(ui.Paragraph paragraph, ui.Offset offset) {
     context._didPaint = true;
-    final phConfig = context._paragraphConfigs[offset];
-    if (phConfig == null) return;
     final lines = paragraph.computeLineMetrics();
-    var yOffset = offset.dy;
+
     for (var i = 0; i < lines.length; i++) {
       final line = lines[i];
-      final shouldJustify = _config.justifyMultiLineText &&
-          phConfig.textAlign != TextAlign.center &&
-          (lines.length > 1 && i < (lines.length - 1));
+
+      /// approximating the font size
+      final fontSize = line.ascent - line.descent;
+
+      /// approximating the font descent
+      final fontDescent = line.ascent >= line.height ? 0 : fontSize * .2;
+
+      final lineStart = line.left.round();
+      final lineEnd = (line.left + line.width).round();
+      final isNotCentered = lineStart == 0 || lineEnd == paragraph.width;
+      final shouldJustify =
+          _config.justifyMultiLineText && isNotCentered && (lines.length > 1 && i < (lines.length - 1));
       final width = shouldJustify ? paragraph.width : line.width;
       final rect = Rect.fromLTWH(
         shouldJustify ? offset.dx : line.left + offset.dx,
-        yOffset + line.descent,
+        offset.dy + line.baseline - fontSize,
         width,
-        phConfig.fontSize,
+        fontSize + fontDescent,
       );
-      if (phConfig.borderRadius != null) {
-        parent.drawRRect(phConfig.borderRadius!.toRRect(rect), _shaderPaint);
+      final borderRadius = _config.textBorderRadius.usesHeightFactor
+          ? BorderRadius.circular((fontSize + fontDescent) * _config.textBorderRadius.heightPercentage!)
+          : _config.textBorderRadius.borderRadius?.resolve(TextDirection.ltr);
+      if (borderRadius != null) {
+        parent.drawRRect(borderRadius.toRRect(rect), _shaderPaint);
       } else {
         parent.drawRect(rect, _shaderPaint);
       }
-      yOffset += line.height;
     }
   }
 
   @override
-  void clipPath(ui.Path path, {bool doAntiAlias = true}) =>
-      parent.clipPath(path, doAntiAlias: doAntiAlias);
+  void clipPath(ui.Path path, {bool doAntiAlias = true}) => parent.clipPath(path, doAntiAlias: doAntiAlias);
 
   @override
-  void clipRRect(ui.RRect rrect, {bool doAntiAlias = true}) =>
-      parent.clipRRect(rrect, doAntiAlias: doAntiAlias);
+  void clipRRect(ui.RRect rrect, {bool doAntiAlias = true}) => parent.clipRRect(rrect, doAntiAlias: doAntiAlias);
 
   @override
   void clipRect(
@@ -291,8 +285,7 @@ class SkeletonizerCanvas implements Canvas {
   void drawPath(ui.Path path, ui.Paint paint) {
     if (paint.color.opacity == 0) return;
     context._didPaint = true;
-    final treatAsBone =
-        context._treatedAsLeaf[path.getBounds().center] ?? false;
+    final treatAsBone = context._treatedAsLeaf[path.getBounds().center] ?? false;
 
     if (treatAsBone) {
       parent.drawPath(path, paint.copyWith(shader: _shaderPaint.shader));
@@ -330,8 +323,7 @@ class SkeletonizerCanvas implements Canvas {
       parent.drawRRect(rrect, paint.copyWith(shader: _shaderPaint.shader));
     } else if (!_config.ignoreContainers) {
       if (_config.containersColor != null) {
-        parent.drawRRect(
-            rrect, paint.copyWith(color: _config.containersColor!));
+        parent.drawRRect(rrect, paint.copyWith(color: _config.containersColor!));
       } else {
         parent.drawRRect(rrect, paint);
       }
@@ -347,8 +339,7 @@ class SkeletonizerCanvas implements Canvas {
       parent.drawCircle(c, radius, paint.copyWith(shader: _shaderPaint.shader));
     } else if (!_config.ignoreContainers) {
       if (_config.containersColor != null) {
-        parent.drawCircle(
-            c, radius, paint.copyWith(color: _config.containersColor!));
+        parent.drawCircle(c, radius, paint.copyWith(color: _config.containersColor!));
       } else {
         parent.drawCircle(c, radius, paint);
       }
@@ -423,8 +414,7 @@ class SkeletonizerCanvas implements Canvas {
   void save() => parent.save();
 
   @override
-  void saveLayer(ui.Rect? bounds, ui.Paint paint) =>
-      parent.saveLayer(bounds, paint);
+  void saveLayer(ui.Rect? bounds, ui.Paint paint) => parent.saveLayer(bounds, paint);
 
   @override
   void scale(double sx, [double? sy]) => parent.scale(sx, sy);
@@ -449,18 +439,6 @@ class SkeletonizerCanvas implements Canvas {
 
   @override
   void restoreToCount(int count) => parent.restoreToCount(count);
-}
-
-class _ParagraphConfig {
-  final BorderRadius? borderRadius;
-  final double fontSize;
-  final TextAlign textAlign;
-
-  const _ParagraphConfig({
-    required this.borderRadius,
-    required this.fontSize,
-    required this.textAlign,
-  });
 }
 
 /// A [PaintingContext] that marks all children as leafs
