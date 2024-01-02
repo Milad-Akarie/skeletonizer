@@ -39,6 +39,8 @@ abstract class Skeletonizer extends StatefulWidget {
   /// defaults to true
   final bool ignorePointers;
 
+  final bool _manual;
+
   /// Default constructor
   const Skeletonizer._({
     super.key,
@@ -50,7 +52,20 @@ abstract class Skeletonizer extends StatefulWidget {
     this.justifyMultiLineText,
     this.containersColor,
     this.ignorePointers = true,
-  });
+  }) : _manual = false;
+
+  /// Manual constructor
+  const Skeletonizer._manual({
+    super.key,
+    required this.child,
+    this.enabled = true,
+    this.effect,
+    this.textBoneBorderRadius,
+    this.ignoreContainers,
+    this.justifyMultiLineText,
+    this.containersColor,
+    this.ignorePointers = true,
+  }) : _manual = true;
 
   /// Creates a [Skeletonizer] widget
   const factory Skeletonizer({
@@ -64,6 +79,19 @@ abstract class Skeletonizer extends StatefulWidget {
     Color? containersColor,
     bool ignorePointers,
   }) = _Skeletonizer;
+
+  /// Creates a [SliverSkeletonizer] widget
+  const factory Skeletonizer.manual({
+    Key? key,
+    required Widget child,
+    bool enabled,
+    PaintingEffect? effect,
+    TextBoneBorderRadius? textBoneBorderRadius,
+    bool? ignoreContainers,
+    bool? justifyMultiLineText,
+    Color? containersColor,
+    bool ignorePointers,
+  }) = _Skeletonizer.manual;
 
   /// Creates a [SliverSkeletonizer] widget
   const factory Skeletonizer.sliver({
@@ -88,8 +116,7 @@ abstract class Skeletonizer extends StatefulWidget {
 
   /// Depends on the the nearest SkeletonizerScope if any otherwise it throws
   static SkeletonizerScope of(BuildContext context) {
-    final scope =
-        context.dependOnInheritedWidgetOfExactType<SkeletonizerScope>();
+    final scope = context.dependOnInheritedWidgetOfExactType<SkeletonizerScope>();
     assert(() {
       if (scope == null) {
         throw FlutterError(
@@ -108,8 +135,7 @@ abstract class Skeletonizer extends StatefulWidget {
 }
 
 /// The state of [Skeletonizer] widget
-class SkeletonizerState extends State<Skeletonizer>
-    with TickerProviderStateMixin<Skeletonizer> {
+class SkeletonizerState extends State<Skeletonizer> with TickerProviderStateMixin<Skeletonizer> {
   AnimationController? _animationController;
 
   late bool _enabled = widget.enabled;
@@ -134,9 +160,7 @@ class SkeletonizerState extends State<Skeletonizer>
     _textDirection = Directionality.of(context);
     final isDarkMode = _brightness == Brightness.dark;
     var resolvedConfig = SkeletonizerConfig.maybeOf(context) ??
-        (isDarkMode
-            ? const SkeletonizerConfigData.dark()
-            : const SkeletonizerConfigData.light());
+        (isDarkMode ? const SkeletonizerConfigData.dark() : const SkeletonizerConfigData.light());
 
     resolvedConfig = resolvedConfig.copyWith(
       effect: widget.effect,
@@ -216,6 +240,7 @@ class SkeletonizerState extends State<Skeletonizer>
           textDirection: _textDirection,
           animationValue: _animationValue,
           ignorePointers: widget.ignorePointers,
+          manual: widget._manual,
         ),
       );
 }
@@ -233,13 +258,24 @@ class _Skeletonizer extends Skeletonizer {
     super.ignorePointers,
   }) : super._();
 
+  const _Skeletonizer.manual({
+    required super.child,
+    super.key,
+    super.enabled = true,
+    super.effect,
+    super.textBoneBorderRadius,
+    super.ignoreContainers,
+    super.justifyMultiLineText,
+    super.containersColor,
+    super.ignorePointers,
+  }) : super._manual();
+
   @override
   Widget build(BuildContext context, SkeletonizerBuildData data) {
     return SkeletonizerScope(
       enabled: data.enabled,
-      child: data.enabled
-          ? SkeletonizerRenderObjectWidget(data: data, child: child)
-          : child,
+      config: data.config,
+      child: data.enabled ? SkeletonizerRenderObjectWidget(data: data, child: child) : child,
     );
   }
 }
@@ -263,9 +299,8 @@ class SliverSkeletonizer extends Skeletonizer {
   Widget build(BuildContext context, SkeletonizerBuildData data) {
     return SkeletonizerScope(
       enabled: data.enabled,
-      child: data.enabled
-          ? SliverSkeletonizerRenderObjectWidget(data: data, child: child)
-          : child,
+      config: data.config,
+      child: data.enabled ? SliverSkeletonizerRenderObjectWidget(data: data, child: child) : child,
     );
   }
 }
@@ -280,6 +315,7 @@ class SkeletonizerBuildData {
     required this.textDirection,
     required this.animationValue,
     required this.ignorePointers,
+    required this.manual,
   });
 
   /// Whether skeletonizing is enabled
@@ -302,6 +338,9 @@ class SkeletonizerBuildData {
   /// defaults to true
   final bool ignorePointers;
 
+  /// When true, the only [Bone] widgets will be shaded
+  final bool manual;
+
   @override
   bool operator ==(Object other) =>
       identical(this, other) ||
@@ -310,6 +349,7 @@ class SkeletonizerBuildData {
           enabled == other.enabled &&
           config == other.config &&
           brightness == other.brightness &&
+          manual == other.manual &&
           textDirection == other.textDirection &&
           animationValue == other.animationValue &&
           ignorePointers == other.ignorePointers;
@@ -321,6 +361,7 @@ class SkeletonizerBuildData {
       brightness.hashCode ^
       textDirection.hashCode ^
       animationValue.hashCode ^
+      manual.hashCode ^
       ignorePointers.hashCode;
 }
 
@@ -328,14 +369,21 @@ class SkeletonizerBuildData {
 /// to the descent widgets
 class SkeletonizerScope extends InheritedWidget {
   /// Default constructor
-  const SkeletonizerScope(
-      {super.key, required super.child, required this.enabled});
+  const SkeletonizerScope({
+    super.key,
+    required super.child,
+    required this.enabled,
+    required this.config,
+  });
 
   /// Whether skeletonizing is enabled
   final bool enabled;
 
+  /// The current skeletonizer configuration
+  final SkeletonizerConfigData config;
+
   @override
   bool updateShouldNotify(covariant SkeletonizerScope oldWidget) {
-    return enabled != oldWidget.enabled;
+    return enabled != oldWidget.enabled || config != oldWidget.config;
   }
 }

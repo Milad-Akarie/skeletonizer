@@ -41,9 +41,7 @@ class _SkeletonizerDemoPageState extends State<SkeletonizerDemoPage> {
           padding: const EdgeInsets.only(bottom: 110),
           child: FloatingActionButton(
             child: Icon(
-              _enabled
-                  ? Icons.hourglass_bottom_rounded
-                  : Icons.hourglass_disabled_outlined,
+              _enabled ? Icons.hourglass_bottom_rounded : Icons.hourglass_disabled_outlined,
             ),
             onPressed: () {
               setState(() {
@@ -53,21 +51,30 @@ class _SkeletonizerDemoPageState extends State<SkeletonizerDemoPage> {
           ),
         ),
       ),
-      body: Skeletonizer(
+      body: Skeletonizer.manual(
         enabled: _enabled,
+        // effect: const SoldColorEffect(
+        //   color: Colors.red,
+        // ),
         child: ListView.builder(
-          itemCount: 6,
+          itemCount: 1,
           padding: const EdgeInsets.all(16),
           itemBuilder: (context, index) {
-            return Card(
-              child: ListTile(
-                title: Text('Item number $index as title'),
-                subtitle: const Text('Subtitle here'),
-                trailing: const Icon(
-                  Icons.ac_unit,
-                  size: 32,
+            return Column(
+              children: [
+                const Card(
+                  child: ListTile(
+                    title: Bone.text(words: 2),
+                    subtitle: Bone.text(),
+                    trailing: Bone.icon(size: 32),
+                  ),
                 ),
-              ),
+                FilledButton(
+                  onPressed: () {},
+                  child: const Text('Hello'),
+                ),
+                Bone.button()
+              ],
             );
           },
         ),

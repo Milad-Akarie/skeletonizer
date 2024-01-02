@@ -6,8 +6,7 @@ import 'package:skeletonizer/src/painting/skeletonizer_painting_context.dart';
 
 /// Builds a renderer object that overrides the painting operation
 /// and provides a [SkeletonizerPaintingContext] to paint the skeleton effect
-class RenderSkeletonizer extends RenderProxyBox
-    with _RenderSkeletonBase<RenderBox> {
+class RenderSkeletonizer extends RenderProxyBox with _RenderSkeletonBase<RenderBox> {
   /// Default constructor
   RenderSkeletonizer({
     required TextDirection textDirection,
@@ -15,11 +14,13 @@ class RenderSkeletonizer extends RenderProxyBox
     required Brightness brightness,
     required SkeletonizerConfigData config,
     required bool ignorePointers,
+    required bool manual,
     RenderBox? child,
   })  : _animationValue = animationValue,
         _textDirection = textDirection,
         _brightness = brightness,
         _config = config,
+        _manual = manual,
         _ignorePointers = ignorePointers,
         super(child);
 
@@ -67,6 +68,18 @@ class RenderSkeletonizer extends RenderProxyBox
       markNeedsPaint();
     }
   }
+
+  bool _manual;
+
+  set manual(bool value) {
+    if (_manual != value) {
+      _manual = value;
+      markNeedsPaint();
+    }
+  }
+
+  @override
+  bool get manual => _manual;
 
   double _animationValue = 0;
 
@@ -89,8 +102,7 @@ class RenderSkeletonizer extends RenderProxyBox
 
 /// Builds a sliver renderer object that overrides the painting operation
 /// and provides a [SkeletonizerPaintingContext] to paint the skeleton effect
-class RenderSliverSkeletonizer extends RenderProxySliver
-    with _RenderSkeletonBase<RenderSliver> {
+class RenderSliverSkeletonizer extends RenderProxySliver with _RenderSkeletonBase<RenderSliver> {
   /// Default constructor
   RenderSliverSkeletonizer({
     required TextDirection textDirection,
@@ -98,11 +110,13 @@ class RenderSliverSkeletonizer extends RenderProxySliver
     required Brightness brightness,
     required SkeletonizerConfigData config,
     required bool ignorePointers,
+    required bool manual,
     RenderSliver? child,
   })  : _animationValue = animationValue,
         _textDirection = textDirection,
         _brightness = brightness,
         _config = config,
+        _manual = manual,
         _ignorePointers = ignorePointers,
         super(child);
 
@@ -150,6 +164,18 @@ class RenderSliverSkeletonizer extends RenderProxySliver
     }
   }
 
+  bool _manual;
+
+  set manual(bool value) {
+    if (_manual != value) {
+      _manual = value;
+      markNeedsPaint();
+    }
+  }
+
+  @override
+  bool get manual => _manual;
+
   double _animationValue = 0;
 
   @override
@@ -163,17 +189,13 @@ class RenderSliverSkeletonizer extends RenderProxySliver
   }
 
   @override
-  bool hitTest(SliverHitTestResult result,
-      {required double mainAxisPosition, required double crossAxisPosition}) {
+  bool hitTest(SliverHitTestResult result, {required double mainAxisPosition, required double crossAxisPosition}) {
     if (_ignorePointers) return false;
-    return super.hitTest(result,
-        mainAxisPosition: mainAxisPosition,
-        crossAxisPosition: crossAxisPosition);
+    return super.hitTest(result, mainAxisPosition: mainAxisPosition, crossAxisPosition: crossAxisPosition);
   }
 }
 
-mixin _RenderSkeletonBase<R extends RenderObject>
-    on RenderObjectWithChildMixin<R> {
+mixin _RenderSkeletonBase<R extends RenderObject> on RenderObjectWithChildMixin<R> {
   /// The text direction used to resolve Directional geometries
   TextDirection get textDirection;
 
@@ -186,6 +208,9 @@ mixin _RenderSkeletonBase<R extends RenderObject>
   /// The value to animate painting effects
   double get animationValue;
 
+  /// if true, only [Bone] widgets will be shaded
+  bool get manual;
+
   @override
   bool get isRepaintBoundary => true;
 
@@ -197,13 +222,23 @@ mixin _RenderSkeletonBase<R extends RenderObject>
       estimatedBounds,
       textDirection,
     );
-    final skeletonizerContext = SkeletonizerPaintingContext(
-      layer: layer!,
-      estimatedBounds: estimatedBounds,
-      shaderPaint: shaderPaint,
-      config: config,
-    );
-    super.paint(skeletonizerContext, offset);
-    skeletonizerContext.stopRecordingIfNeeded();
+    if (manual) {
+      final skeletonizerContext = ManualSkeletonizerPaintingContext(
+        layer!,
+        estimatedBounds,
+        shaderPaint: shaderPaint,
+      );
+      super.paint(skeletonizerContext, offset);
+      skeletonizerContext.stopRecordingIfNeeded();
+    } else {
+      final skeletonizerContext = SkeletonizerPaintingContext(
+        layer: layer!,
+        estimatedBounds: estimatedBounds,
+        shaderPaint: shaderPaint,
+        config: config,
+      );
+      super.paint(skeletonizerContext, offset);
+      skeletonizerContext.stopRecordingIfNeeded();
+    }
   }
 }
