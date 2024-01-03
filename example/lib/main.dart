@@ -51,30 +51,18 @@ class _SkeletonizerDemoPageState extends State<SkeletonizerDemoPage> {
           ),
         ),
       ),
-      body: Skeletonizer.manual(
-        enabled: _enabled,
-        // effect: const SoldColorEffect(
-        //   color: Colors.red,
-        // ),
+      body: Skeletonizer.bones(
         child: ListView.builder(
-          itemCount: 1,
+          itemCount: 6,
           padding: const EdgeInsets.all(16),
           itemBuilder: (context, index) {
-            return Column(
-              children: [
-                const Card(
-                  child: ListTile(
-                    title: Bone.text(words: 2),
-                    subtitle: Bone.text(),
-                    trailing: Bone.icon(size: 32),
-                  ),
-                ),
-                FilledButton(
-                  onPressed: () {},
-                  child: const Text('Hello'),
-                ),
-                Bone.button()
-              ],
+            return const Card(
+              child: ListTile(
+                leading: Bone.circle(size: 48),
+                title: Bone.text(words: 2),
+                subtitle: Bone.text(),
+                trailing: Bone.icon(),
+              ),
             );
           },
         ),

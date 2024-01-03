@@ -3,6 +3,7 @@ import 'package:flutter/rendering.dart';
 import 'package:skeletonizer/skeletonizer.dart';
 import 'package:skeletonizer/src/painting/skeletonizer_painting_context.dart';
 
+/// A widget that represents a bone of the loading skeleton effect
 abstract class Bone extends StatelessWidget {
   const Bone._({super.key});
 
@@ -13,7 +14,7 @@ abstract class Bone extends StatelessWidget {
     double? height,
     BorderRadiusGeometry? borderRadius,
     BoxShape shape,
-    double? circleRadius,
+    double? uniRadius,
     double indent,
     double indentEnd,
   }) = _Bone;
@@ -32,7 +33,7 @@ abstract class Bone extends StatelessWidget {
     double? size,
     double indent,
     double indentEnd,
-    double? circleRadius,
+    double? uniRadius,
     BorderRadiusGeometry? borderRadius,
   }) = _Bone.square;
 
@@ -53,7 +54,7 @@ abstract class Bone extends StatelessWidget {
     TextStyle? style,
     TextAlign textAlign,
     BorderRadiusGeometry? borderRadius,
-    double? circleRadius,
+    double? uniRadius,
   }) = _TextBone;
 
   /// Creates a bone widget that mimics a multi line text
@@ -65,7 +66,7 @@ abstract class Bone extends StatelessWidget {
     TextStyle? style,
     TextAlign textAlign,
     BorderRadiusGeometry? borderRadius,
-    double? circleRadius,
+    double? uniRadius,
   }) = _MultiTextBone;
 
   /// Creates a bone widget that mimics a button
@@ -75,14 +76,12 @@ abstract class Bone extends StatelessWidget {
     double? height,
     BorderRadiusGeometry? borderRadius,
     BoxShape? shape,
-    double? circleRadius,
+    double? uniRadius,
     double indent,
     double indentEnd,
+    BoneButtonType type,
   }) = _ButtonBone;
 }
-
-
-
 
 class _Bone extends Bone {
   /// The default constructor
@@ -92,13 +91,13 @@ class _Bone extends Bone {
     this.height,
     this.borderRadius,
     this.shape = BoxShape.rectangle,
-    this.circleRadius,
+    this.uniRadius,
     this.indent = 0,
     this.indentEnd = 0,
-  })  : assert(circleRadius == null || borderRadius == null),
+  })  : assert(uniRadius == null || borderRadius == null),
         super._(key: key);
 
-  final double? width, height, circleRadius;
+  final double? width, height, uniRadius;
   final double indent, indentEnd;
   final BorderRadiusGeometry? borderRadius;
   final BoxShape shape;
@@ -112,7 +111,7 @@ class _Bone extends Bone {
         height = size,
         borderRadius = null,
         shape = BoxShape.circle,
-        circleRadius = null,
+        uniRadius = null,
         super._(key: key);
 
   const _Bone.square({
@@ -120,7 +119,7 @@ class _Bone extends Bone {
     double? size,
     this.indent = 0,
     this.indentEnd = 0,
-    this.circleRadius,
+    this.uniRadius,
     this.borderRadius,
   })  : width = size,
         height = size,
@@ -139,7 +138,7 @@ class _Bone extends Bone {
         height: height,
         child: BoneRenderObjectWidget(
           decoration: BoxDecoration(
-            borderRadius: borderRadius ?? (circleRadius != null ? BorderRadius.circular(circleRadius!) : null),
+            borderRadius: borderRadius ?? (uniRadius != null ? BorderRadius.circular(uniRadius!) : null),
             shape: shape,
           ),
         ),
@@ -168,6 +167,18 @@ class _IconBone extends Bone {
   }
 }
 
+/// The type of button bone
+enum BoneButtonType {
+  /// represents an [ElevatedButton]
+  elevated,
+  /// represents a [FilledButton]
+  filled,
+  /// represents a [TextButton]
+  text,
+  /// represents an [OutlinedButton]
+  outlined,
+}
+
 class _ButtonBone extends Bone {
   const _ButtonBone({
     Key? key,
@@ -175,34 +186,61 @@ class _ButtonBone extends Bone {
     this.height,
     this.borderRadius,
     this.shape,
-    this.circleRadius,
+    this.uniRadius,
     this.indent = 0,
     this.indentEnd = 0,
-  })  : assert(circleRadius == null || borderRadius == null),
+    this.type = BoneButtonType.elevated,
+  })  : assert(uniRadius == null || borderRadius == null),
         super._(key: key);
-  final double? width, height, circleRadius;
+  final double? width, height, uniRadius;
   final double indent, indentEnd;
   final BorderRadiusGeometry? borderRadius;
   final BoxShape? shape;
+  final BoneButtonType type;
 
   @override
   Widget build(BuildContext context) {
     final buttonTheme = ButtonTheme.of(context);
-    final buttonShape = buttonTheme.shape;
 
-    final effectiveShape = shape ?? (buttonShape is RoundedRectangleBorder ? BoxShape.rectangle : BoxShape.circle);
-    final effectiveBorderRadius =
-        borderRadius ?? (buttonShape is RoundedRectangleBorder ? buttonShape.borderRadius : null);
+    var effectiveBorderRadius = uniRadius != null ? BorderRadius.circular(uniRadius!) : borderRadius;
+    var effectiveShape = shape;
+    if (effectiveBorderRadius == null) {
+      final shapeInfo = _getShape(
+        context,
+        height ?? buttonTheme.height,
+      );
+      effectiveBorderRadius = shapeInfo.$1;
+      effectiveShape = shapeInfo.$2;
+    }
 
     return Bone(
       width: width ?? buttonTheme.minWidth,
       height: height ?? buttonTheme.height,
       borderRadius: effectiveBorderRadius,
-      shape: effectiveShape,
-      circleRadius: circleRadius,
+      shape: effectiveShape ?? BoxShape.rectangle,
       indent: indent,
       indentEnd: indentEnd,
     );
+  }
+
+  (BorderRadiusGeometry, BoxShape) _getShape(BuildContext context, double height) {
+    final style = switch (type) {
+      BoneButtonType.elevated => ElevatedButtonTheme.of(context).style ??
+          const ElevatedButton(onPressed: null, child: SizedBox.shrink()).defaultStyleOf(context),
+      BoneButtonType.filled => FilledButtonTheme.of(context).style ??
+          const FilledButton(onPressed: null, child: SizedBox.shrink()).defaultStyleOf(context),
+      BoneButtonType.text => TextButtonTheme.of(context).style ??
+          const TextButton(onPressed: null, child: SizedBox.shrink()).defaultStyleOf(context),
+      BoneButtonType.outlined => OutlinedButtonTheme.of(context).style ??
+          const OutlinedButton(onPressed: null, child: SizedBox.shrink()).defaultStyleOf(context),
+    };
+    final shape = style.shape?.resolve({MaterialState.focused});
+    return switch (shape.runtimeType) {
+      RoundedRectangleBorder => ((shape as RoundedRectangleBorder).borderRadius, BoxShape.rectangle),
+      CircleBorder => (BorderRadius.zero, BoxShape.circle),
+      StadiumBorder => (BorderRadius.circular(height / 2), BoxShape.rectangle),
+      _ => (BorderRadius.zero, BoxShape.rectangle)
+    };
   }
 }
 
@@ -215,7 +253,7 @@ class _TextBone extends Bone {
     this.style,
     this.textAlign = TextAlign.start,
     this.borderRadius,
-    this.circleRadius,
+    this.uniRadius,
   })  : assert(width == null || words == null),
         super._(key: key);
   final double? width;
@@ -224,7 +262,7 @@ class _TextBone extends Bone {
   final TextStyle? style;
   final TextAlign textAlign;
   final BorderRadiusGeometry? borderRadius;
-  final double? circleRadius;
+  final double? uniRadius;
 
   AlignmentGeometry _mapTextAlignToAlignment(TextAlign textAlign) {
     switch (textAlign) {
@@ -248,7 +286,7 @@ class _TextBone extends Bone {
     final effectiveFontSize = fontSize ?? style?.fontSize ?? DefaultTextStyle.of(context).style.fontSize ?? 14.0;
     final effectiveWidth = width ?? effectiveFontSize * (words ?? 3) * 5;
     var effectiveBorderRadius = borderRadius;
-    if (circleRadius == null && effectiveBorderRadius == null) {
+    if (uniRadius == null && effectiveBorderRadius == null) {
       final textBorder = Skeletonizer.of(context).config.textBorderRadius;
       effectiveBorderRadius = (textBorder.usesHeightFactor
               ? BorderRadius.circular(effectiveFontSize * textBorder.heightPercentage!)
@@ -261,7 +299,7 @@ class _TextBone extends Bone {
         width: effectiveWidth,
         height: effectiveFontSize,
         borderRadius: effectiveBorderRadius,
-        circleRadius: circleRadius,
+        uniRadius: uniRadius,
       ),
     );
   }
@@ -276,7 +314,7 @@ class _MultiTextBone extends Bone {
     this.style,
     this.textAlign = TextAlign.start,
     this.borderRadius,
-    this.circleRadius,
+    this.uniRadius,
   }) : super._(key: key);
   final double? width;
   final int lines;
@@ -284,7 +322,7 @@ class _MultiTextBone extends Bone {
   final TextStyle? style;
   final TextAlign textAlign;
   final BorderRadiusGeometry? borderRadius;
-  final double? circleRadius;
+  final double? uniRadius;
 
   CrossAxisAlignment _mapTextAlignToAlignment(TextAlign textAlign) {
     switch (textAlign) {
@@ -309,7 +347,7 @@ class _MultiTextBone extends Bone {
     final effectiveFontSize = fontSize ?? effectiveStyle.fontSize ?? 14.0;
     final effectiveFontHeight = (effectiveStyle.height ?? 1.4) * effectiveFontSize;
     var effectiveBorderRadius = borderRadius;
-    if (circleRadius == null && effectiveBorderRadius == null) {
+    if (uniRadius == null && effectiveBorderRadius == null) {
       final textBorder = Skeletonizer.of(context).config.textBorderRadius;
       effectiveBorderRadius = (textBorder.usesHeightFactor
               ? BorderRadius.circular(effectiveFontSize * textBorder.heightPercentage!)
@@ -327,7 +365,7 @@ class _MultiTextBone extends Bone {
                 width: _getLineWidth(i, width ?? constraints.maxWidth),
                 height: effectiveFontSize,
                 borderRadius: effectiveBorderRadius,
-                circleRadius: circleRadius,
+                uniRadius: uniRadius,
               ),
             ),
         ],
@@ -341,6 +379,7 @@ class _MultiTextBone extends Bone {
   }
 }
 
+/// A widget that paints a [BoxDecoration] into a canvas with [ManualSkeletonizerPaintingContext].
 class BoneRenderObjectWidget extends SingleChildRenderObjectWidget {
   /// The default constructor
   const BoneRenderObjectWidget({
@@ -349,6 +388,7 @@ class BoneRenderObjectWidget extends SingleChildRenderObjectWidget {
     required this.decoration,
   });
 
+  /// The decoration of the bone
   final BoxDecoration decoration;
 
   @override
@@ -364,6 +404,7 @@ class BoneRenderObjectWidget extends SingleChildRenderObjectWidget {
   }
 }
 
+/// The render object of the [BoneRenderObjectWidget]
 class BoneRenderObject extends RenderProxyBox {
   /// The default constructor
   BoneRenderObject(
@@ -392,10 +433,10 @@ class BoneRenderObject extends RenderProxyBox {
 
   @override
   void paint(PaintingContext context, Offset offset) {
-    assert(context is ManualSkeletonizerPaintingContext, 'Bone must be a child of a Skeletonizer.manual widget');
-    final skeletonizerContext = context as ManualSkeletonizerPaintingContext;
     if (_decoration == null) return;
-    final painter = _BoneBoxDecorationPainter(_decoration!, skeletonizerContext.shaderPaint);
+    final paint = (context is SkeletonizerPaintingContext) ? context.shaderPaint : Paint()
+      ..color = Colors.grey;
+    final painter = _BoneBoxDecorationPainter(_decoration!, paint);
     painter.paint(context.canvas, offset, ImageConfiguration(size: size, textDirection: _textDirection));
     super.paint(context, offset);
   }

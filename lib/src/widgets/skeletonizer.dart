@@ -54,18 +54,18 @@ abstract class Skeletonizer extends StatefulWidget {
     this.ignorePointers = true,
   }) : _manual = false;
 
-  /// Manual constructor
-  const Skeletonizer._manual({
+  /// Creates a Skeletonizer widget that only shades [Bone] widgets
+  const Skeletonizer._fromBones({
     super.key,
     required this.child,
-    this.enabled = true,
     this.effect,
     this.textBoneBorderRadius,
     this.ignoreContainers,
     this.justifyMultiLineText,
     this.containersColor,
     this.ignorePointers = true,
-  }) : _manual = true;
+  })  : _manual = true,
+        enabled = true;
 
   /// Creates a [Skeletonizer] widget
   const factory Skeletonizer({
@@ -80,18 +80,17 @@ abstract class Skeletonizer extends StatefulWidget {
     bool ignorePointers,
   }) = _Skeletonizer;
 
-  /// Creates a [SliverSkeletonizer] widget
-  const factory Skeletonizer.manual({
+  /// Creates a Skeletonizer widget that only shades [Bone] widgets
+  const factory Skeletonizer.bones({
     Key? key,
     required Widget child,
-    bool enabled,
     PaintingEffect? effect,
     TextBoneBorderRadius? textBoneBorderRadius,
     bool? ignoreContainers,
     bool? justifyMultiLineText,
     Color? containersColor,
     bool ignorePointers,
-  }) = _Skeletonizer.manual;
+  }) = _Skeletonizer.bones;
 
   /// Creates a [SliverSkeletonizer] widget
   const factory Skeletonizer.sliver({
@@ -258,17 +257,16 @@ class _Skeletonizer extends Skeletonizer {
     super.ignorePointers,
   }) : super._();
 
-  const _Skeletonizer.manual({
+  const _Skeletonizer.bones({
     required super.child,
     super.key,
-    super.enabled = true,
     super.effect,
     super.textBoneBorderRadius,
     super.ignoreContainers,
     super.justifyMultiLineText,
     super.containersColor,
     super.ignorePointers,
-  }) : super._manual();
+  }) : super._fromBones();
 
   @override
   Widget build(BuildContext context, SkeletonizerBuildData data) {
@@ -294,6 +292,18 @@ class SliverSkeletonizer extends Skeletonizer {
     super.containersColor,
     super.ignorePointers,
   }) : super._();
+
+  /// Creates a Skeletonizer widget that only shades [Bone] widgets
+  const SliverSkeletonizer.bones({
+    required super.child,
+    super.key,
+    super.effect,
+    super.textBoneBorderRadius,
+    super.ignoreContainers,
+    super.justifyMultiLineText,
+    super.containersColor,
+    super.ignorePointers,
+  }) : super._fromBones();
 
   @override
   Widget build(BuildContext context, SkeletonizerBuildData data) {

@@ -222,23 +222,14 @@ mixin _RenderSkeletonBase<R extends RenderObject> on RenderObjectWithChildMixin<
       estimatedBounds,
       textDirection,
     );
-    if (manual) {
-      final skeletonizerContext = ManualSkeletonizerPaintingContext(
-        layer!,
-        estimatedBounds,
-        shaderPaint: shaderPaint,
-      );
-      super.paint(skeletonizerContext, offset);
-      skeletonizerContext.stopRecordingIfNeeded();
-    } else {
-      final skeletonizerContext = SkeletonizerPaintingContext(
-        layer: layer!,
-        estimatedBounds: estimatedBounds,
-        shaderPaint: shaderPaint,
-        config: config,
-      );
-      super.paint(skeletonizerContext, offset);
-      skeletonizerContext.stopRecordingIfNeeded();
-    }
+    final skeletonizerContext = SkeletonizerPaintingContext(
+      layer: layer!,
+      estimatedBounds: estimatedBounds,
+      shaderPaint: shaderPaint,
+      config: config,
+      manual: manual,
+    );
+    super.paint(skeletonizerContext, offset);
+    skeletonizerContext.stopRecordingIfNeeded();
   }
 }

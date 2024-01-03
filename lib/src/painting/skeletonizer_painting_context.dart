@@ -14,10 +14,14 @@ class SkeletonizerPaintingContext extends PaintingContext {
     required Rect estimatedBounds,
     required this.shaderPaint,
     required this.config,
+    required this.manual,
   }) : super(layer, estimatedBounds);
 
   /// The [SkeletonizerConfigData] that controls the skeletonization process
   final SkeletonizerConfigData config;
+
+  /// Whether the skeletonization is manual
+  final bool manual;
 
   /// The layer of the context
   final ContainerLayer layer;
@@ -25,7 +29,7 @@ class SkeletonizerPaintingContext extends PaintingContext {
   /// The [Paint] that is used to draw the skeleton
   final Paint shaderPaint;
 
-  final _treatedAsLeaf = <Offset, bool>{};
+  late final _treatedAsLeaf = <Offset, bool>{};
 
   /// Creates a default child painting context
   void createDefaultContext(Rect rect, Painter paint) {
@@ -49,7 +53,7 @@ class SkeletonizerPaintingContext extends PaintingContext {
   bool _didPaint = false;
 
   @override
-  ui.Canvas get canvas => SkeletonizerCanvas(super.canvas, this);
+  ui.Canvas get canvas => manual ? super.canvas : SkeletonizerCanvas(super.canvas, this);
 
   @override
   PaintingContext createChildContext(ContainerLayer childLayer, ui.Rect bounds) {
@@ -58,6 +62,7 @@ class SkeletonizerPaintingContext extends PaintingContext {
       estimatedBounds: bounds,
       shaderPaint: shaderPaint,
       config: config,
+      manual: manual,
     );
   }
 
@@ -65,11 +70,12 @@ class SkeletonizerPaintingContext extends PaintingContext {
   void stopRecordingIfNeeded() {
     super.stopRecordingIfNeeded();
     _didPaint = false;
+    _treatedAsLeaf.clear();
   }
 
   @override
   void paintChild(RenderObject child, ui.Offset offset) {
-    if (child is RenderObjectWithChildMixin) {
+    if (!manual && child is RenderObjectWithChildMixin) {
       final key = child.paintBounds.shift(offset).center;
       final subChild = child.child;
       var treatAaLeaf = subChild == null || (subChild is RenderIgnoredSkeleton && subChild.enabled);
@@ -448,7 +454,7 @@ class LeafPaintingContext extends SkeletonizerPaintingContext {
     required super.estimatedBounds,
     required super.shaderPaint,
     required super.config,
-  });
+  }) : super(manual: false);
 
   @override
   void paintChild(RenderObject child, ui.Offset offset) {
@@ -456,34 +462,5 @@ class LeafPaintingContext extends SkeletonizerPaintingContext {
       _treatedAsLeaf[child.paintBounds.shift(offset).center] = true;
       child.paint(this, offset);
     }
-  }
-}
-
-class ManualSkeletonizerPaintingContext extends PaintingContext {
-  /// The [Paint] that is used to draw the skeleton
-  final Paint shaderPaint;
-
-  /// Default constructor
-  ManualSkeletonizerPaintingContext(
-    super.layer,
-    super.estimatedBounds, {
-    required this.shaderPaint,
-  });
-
-  @override
-  PaintingContext createChildContext(ContainerLayer childLayer, ui.Rect bounds) {
-    return ManualSkeletonizerPaintingContext(
-      childLayer,
-      bounds,
-      shaderPaint: shaderPaint,
-    );
-  }
-  @override
-  void stopRecordingIfNeeded() {
-    super.stopRecordingIfNeeded();
-  }
-  @override
-  void paintChild(RenderObject child, ui.Offset offset) {
-    child.paint(this, offset);
   }
 }
