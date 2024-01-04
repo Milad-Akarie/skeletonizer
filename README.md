@@ -355,6 +355,9 @@ Skeletonizer.bones(
     ),
  );
 ```
+
+![](https://github.com/Milad-Akarie/skeletonizer/blob/main/art/bone_widgets_demo.png?raw=true)
+
 Obviously, you can create any bone shape using `Bone(width, height)` or use the helpers `Bone.circle(size)` and `Bone.square(size)`. The cool part here is using mimic bone types like `Bone.icon()`, which, you guessed it, reads icon sizing information from the inherited theme. As such, Bone.text reads font size and line height from the inherited theme if not provided in the constructor. By default, it mimics 3 words (word = 5 letters), but you can easily change that. For multiline, use `Bone.multiText(lines: 3)`.
 
 Additionally, there's also `Bone.button()` which mimics actual Material buttons and `Bone.iconButton()` to mimic icon buttons.
