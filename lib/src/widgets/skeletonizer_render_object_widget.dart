@@ -78,6 +78,5 @@ class SliverSkeletonizerRenderObjectWidget
       ..ignorePointers = data.ignorePointers
       ..manual = data.manual
       ..textDirection = data.textDirection;
-
   }
 }
