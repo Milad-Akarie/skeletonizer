@@ -51,11 +51,16 @@ class _SkeletonizerDemoPageState extends State<SkeletonizerDemoPage> {
           ),
         ),
       ),
-      body: Skeletonizer.bones(
+      body: Skeletonizer(
         child: ListView.builder(
-          itemCount: 6,
+          itemCount: 1,
           padding: const EdgeInsets.all(16),
           itemBuilder: (context, index) {
+            return Skeleton.replace(
+              child: Image.network(
+                'https://picsum.photos/seed/$index/200/300',
+              ),
+            );
             return const Card(
               child: ListTile(
                 leading: Bone.circle(size: 48),

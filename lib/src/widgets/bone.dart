@@ -1,3 +1,5 @@
+import 'dart:math';
+
 import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
 import 'package:skeletonizer/skeletonizer.dart';
@@ -73,6 +75,7 @@ abstract class Bone extends StatelessWidget {
   const factory Bone.button({
     Key? key,
     double? width,
+    int? words,
     double? height,
     BorderRadiusGeometry? borderRadius,
     BoxShape? shape,
@@ -171,10 +174,13 @@ class _IconBone extends Bone {
 enum BoneButtonType {
   /// represents an [ElevatedButton]
   elevated,
+
   /// represents a [FilledButton]
   filled,
+
   /// represents a [TextButton]
   text,
+
   /// represents an [OutlinedButton]
   outlined,
 }
@@ -188,11 +194,14 @@ class _ButtonBone extends Bone {
     this.shape,
     this.uniRadius,
     this.indent = 0,
+    this.words,
     this.indentEnd = 0,
     this.type = BoneButtonType.elevated,
   })  : assert(uniRadius == null || borderRadius == null),
+        assert(width == null || words == null),
         super._(key: key);
   final double? width, height, uniRadius;
+  final int? words;
   final double indent, indentEnd;
   final BorderRadiusGeometry? borderRadius;
   final BoxShape? shape;
@@ -202,11 +211,19 @@ class _ButtonBone extends Bone {
   Widget build(BuildContext context) {
     final buttonTheme = ButtonTheme.of(context);
 
+    final style = _getStyle(context);
+    var effectiveWidth = buttonTheme.minWidth;
+    if(width != null) {
+      effectiveWidth = width!;
+    } else if(words != null) {
+      final effectiveFontSize = style.textStyle?.resolve(const {})?.fontSize ?? 14.0;
+      effectiveWidth = max(effectiveFontSize * words! * 5, buttonTheme.minWidth);
+    }
     var effectiveBorderRadius = uniRadius != null ? BorderRadius.circular(uniRadius!) : borderRadius;
     var effectiveShape = shape;
     if (effectiveBorderRadius == null) {
       final shapeInfo = _getShape(
-        context,
+        style,
         height ?? buttonTheme.height,
       );
       effectiveBorderRadius = shapeInfo.$1;
@@ -214,7 +231,7 @@ class _ButtonBone extends Bone {
     }
 
     return Bone(
-      width: width ?? buttonTheme.minWidth,
+      width: effectiveWidth,
       height: height ?? buttonTheme.height,
       borderRadius: effectiveBorderRadius,
       shape: effectiveShape ?? BoxShape.rectangle,
@@ -223,8 +240,18 @@ class _ButtonBone extends Bone {
     );
   }
 
-  (BorderRadiusGeometry, BoxShape) _getShape(BuildContext context, double height) {
-    final style = switch (type) {
+  (BorderRadiusGeometry, BoxShape) _getShape(ButtonStyle style, double height) {
+    final shape = style.shape?.resolve(const {});
+    return switch (shape.runtimeType) {
+      RoundedRectangleBorder => ((shape as RoundedRectangleBorder).borderRadius, BoxShape.rectangle),
+      CircleBorder => (BorderRadius.zero, BoxShape.circle),
+      StadiumBorder => (BorderRadius.circular(height / 2), BoxShape.rectangle),
+      _ => (BorderRadius.zero, BoxShape.rectangle)
+    };
+  }
+
+  ButtonStyle _getStyle(BuildContext context) {
+    return switch (type) {
       BoneButtonType.elevated => ElevatedButtonTheme.of(context).style ??
           const ElevatedButton(onPressed: null, child: SizedBox.shrink()).defaultStyleOf(context),
       BoneButtonType.filled => FilledButtonTheme.of(context).style ??
@@ -233,13 +260,6 @@ class _ButtonBone extends Bone {
           const TextButton(onPressed: null, child: SizedBox.shrink()).defaultStyleOf(context),
       BoneButtonType.outlined => OutlinedButtonTheme.of(context).style ??
           const OutlinedButton(onPressed: null, child: SizedBox.shrink()).defaultStyleOf(context),
-    };
-    final shape = style.shape?.resolve({MaterialState.focused});
-    return switch (shape.runtimeType) {
-      RoundedRectangleBorder => ((shape as RoundedRectangleBorder).borderRadius, BoxShape.rectangle),
-      CircleBorder => (BorderRadius.zero, BoxShape.circle),
-      StadiumBorder => (BorderRadius.circular(height / 2), BoxShape.rectangle),
-      _ => (BorderRadius.zero, BoxShape.rectangle)
     };
   }
 }
