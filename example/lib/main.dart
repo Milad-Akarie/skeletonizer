@@ -41,7 +41,9 @@ class _SkeletonizerDemoPageState extends State<SkeletonizerDemoPage> {
           padding: const EdgeInsets.only(bottom: 110),
           child: FloatingActionButton(
             child: Icon(
-              _enabled ? Icons.hourglass_bottom_rounded : Icons.hourglass_disabled_outlined,
+              _enabled
+                  ? Icons.hourglass_bottom_rounded
+                  : Icons.hourglass_disabled_outlined,
             ),
             onPressed: () {
               setState(() {
@@ -52,21 +54,19 @@ class _SkeletonizerDemoPageState extends State<SkeletonizerDemoPage> {
         ),
       ),
       body: Skeletonizer(
+        enabled: _enabled,
         child: ListView.builder(
-          itemCount: 1,
+          itemCount: 6,
           padding: const EdgeInsets.all(16),
           itemBuilder: (context, index) {
-            return Skeleton.replace(
-              child: Image.network(
-                'https://picsum.photos/seed/$index/200/300',
-              ),
-            );
-            return const Card(
+            return Card(
               child: ListTile(
-                leading: Bone.circle(size: 48),
-                title: Bone.text(words: 2),
-                subtitle: Bone.text(),
-                trailing: Bone.icon(),
+                title: Text('Item number $index as title'),
+                subtitle: const Text('Subtitle here'),
+                trailing: const Icon(
+                  Icons.ac_unit,
+                  size: 32,
+                ),
               ),
             );
           },

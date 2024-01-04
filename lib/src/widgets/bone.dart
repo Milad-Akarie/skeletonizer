@@ -84,6 +84,16 @@ abstract class Bone extends StatelessWidget {
     double indentEnd,
     BoneButtonType type,
   }) = _ButtonBone;
+
+  /// Creates a bone widget that mimics an icon button
+  const factory Bone.iconButton({
+    Key? key,
+    double? size,
+    double indent,
+    double indentEnd,
+    double? uniRadius,
+    BorderRadiusGeometry? borderRadius,
+  }) = _IconButtonBone;
 }
 
 class _Bone extends Bone {
@@ -213,9 +223,9 @@ class _ButtonBone extends Bone {
 
     final style = _getStyle(context);
     var effectiveWidth = buttonTheme.minWidth;
-    if(width != null) {
+    if (width != null) {
       effectiveWidth = width!;
-    } else if(words != null) {
+    } else if (words != null) {
       final effectiveFontSize = style.textStyle?.resolve(const {})?.fontSize ?? 14.0;
       effectiveWidth = max(effectiveFontSize * words! * 5, buttonTheme.minWidth);
     }
@@ -261,6 +271,43 @@ class _ButtonBone extends Bone {
       BoneButtonType.outlined => OutlinedButtonTheme.of(context).style ??
           const OutlinedButton(onPressed: null, child: SizedBox.shrink()).defaultStyleOf(context),
     };
+  }
+}
+
+class _IconButtonBone extends Bone {
+  const _IconButtonBone({
+    Key? key,
+    this.size,
+    this.borderRadius,
+    this.uniRadius,
+    this.indent = 0,
+    this.indentEnd = 0,
+  })  : assert(uniRadius == null || borderRadius == null),
+        super._(key: key);
+  final double? size, uniRadius;
+  final double indent, indentEnd;
+  final BorderRadiusGeometry? borderRadius;
+
+  @override
+  Widget build(BuildContext context) {
+    var width = size;
+    var height = size;
+    if (size == null) {
+      final style = IconButtonTheme.of(context).style;
+      final iconSize = style?.iconSize?.resolve(const {}) ?? IconTheme.of(context).size ?? 24.0;
+      final padding = style?.padding?.resolve(const {}) ?? const EdgeInsets.all(8);
+      width = iconSize + padding.horizontal;
+      height = iconSize + padding.vertical;
+    }
+    final effectiveBorderRadius = uniRadius != null ? BorderRadius.circular(uniRadius!) : borderRadius;
+    return Bone(
+      width: width,
+      height: height,
+      borderRadius: effectiveBorderRadius,
+      shape: effectiveBorderRadius == null ? BoxShape.circle : BoxShape.rectangle,
+      indent: indent,
+      indentEnd: indentEnd,
+    );
   }
 }
 
@@ -315,6 +362,8 @@ class _TextBone extends Bone {
     }
     return Align(
       alignment: _mapTextAlignToAlignment(textAlign),
+      heightFactor: 1,
+      widthFactor: 1,
       child: Bone(
         width: effectiveWidth,
         height: effectiveFontSize,
