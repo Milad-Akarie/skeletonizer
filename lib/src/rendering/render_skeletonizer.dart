@@ -15,11 +15,13 @@ class RenderSkeletonizer extends RenderProxyBox
     required Brightness brightness,
     required SkeletonizerConfigData config,
     required bool ignorePointers,
+    required bool manual,
     RenderBox? child,
   })  : _animationValue = animationValue,
         _textDirection = textDirection,
         _brightness = brightness,
         _config = config,
+        _manual = manual,
         _ignorePointers = ignorePointers,
         super(child);
 
@@ -67,6 +69,18 @@ class RenderSkeletonizer extends RenderProxyBox
       markNeedsPaint();
     }
   }
+
+  bool _manual;
+
+  set manual(bool value) {
+    if (_manual != value) {
+      _manual = value;
+      markNeedsPaint();
+    }
+  }
+
+  @override
+  bool get manual => _manual;
 
   double _animationValue = 0;
 
@@ -98,11 +112,13 @@ class RenderSliverSkeletonizer extends RenderProxySliver
     required Brightness brightness,
     required SkeletonizerConfigData config,
     required bool ignorePointers,
+    required bool manual,
     RenderSliver? child,
   })  : _animationValue = animationValue,
         _textDirection = textDirection,
         _brightness = brightness,
         _config = config,
+        _manual = manual,
         _ignorePointers = ignorePointers,
         super(child);
 
@@ -149,6 +165,18 @@ class RenderSliverSkeletonizer extends RenderProxySliver
       _ignorePointers = value;
     }
   }
+
+  bool _manual;
+
+  set manual(bool value) {
+    if (_manual != value) {
+      _manual = value;
+      markNeedsPaint();
+    }
+  }
+
+  @override
+  bool get manual => _manual;
 
   double _animationValue = 0;
 
@@ -186,6 +214,9 @@ mixin _RenderSkeletonBase<R extends RenderObject>
   /// The value to animate painting effects
   double get animationValue;
 
+  /// if true, only [Bone] widgets will be shaded
+  bool get manual;
+
   @override
   bool get isRepaintBoundary => true;
 
@@ -202,6 +233,7 @@ mixin _RenderSkeletonBase<R extends RenderObject>
       estimatedBounds: estimatedBounds,
       shaderPaint: shaderPaint,
       config: config,
+      manual: manual,
     );
     super.paint(skeletonizerContext, offset);
     skeletonizerContext.stopRecordingIfNeeded();

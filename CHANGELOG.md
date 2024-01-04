@@ -1,6 +1,15 @@
+## 1.0.0 [Hooray!]
+
+- Add an intuitive way to build custom skeletons using `Skeletononizer.bones' constructor and Bone
+  widgets.
+
 ## 0.9.0
-- Enhance text skeletonizing implementation, which also fixes #16 (SelectableText not being skeletonized).
+
+- Enhance text skeletonizing implementation, which also fixes #16 (SelectableText not being
+  skeletonized).
+
 ## 0.8.0
+
 - Fix: Skeletonized widgets are not clipped inside of expandable parents.
 - refactor: clean up some code
 

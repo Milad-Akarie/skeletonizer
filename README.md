@@ -20,6 +20,7 @@
 - [Basic usage](#basic-usage)
 - [The need for fake data](#the-need-for-fake-data)
 - [Annotations](#annotations)
+- [Creating Skeletons manually](#creating-skeletons-manually) (New)
 - [Customization](#customization)
 - [Resources](#resources)
 
@@ -338,8 +339,30 @@ Card(
 
 ### Skeleton.ignorePointers
 Widgets annotated with `Skeleton.ignorePointers` will ignore pointer events when skeletonizer is enabled.
- 
 
+## Creating Skeletons manually
+
+Originally, Skeletonizer worked its magic by creating skeletons from real widgets. But hey, we get it – sometimes you want to do your own thing, have a different layout, or just skip the whole fake data scene. Now, you can speed things up big time by crafting custom skeletons from scratch using Bone widgets. Now, you might wonder, "What sets this apart from other shimmer libraries?" Simple – Bone widgets are your time-saving superheroes. They mimic everyday UI components you'd typically want to shimmer, such as icons, texts, and buttons and use their actual theme data to design border radius and sizing information.
+```dart
+Skeletonizer.bones(
+    child: Card(
+      child: ListTile(
+        leading: Bone.circle(size: 48),  
+        title: Bone.text(words: 2),
+        subtitle: Bone.text(),
+        trailing: Bone.icon(), 
+      ),
+    ),
+ );
+```
+
+![](https://github.com/Milad-Akarie/skeletonizer/blob/main/art/bone_widgets_demo.png?raw=true)
+
+Obviously, you can create any bone shape using `Bone(width, height)` or use the helpers `Bone.circle(size)` and `Bone.square(size)`. The cool part here is using mimic bone types like `Bone.icon()`, which, you guessed it, reads icon sizing information from the inherited theme. As such, Bone.text reads font size and line height from the inherited theme if not provided in the constructor. By default, it mimics 3 words (word = 5 letters), but you can easily change that. For multiline, use `Bone.multiText(lines: 3)`.
+
+Additionally, there's also `Bone.button()` which mimics actual Material buttons and `Bone.iconButton()` to mimic icon buttons.
+
+When opting for the manual approach, only Bone widgets get the shimmer treatment – they're the ones that'll be shaded. This means you can wrap other colorable widgets like cards, containers ..etc, without worrying about them getting shaded. which results to a seamless and perfect shimmer effect!
 ## Customization
 
 ### Loading effects
@@ -368,7 +391,7 @@ Skeletonizer(
 ### ignoreContainers
 if you want to ignore all containers and only skeletonize their children you can set
 `ignoreContainers` to true
- 
+
 ### containersColor
 if provided, all containers will be painted with this color otherwise the actual color will be
 
@@ -391,7 +414,7 @@ SkeletonizerConfig(
 ```
 ## Resources
 - [Flutter skeleton loader using skeletonizer](https://medium.com/@milad-akarie/flutter-skeleton-loader-using-skeletonizer-13d410dc4ac7)
- 
+
 ### Support Skeletonizer
 
 You can support skeletonizer by liking it on Pub and staring it on Github, sharing ideas on how we
