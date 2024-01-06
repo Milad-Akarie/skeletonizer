@@ -1,3 +1,6 @@
+
+## 1.0.1 
+- Fix null check exception when nesting Skeletonizers #15
 ## 1.0.0 [Hooray!]
 
 - Add an intuitive way to build custom skeletons using `Skeletononizer.bones' constructor and Bone
