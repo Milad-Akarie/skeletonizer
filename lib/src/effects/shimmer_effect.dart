@@ -60,6 +60,8 @@ abstract class ShimmerEffect extends PaintingEffect {
         transform: _SlidingGradientTransform(offset: t),
       ).createShader(rect, textDirection: textDirection);
   }
+
+
 }
 
 class _ShimmerEffect extends ShimmerEffect {
