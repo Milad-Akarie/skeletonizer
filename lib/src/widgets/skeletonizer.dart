@@ -39,7 +39,7 @@ abstract class Skeletonizer extends StatefulWidget {
   /// defaults to true
   final bool ignorePointers;
 
-  final bool _manual;
+  final bool _zoned;
 
   /// Default constructor
   const Skeletonizer._({
@@ -52,20 +52,20 @@ abstract class Skeletonizer extends StatefulWidget {
     this.justifyMultiLineText,
     this.containersColor,
     this.ignorePointers = true,
-  }) : _manual = false;
+  }) : _zoned = false;
 
   /// Creates a Skeletonizer widget that only shades [Bone] widgets
-  const Skeletonizer._fromBones({
+  const Skeletonizer._zone({
     super.key,
     required this.child,
+    this.enabled = true,
     this.effect,
     this.textBoneBorderRadius,
     this.ignoreContainers,
     this.justifyMultiLineText,
     this.containersColor,
     this.ignorePointers = true,
-  })  : _manual = true,
-        enabled = true;
+  }) : _zoned = true;
 
   /// Creates a [Skeletonizer] widget
   const factory Skeletonizer({
@@ -80,7 +80,8 @@ abstract class Skeletonizer extends StatefulWidget {
     bool ignorePointers,
   }) = _Skeletonizer;
 
-  /// Creates a Skeletonizer widget that only shades [Bone] widgets
+  /// Creates a Skeletonizer widget that only shades [Bone] and nested skeletonizers
+  @Deprecated('Use Skeletonizer.zone instead')
   const factory Skeletonizer.bones({
     Key? key,
     required Widget child,
@@ -90,7 +91,21 @@ abstract class Skeletonizer extends StatefulWidget {
     bool? justifyMultiLineText,
     Color? containersColor,
     bool ignorePointers,
-  }) = _Skeletonizer.bones;
+    bool enabled,
+  }) = _Skeletonizer.zone;
+
+  /// Creates a Skeletonizer widget that only shades [Bone] and nested skeletonizers
+  const factory Skeletonizer.zone({
+    Key? key,
+    required Widget child,
+    PaintingEffect? effect,
+    TextBoneBorderRadius? textBoneBorderRadius,
+    bool? ignoreContainers,
+    bool? justifyMultiLineText,
+    Color? containersColor,
+    bool ignorePointers,
+    bool enabled,
+  }) = _Skeletonizer.zone;
 
   /// Creates a [SliverSkeletonizer] widget
   const factory Skeletonizer.sliver({
@@ -115,8 +130,7 @@ abstract class Skeletonizer extends StatefulWidget {
 
   /// Depends on the the nearest SkeletonizerScope if any otherwise it throws
   static SkeletonizerScope of(BuildContext context) {
-    final scope =
-        context.dependOnInheritedWidgetOfExactType<SkeletonizerScope>();
+    final scope = context.dependOnInheritedWidgetOfExactType<SkeletonizerScope>();
     assert(() {
       if (scope == null) {
         throw FlutterError(
@@ -135,8 +149,7 @@ abstract class Skeletonizer extends StatefulWidget {
 }
 
 /// The state of [Skeletonizer] widget
-class SkeletonizerState extends State<Skeletonizer>
-    with TickerProviderStateMixin<Skeletonizer> {
+class SkeletonizerState extends State<Skeletonizer> with TickerProviderStateMixin<Skeletonizer> {
   AnimationController? _animationController;
 
   late bool _enabled = widget.enabled;
@@ -161,9 +174,7 @@ class SkeletonizerState extends State<Skeletonizer>
     _textDirection = Directionality.of(context);
     final isDarkMode = _brightness == Brightness.dark;
     var resolvedConfig = SkeletonizerConfig.maybeOf(context) ??
-        (isDarkMode
-            ? const SkeletonizerConfigData.dark()
-            : const SkeletonizerConfigData.light());
+        (isDarkMode ? const SkeletonizerConfigData.dark() : const SkeletonizerConfigData.light());
 
     resolvedConfig = resolvedConfig.copyWith(
       effect: widget.effect,
@@ -176,7 +187,7 @@ class SkeletonizerState extends State<Skeletonizer>
       _config = resolvedConfig;
       _stopAnimation();
       if (widget.enabled) {
-        _startAnimation();
+        _startAnimationIfNeeded();
       }
     }
   }
@@ -189,9 +200,11 @@ class SkeletonizerState extends State<Skeletonizer>
     _animationController = null;
   }
 
-  void _startAnimation() {
+  void _startAnimationIfNeeded() {
     assert(_effect != null);
-    if (_effect!.duration.inMilliseconds != 0) {
+    final scope = Skeletonizer.maybeOf(context);
+    final isInsideZone = scope?.zoned ?? false;
+    if (!isInsideZone && _effect!.duration.inMilliseconds != 0) {
       _animationController = AnimationController.unbounded(vsync: this)
         ..addListener(_onShimmerChange)
         ..repeat(
@@ -212,7 +225,7 @@ class SkeletonizerState extends State<Skeletonizer>
         _animationController?.reset();
         _animationController?.stop(canceled: true);
       } else {
-        _startAnimation();
+        _startAnimationIfNeeded();
       }
     }
     _setupEffect();
@@ -234,18 +247,21 @@ class SkeletonizerState extends State<Skeletonizer>
   }
 
   @override
-  Widget build(BuildContext context) => widget.build(
-        context,
-        SkeletonizerBuildData(
-          enabled: _enabled,
-          config: _config!,
-          brightness: _brightness,
-          textDirection: _textDirection,
-          animationValue: _animationValue,
-          ignorePointers: widget.ignorePointers,
-          manual: widget._manual,
-        ),
-      );
+  Widget build(BuildContext context) {
+    return widget.build(
+      context,
+      SkeletonizerBuildData(
+        enabled: _enabled,
+        config: _config!,
+        brightness: _brightness,
+        textDirection: _textDirection,
+        animationValue: _animationValue,
+        ignorePointers: widget.ignorePointers,
+        zoned: widget._zoned,
+        animationController: _animationController,
+      ),
+    );
+  }
 }
 
 class _Skeletonizer extends Skeletonizer {
@@ -261,7 +277,7 @@ class _Skeletonizer extends Skeletonizer {
     super.ignorePointers,
   }) : super._();
 
-  const _Skeletonizer.bones({
+  const _Skeletonizer.zone({
     required super.child,
     super.key,
     super.effect,
@@ -270,16 +286,18 @@ class _Skeletonizer extends Skeletonizer {
     super.justifyMultiLineText,
     super.containersColor,
     super.ignorePointers,
-  }) : super._fromBones();
+    super.enabled,
+  }) : super._zone();
 
   @override
   Widget build(BuildContext context, SkeletonizerBuildData data) {
+    final enabled = data.enabled && (Skeletonizer.maybeOf(context)?.enabled ?? true);
     return SkeletonizerScope(
       enabled: data.enabled,
       config: data.config,
-      child: data.enabled
-          ? SkeletonizerRenderObjectWidget(data: data, child: child)
-          : child,
+      zoned: data.zoned,
+      animationController: data.animationController,
+      child: enabled ? SkeletonizerRenderObjectWidget(data: data, child: child) : child,
     );
   }
 }
@@ -309,15 +327,22 @@ class SliverSkeletonizer extends Skeletonizer {
     super.justifyMultiLineText,
     super.containersColor,
     super.ignorePointers,
-  }) : super._fromBones();
+    super.enabled,
+  }) : super._zone();
 
   @override
   Widget build(BuildContext context, SkeletonizerBuildData data) {
+    final enabled = data.enabled && (Skeletonizer.maybeOf(context)?.enabled ?? true);
     return SkeletonizerScope(
       enabled: data.enabled,
       config: data.config,
-      child: data.enabled
-          ? SliverSkeletonizerRenderObjectWidget(data: data, child: child)
+      zoned: data.zoned,
+      animationController: data.animationController,
+      child: enabled
+          ? SliverSkeletonizerRenderObjectWidget(
+              data: data,
+              child: child,
+            )
           : child,
     );
   }
@@ -333,7 +358,8 @@ class SkeletonizerBuildData {
     required this.textDirection,
     required this.animationValue,
     required this.ignorePointers,
-    required this.manual,
+    required this.zoned,
+    required this.animationController,
   });
 
   /// Whether skeletonizing is enabled
@@ -341,6 +367,9 @@ class SkeletonizerBuildData {
 
   /// The skeletonizer configuration
   final SkeletonizerConfigData config;
+
+  /// The animation controller used to animate the skeletonization
+  final AnimationController? animationController;
 
   /// The brightness of the theme
   final Brightness brightness;
@@ -356,8 +385,8 @@ class SkeletonizerBuildData {
   /// defaults to true
   final bool ignorePointers;
 
-  /// When true, the only [Bone] widgets will be shaded
-  final bool manual;
+  /// When true, the only [Bone] widgets will be shaded or nested skeletonizers
+  final bool zoned;
 
   @override
   bool operator ==(Object other) =>
@@ -367,9 +396,10 @@ class SkeletonizerBuildData {
           enabled == other.enabled &&
           config == other.config &&
           brightness == other.brightness &&
-          manual == other.manual &&
+          zoned == other.zoned &&
           textDirection == other.textDirection &&
           animationValue == other.animationValue &&
+          animationController == other.animationController &&
           ignorePointers == other.ignorePointers;
 
   @override
@@ -379,7 +409,8 @@ class SkeletonizerBuildData {
       brightness.hashCode ^
       textDirection.hashCode ^
       animationValue.hashCode ^
-      manual.hashCode ^
+      animationController.hashCode ^
+      zoned.hashCode ^
       ignorePointers.hashCode;
 }
 
@@ -392,16 +423,27 @@ class SkeletonizerScope extends InheritedWidget {
     required super.child,
     required this.enabled,
     required this.config,
+    required this.zoned,
+    required this.animationController,
   });
 
   /// Whether skeletonizing is enabled
   final bool enabled;
 
+  /// Whether this skeletonizer provides a skeletonization zone
+  final bool zoned;
+
   /// The current skeletonizer configuration
   final SkeletonizerConfigData config;
 
+  /// The animation controller used to animate the skeletonization
+  final AnimationController? animationController;
+
   @override
   bool updateShouldNotify(covariant SkeletonizerScope oldWidget) {
-    return enabled != oldWidget.enabled || config != oldWidget.config;
+    return enabled != oldWidget.enabled ||
+        config != oldWidget.config ||
+        zoned != oldWidget.zoned ||
+        animationController != oldWidget.animationController;
   }
 }
