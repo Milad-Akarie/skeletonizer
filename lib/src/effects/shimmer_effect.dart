@@ -52,6 +52,7 @@ abstract class ShimmerEffect extends PaintingEffect {
   Paint createPaint(double t, Rect rect, TextDirection? textDirection) {
     final beginX = begin.resolve(textDirection).x;
     final endX = end.resolve(textDirection).x;
+    Alignment.topCenter;
     final isVertical = beginX == 0 && endX == 0;
     return Paint()
       ..shader = LinearGradient(
@@ -172,12 +173,10 @@ class _SlidingGradientTransform extends GradientTransform {
 
   @override
   Matrix4? transform(Rect bounds, {TextDirection? textDirection}) {
-    final resolvedOffset = textDirection == TextDirection.rtl ? -offset : offset;
-
     if (isVertical) {
-      return Matrix4.translationValues(0.0, bounds.height * resolvedOffset, 0.0);
+      return Matrix4.translationValues(0.0, bounds.height * offset, 0.0);
     }
-
+    final resolvedOffset = textDirection == TextDirection.rtl ? -offset : offset;
     return Matrix4.translationValues(bounds.width * resolvedOffset, 0.0, 0.0);
   }
 }

@@ -56,7 +56,7 @@ class _SkeletonizerDemoPageState extends State<SkeletonizerDemoPage> {
       body: Skeletonizer(
         enabled: _enabled,
         effect: const ShimmerEffect(
-          highlightColor: Colors.grey,
+          highlightColor: Colors.red,
           begin: AlignmentDirectional.topCenter,
           end: AlignmentDirectional.bottomCenter,
         ),
