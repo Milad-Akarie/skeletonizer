@@ -55,6 +55,11 @@ class _SkeletonizerDemoPageState extends State<SkeletonizerDemoPage> {
       ),
       body: Skeletonizer(
         enabled: _enabled,
+        effect: const ShimmerEffect(
+          highlightColor: Colors.grey,
+          begin: AlignmentDirectional.topCenter,
+          end: AlignmentDirectional.bottomCenter,
+        ),
         child: ListView.builder(
           itemCount: 6,
           padding: const EdgeInsets.all(16),

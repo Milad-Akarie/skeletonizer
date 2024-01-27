@@ -50,6 +50,9 @@ abstract class ShimmerEffect extends PaintingEffect {
 
   @override
   Paint createPaint(double t, Rect rect, TextDirection? textDirection) {
+    final beginX = begin.resolve(textDirection).x;
+    final endX = end.resolve(textDirection).x;
+    final isVertical = beginX == 0 && endX == 0;
     return Paint()
       ..shader = LinearGradient(
         colors: colors,
@@ -57,11 +60,9 @@ abstract class ShimmerEffect extends PaintingEffect {
         begin: begin,
         end: end,
         tileMode: tileMode,
-        transform: _SlidingGradientTransform(offset: t),
+        transform: _SlidingGradientTransform(offset: t, isVertical: isVertical),
       ).createShader(rect, textDirection: textDirection);
   }
-
-
 }
 
 class _ShimmerEffect extends ShimmerEffect {
@@ -157,25 +158,26 @@ class _RawShimmerEffect extends ShimmerEffect {
 
   @override
   int get hashCode =>
-      colors.hashCode ^
-      stops.hashCode ^
-      begin.hashCode ^
-      end.hashCode ^
-      tileMode.hashCode ^
-      duration.hashCode;
+      colors.hashCode ^ stops.hashCode ^ begin.hashCode ^ end.hashCode ^ tileMode.hashCode ^ duration.hashCode;
 }
 
 class _SlidingGradientTransform extends GradientTransform {
   const _SlidingGradientTransform({
     required this.offset,
+    required this.isVertical,
   });
 
+  final bool isVertical;
   final double offset;
 
   @override
   Matrix4? transform(Rect bounds, {TextDirection? textDirection}) {
-    final resolvedOffset =
-        textDirection == TextDirection.rtl ? -offset : offset;
+    final resolvedOffset = textDirection == TextDirection.rtl ? -offset : offset;
+
+    if (isVertical) {
+      return Matrix4.translationValues(0.0, bounds.height * resolvedOffset, 0.0);
+    }
+
     return Matrix4.translationValues(bounds.width * resolvedOffset, 0.0, 0.0);
   }
 }
