@@ -1,4 +1,7 @@
-
+## 1.1.0
+- Rename Skeletonizer.bones to Skeletonizer.zone because it makes more sense
+  Enhance Skeletonizer.zone implementation to be more optimized
+  Add BoneMock to easily generate fake text
 ## 1.0.1 
 - Fix null check exception when nesting Skeletonizers #15
 ## 1.0.0 [Hooray!]
