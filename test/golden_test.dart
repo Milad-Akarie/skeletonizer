@@ -576,15 +576,15 @@ void runTests() {
               ),
             ),
           ),
-          // GoldenTestScenario(
-          //   name: 'replace',
-          //   child: const Skeletonizer(
-          //     child: Skeleton.replace(
-          //       replacement: Text('Replaced'),
-          //       child: Icon(Icons.ac_unit_outlined),
-          //     ),
-          //   ),
-          // ),
+          GoldenTestScenario(
+            name: 'replace',
+            child: const Skeletonizer(
+              child: Skeleton.replace(
+                replacement: Text('Replaced'),
+                child: Icon(Icons.ac_unit_outlined),
+              ),
+            ),
+          ),
           GoldenTestScenario(
             name: 'keep',
             child: const Skeletonizer(
