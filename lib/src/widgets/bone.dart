@@ -99,7 +99,7 @@ abstract class Bone extends StatelessWidget {
 class _Bone extends Bone {
   /// The default constructor
   const _Bone({
-    Key? key,
+    super.key,
     this.width,
     this.height,
     this.borderRadius,
@@ -108,7 +108,7 @@ class _Bone extends Bone {
     this.indent = 0,
     this.indentEnd = 0,
   })  : assert(uniRadius == null || borderRadius == null),
-        super._(key: key);
+        super._();
 
   final double? width, height, uniRadius;
   final double indent, indentEnd;
@@ -116,7 +116,7 @@ class _Bone extends Bone {
   final BoxShape shape;
 
   const _Bone.circle({
-    Key? key,
+    super.key,
     double? size,
     this.indent = 0,
     this.indentEnd = 0,
@@ -125,10 +125,10 @@ class _Bone extends Bone {
         borderRadius = null,
         shape = BoxShape.circle,
         uniRadius = null,
-        super._(key: key);
+        super._();
 
   const _Bone.square({
-    Key? key,
+    super.key,
     double? size,
     this.indent = 0,
     this.indentEnd = 0,
@@ -137,7 +137,7 @@ class _Bone extends Bone {
   })  : width = size,
         height = size,
         shape = BoxShape.rectangle,
-        super._(key: key);
+        super._();
 
   @override
   Widget build(BuildContext context) {
@@ -151,8 +151,7 @@ class _Bone extends Bone {
         height: height,
         child: BoneRenderObjectWidget(
           decoration: BoxDecoration(
-            borderRadius: borderRadius ??
-                (uniRadius != null ? BorderRadius.circular(uniRadius!) : null),
+            borderRadius: borderRadius ?? (uniRadius != null ? BorderRadius.circular(uniRadius!) : null),
             shape: shape,
           ),
         ),
@@ -163,11 +162,11 @@ class _Bone extends Bone {
 
 class _IconBone extends Bone {
   const _IconBone({
-    Key? key,
+    super.key,
     this.size,
     this.indent = 0,
     this.indentEnd = 0,
-  }) : super._(key: key);
+  }) : super._();
   final double? size;
   final double indent, indentEnd;
 
@@ -198,7 +197,7 @@ enum BoneButtonType {
 
 class _ButtonBone extends Bone {
   const _ButtonBone({
-    Key? key,
+    super.key,
     this.width,
     this.height,
     this.borderRadius,
@@ -210,7 +209,7 @@ class _ButtonBone extends Bone {
     this.type = BoneButtonType.elevated,
   })  : assert(uniRadius == null || borderRadius == null),
         assert(width == null || words == null),
-        super._(key: key);
+        super._();
   final double? width, height, uniRadius;
   final int? words;
   final double indent, indentEnd;
@@ -227,13 +226,10 @@ class _ButtonBone extends Bone {
     if (width != null) {
       effectiveWidth = width!;
     } else if (words != null) {
-      final effectiveFontSize =
-          style.textStyle?.resolve(const {})?.fontSize ?? 14.0;
-      effectiveWidth =
-          max(effectiveFontSize * words! * 5, buttonTheme.minWidth);
+      final effectiveFontSize = style.textStyle?.resolve(const {})?.fontSize ?? 14.0;
+      effectiveWidth = max(effectiveFontSize * words! * 5, buttonTheme.minWidth);
     }
-    var effectiveBorderRadius =
-        uniRadius != null ? BorderRadius.circular(uniRadius!) : borderRadius;
+    var effectiveBorderRadius = uniRadius != null ? BorderRadius.circular(uniRadius!) : borderRadius;
     var effectiveShape = shape;
     if (effectiveBorderRadius == null) {
       final shapeInfo = _getShape(
@@ -257,12 +253,9 @@ class _ButtonBone extends Bone {
   (BorderRadiusGeometry, BoxShape) _getShape(ButtonStyle style, double height) {
     final shape = style.shape?.resolve(const {});
     return switch (shape.runtimeType) {
-      RoundedRectangleBorder => (
-          (shape as RoundedRectangleBorder).borderRadius,
-          BoxShape.rectangle
-        ),
-      CircleBorder => (BorderRadius.zero, BoxShape.circle),
-      StadiumBorder => (BorderRadius.circular(height / 2), BoxShape.rectangle),
+      RoundedRectangleBorder _ => ((shape as RoundedRectangleBorder).borderRadius, BoxShape.rectangle),
+      CircleBorder _ => (BorderRadius.zero, BoxShape.circle),
+      StadiumBorder _ => (BorderRadius.circular(height / 2), BoxShape.rectangle),
       _ => (BorderRadius.zero, BoxShape.rectangle)
     };
   }
@@ -270,31 +263,27 @@ class _ButtonBone extends Bone {
   ButtonStyle _getStyle(BuildContext context) {
     return switch (type) {
       BoneButtonType.elevated => ElevatedButtonTheme.of(context).style ??
-          const ElevatedButton(onPressed: null, child: SizedBox.shrink())
-              .defaultStyleOf(context),
+          const ElevatedButton(onPressed: null, child: SizedBox.shrink()).defaultStyleOf(context),
       BoneButtonType.filled => FilledButtonTheme.of(context).style ??
-          const FilledButton(onPressed: null, child: SizedBox.shrink())
-              .defaultStyleOf(context),
+          const FilledButton(onPressed: null, child: SizedBox.shrink()).defaultStyleOf(context),
       BoneButtonType.text => TextButtonTheme.of(context).style ??
-          const TextButton(onPressed: null, child: SizedBox.shrink())
-              .defaultStyleOf(context),
+          const TextButton(onPressed: null, child: SizedBox.shrink()).defaultStyleOf(context),
       BoneButtonType.outlined => OutlinedButtonTheme.of(context).style ??
-          const OutlinedButton(onPressed: null, child: SizedBox.shrink())
-              .defaultStyleOf(context),
+          const OutlinedButton(onPressed: null, child: SizedBox.shrink()).defaultStyleOf(context),
     };
   }
 }
 
 class _IconButtonBone extends Bone {
   const _IconButtonBone({
-    Key? key,
+    super.key,
     this.size,
     this.borderRadius,
     this.uniRadius,
     this.indent = 0,
     this.indentEnd = 0,
   })  : assert(uniRadius == null || borderRadius == null),
-        super._(key: key);
+        super._();
   final double? size, uniRadius;
   final double indent, indentEnd;
   final BorderRadiusGeometry? borderRadius;
@@ -305,22 +294,17 @@ class _IconButtonBone extends Bone {
     var height = size;
     if (size == null) {
       final style = IconButtonTheme.of(context).style;
-      final iconSize = style?.iconSize?.resolve(const {}) ??
-          IconTheme.of(context).size ??
-          24.0;
-      final padding =
-          style?.padding?.resolve(const {}) ?? const EdgeInsets.all(8);
+      final iconSize = style?.iconSize?.resolve(const {}) ?? IconTheme.of(context).size ?? 24.0;
+      final padding = style?.padding?.resolve(const {}) ?? const EdgeInsets.all(8);
       width = iconSize + padding.horizontal;
       height = iconSize + padding.vertical;
     }
-    final effectiveBorderRadius =
-        uniRadius != null ? BorderRadius.circular(uniRadius!) : borderRadius;
+    final effectiveBorderRadius = uniRadius != null ? BorderRadius.circular(uniRadius!) : borderRadius;
     return Bone(
       width: width,
       height: height,
       borderRadius: effectiveBorderRadius,
-      shape:
-          effectiveBorderRadius == null ? BoxShape.circle : BoxShape.rectangle,
+      shape: effectiveBorderRadius == null ? BoxShape.circle : BoxShape.rectangle,
       indent: indent,
       indentEnd: indentEnd,
     );
@@ -329,7 +313,7 @@ class _IconButtonBone extends Bone {
 
 class _TextBone extends Bone {
   const _TextBone({
-    Key? key,
+    super.key,
     this.fontSize,
     this.words,
     this.width,
@@ -338,7 +322,7 @@ class _TextBone extends Bone {
     this.borderRadius,
     this.uniRadius,
   })  : assert(width == null || words == null),
-        super._(key: key);
+        super._();
   final double? width;
   final int? words;
   final double? fontSize;
@@ -366,17 +350,13 @@ class _TextBone extends Bone {
 
   @override
   Widget build(BuildContext context) {
-    final effectiveFontSize = fontSize ??
-        style?.fontSize ??
-        DefaultTextStyle.of(context).style.fontSize ??
-        14.0;
+    final effectiveFontSize = fontSize ?? style?.fontSize ?? DefaultTextStyle.of(context).style.fontSize ?? 14.0;
     final effectiveWidth = width ?? effectiveFontSize * (words ?? 3) * 5;
     var effectiveBorderRadius = borderRadius;
     if (uniRadius == null && effectiveBorderRadius == null) {
       final textBorder = Skeletonizer.of(context).config.textBorderRadius;
       effectiveBorderRadius = (textBorder.usesHeightFactor
-              ? BorderRadius.circular(
-                  effectiveFontSize * textBorder.heightPercentage!)
+              ? BorderRadius.circular(effectiveFontSize * textBorder.heightPercentage!)
               : textBorder.borderRadius)
           ?.resolve(Directionality.of(context));
     }
@@ -396,7 +376,7 @@ class _TextBone extends Bone {
 
 class _MultiTextBone extends Bone {
   const _MultiTextBone({
-    Key? key,
+    super.key,
     this.fontSize,
     this.lines = 2,
     this.width,
@@ -404,7 +384,7 @@ class _MultiTextBone extends Bone {
     this.textAlign = TextAlign.start,
     this.borderRadius,
     this.uniRadius,
-  }) : super._(key: key);
+  }) : super._();
   final double? width;
   final int lines;
   final double? fontSize;
@@ -434,14 +414,12 @@ class _MultiTextBone extends Bone {
   Widget build(BuildContext context) {
     final effectiveStyle = style ?? DefaultTextStyle.of(context).style;
     final effectiveFontSize = fontSize ?? effectiveStyle.fontSize ?? 14.0;
-    final effectiveFontHeight =
-        (effectiveStyle.height ?? 1.4) * effectiveFontSize;
+    final effectiveFontHeight = (effectiveStyle.height ?? 1.4) * effectiveFontSize;
     var effectiveBorderRadius = borderRadius;
     if (uniRadius == null && effectiveBorderRadius == null) {
       final textBorder = Skeletonizer.of(context).config.textBorderRadius;
       effectiveBorderRadius = (textBorder.usesHeightFactor
-              ? BorderRadius.circular(
-                  effectiveFontSize * textBorder.heightPercentage!)
+              ? BorderRadius.circular(effectiveFontSize * textBorder.heightPercentage!)
               : textBorder.borderRadius)
           ?.resolve(Directionality.of(context));
     }
@@ -451,8 +429,7 @@ class _MultiTextBone extends Bone {
         children: [
           for (var i = 0; i < lines; i++)
             Padding(
-              padding: EdgeInsets.symmetric(
-                  vertical: (effectiveFontHeight - effectiveFontSize) / 2),
+              padding: EdgeInsets.symmetric(vertical: (effectiveFontHeight - effectiveFontSize) / 2),
               child: Bone(
                 width: _getLineWidth(i, width ?? constraints.maxWidth),
                 height: effectiveFontSize,
@@ -489,8 +466,7 @@ class BoneRenderObjectWidget extends SingleChildRenderObjectWidget {
   }
 
   @override
-  void updateRenderObject(
-      BuildContext context, covariant BoneRenderObject renderObject) {
+  void updateRenderObject(BuildContext context, covariant BoneRenderObject renderObject) {
     (renderObject)
       ..decoration = decoration
       ..textDirection = Directionality.of(context);
@@ -527,12 +503,10 @@ class BoneRenderObject extends RenderProxyBox {
   @override
   void paint(PaintingContext context, Offset offset) {
     if (_decoration == null) return;
-    final paint =
-        (context is SkeletonizerPaintingContext) ? context.shaderPaint : Paint()
-          ..color = Colors.grey;
+    final paint = (context is SkeletonizerPaintingContext) ? context.shaderPaint : Paint()
+      ..color = Colors.grey;
     final painter = _BoneBoxDecorationPainter(_decoration!, paint);
-    painter.paint(context.canvas, offset,
-        ImageConfiguration(size: size, textDirection: _textDirection));
+    painter.paint(context.canvas, offset, ImageConfiguration(size: size, textDirection: _textDirection));
     super.paint(context, offset);
   }
 }
@@ -552,13 +526,10 @@ class _BoneBoxDecorationPainter extends BoxPainter {
         final double radius = rect.shortestSide / 2.0;
         canvas.drawCircle(center, radius, shaderPaint);
       case BoxShape.rectangle:
-        if (_decoration.borderRadius == null ||
-            _decoration.borderRadius == BorderRadius.zero) {
+        if (_decoration.borderRadius == null || _decoration.borderRadius == BorderRadius.zero) {
           canvas.drawRect(rect, shaderPaint);
         } else {
-          canvas.drawRRect(
-              _decoration.borderRadius!.resolve(textDirection).toRRect(rect),
-              shaderPaint);
+          canvas.drawRRect(_decoration.borderRadius!.resolve(textDirection).toRRect(rect), shaderPaint);
         }
     }
   }

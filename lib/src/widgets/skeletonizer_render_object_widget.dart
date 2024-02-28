@@ -16,13 +16,25 @@ class SkeletonizerRenderObjectWidget extends SingleChildRenderObjectWidget {
 
   @override
   RenderSkeletonizer createRenderObject(BuildContext context) {
+    if (data.isInsideZone) {
+      final shouldRecreateShader = Skeletonizer.of(context).config.effect != data.config.effect;
+      return ZonedRenderSkeletonizer(
+        animationValue: data.animationValue,
+        brightness: data.brightness,
+        textDirection: data.textDirection,
+        config: data.config,
+        ignorePointers: data.ignorePointers,
+        isZone: data.isZone,
+        shouldRecreateShader: shouldRecreateShader,
+      );
+    }
     return RenderSkeletonizer(
       animationValue: data.animationValue,
       brightness: data.brightness,
       textDirection: data.textDirection,
       config: data.config,
       ignorePointers: data.ignorePointers,
-      manual: data.zoned,
+      isZone: data.isZone,
     );
   }
 
@@ -36,14 +48,13 @@ class SkeletonizerRenderObjectWidget extends SingleChildRenderObjectWidget {
       ..brightness = data.brightness
       ..config = data.config
       ..ignorePointers = data.ignorePointers
-      ..manual = data.zoned
+      ..isZone = data.isZone
       ..textDirection = data.textDirection;
   }
 }
 
 /// Builds a [RenderSkeletonizer]
-class SliverSkeletonizerRenderObjectWidget
-    extends SingleChildRenderObjectWidget {
+class SliverSkeletonizerRenderObjectWidget extends SingleChildRenderObjectWidget {
   /// The default constructor
   const SliverSkeletonizerRenderObjectWidget({
     super.key,
@@ -56,13 +67,26 @@ class SliverSkeletonizerRenderObjectWidget
 
   @override
   RenderSliverSkeletonizer createRenderObject(BuildContext context) {
+    if (data.isInsideZone) {
+      final shouldRecreateShader = Skeletonizer.of(context).config.effect != data.config.effect;
+      return ZonedSliverRenderSkeletonizer(
+        animationValue: data.animationValue,
+        brightness: data.brightness,
+        textDirection: data.textDirection,
+        config: data.config,
+        ignorePointers: data.ignorePointers,
+        isZone: data.isZone,
+        shouldRecreateShader: shouldRecreateShader,
+      );
+    }
+
     return RenderSliverSkeletonizer(
       animationValue: data.animationValue,
       brightness: data.brightness,
       textDirection: data.textDirection,
       config: data.config,
       ignorePointers: data.ignorePointers,
-      manual: data.zoned,
+      isZone: data.isZone,
     );
   }
 
@@ -76,7 +100,7 @@ class SliverSkeletonizerRenderObjectWidget
       ..brightness = data.brightness
       ..config = data.config
       ..ignorePointers = data.ignorePointers
-      ..manual = data.zoned
+      ..isZone = data.isZone
       ..textDirection = data.textDirection;
   }
 }

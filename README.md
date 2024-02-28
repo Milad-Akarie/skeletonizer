@@ -116,12 +116,11 @@ the server, and we would have such a setup in our build method:
 ```dart
  
   if (_loading) {
-    final fakeUsers = List.generate(
-      7, (index) => const User(
+    final fakeUsers = List.filled(7, User(
         name: 'User name',
         jobTitle: 'Developer',
         avatar: ''
-    ),
+      ),
     );
     return Skeletonizer(
       child: UserList(users: fakeUsers),
@@ -132,12 +131,14 @@ the server, and we would have such a setup in our build method:
 
 ```
 
+
+
 or by utilizing the `enabled` flag
 
 ```dart
   {
-  final users = _loading ? List.generate(
-      7, (index) => const User(
+  final users = _loading ? List.filled(
+      7, const User(
       name: 'User name',
       jobTitle: 'Developer',
       avatar: ''
@@ -149,6 +150,22 @@ or by utilizing the `enabled` flag
   );
  
 ```
+**Note**: you can use BoneMock to easily generate fake text for your mock data
+
+```dart
+ 
+ 
+    final fakeUsers = List.filled(7, User(
+        name: BoneMock.name,
+        jobTitle: BoneMock.words(2),
+        email: BoneMock.email,
+        createdAt: BoneMock.date, 
+      ),
+    );
+     
+
+```
+
 
 Now we have our layout but one issue remains, if you run the above example you'll get an error in
 your console stating that an invalid url was passed to `NetworkImage` which is legit because our fake
@@ -344,7 +361,7 @@ Widgets annotated with `Skeleton.ignorePointers` will ignore pointer events when
 
 Originally, Skeletonizer worked its magic by creating skeletons from real widgets. But hey, we get it – sometimes you want to do your own thing, have a different layout, or just skip the whole fake data scene. Now, you can speed things up big time by crafting custom skeletons from scratch using Bone widgets. Now, you might wonder, "What sets this apart from other shimmer libraries?" Simple – Bone widgets are your time-saving superheroes. They mimic everyday UI components you'd typically want to shimmer, such as icons, texts, and buttons and use their actual theme data to design border radius and sizing information.
 ```dart
-Skeletonizer.bones(
+Skeletonizer.zone(
     child: Card(
       child: ListTile(
         leading: Bone.circle(size: 48),  

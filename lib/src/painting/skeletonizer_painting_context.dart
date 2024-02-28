@@ -3,7 +3,7 @@ import 'dart:ui' as ui;
 
 import 'package:flutter/rendering.dart';
 import 'package:skeletonizer/skeletonizer.dart';
-import 'package:skeletonizer/src/utils.dart';
+import 'package:skeletonizer/src/utils/utils.dart';
 
 /// A painting context that draws a skeleton of of widgets
 /// that draw information on the canvas like Text, Icons, Images ..etc
@@ -14,7 +14,7 @@ class SkeletonizerPaintingContext extends PaintingContext {
     required Rect estimatedBounds,
     required this.shaderPaint,
     required this.config,
-    required this.manual,
+    required this.isZone,
     required this.animationValue,
   }) : super(layer, estimatedBounds);
 
@@ -24,8 +24,8 @@ class SkeletonizerPaintingContext extends PaintingContext {
   /// The animation value
   final double animationValue;
 
-  /// Whether the skeletonization is manual
-  bool manual;
+  /// Whether the skeletonization is zone
+  bool isZone;
 
   /// The layer of the context
   final ContainerLayer layer;
@@ -57,7 +57,7 @@ class SkeletonizerPaintingContext extends PaintingContext {
   bool _didPaint = false;
 
   @override
-  ui.Canvas get canvas => manual ? super.canvas : SkeletonizerCanvas(super.canvas, this);
+  ui.Canvas get canvas => isZone ? super.canvas : SkeletonizerCanvas(super.canvas, this);
 
   @override
   PaintingContext createChildContext(ContainerLayer childLayer, ui.Rect bounds) {
@@ -66,7 +66,7 @@ class SkeletonizerPaintingContext extends PaintingContext {
       estimatedBounds: bounds,
       shaderPaint: shaderPaint,
       config: config,
-      manual: manual,
+      isZone: isZone,
       animationValue: animationValue,
     );
   }
@@ -80,7 +80,7 @@ class SkeletonizerPaintingContext extends PaintingContext {
 
   @override
   void paintChild(RenderObject child, ui.Offset offset) {
-    if (!manual && child is RenderObjectWithChildMixin) {
+    if (!isZone && child is RenderObjectWithChildMixin) {
       final key = child.paintBounds.shift(offset).center;
       final subChild = child.child;
       var treatAaLeaf = subChild == null || (subChild is RenderIgnoredSkeleton && subChild.enabled);
@@ -459,7 +459,7 @@ class LeafPaintingContext extends SkeletonizerPaintingContext {
     required super.estimatedBounds,
     required super.shaderPaint,
     required super.config,
-  }) : super(manual: false,animationValue: 0);
+  }) : super(isZone: false,animationValue: 0);
 
   @override
   void paintChild(RenderObject child, ui.Offset offset) {

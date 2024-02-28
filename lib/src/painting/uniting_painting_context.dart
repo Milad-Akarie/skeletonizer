@@ -9,18 +9,18 @@ class UnitingCanvas implements Canvas {
   /// The united rectangle of all the painted rectangles.
   var unitedRect = Rect.zero;
 
-  /// The border radius of the biggest descendent of all the painted rectangles.
+  /// The border radius of the biggest descendant of all the painted rectangles.
   BorderRadius? borderRadius;
 
-  /// The biggest descendent of all the painted rectangles.
-  Size biggestDescendent = Size.zero;
+  /// The biggest descendant of all the painted rectangles.
+  Size biggestDescendant = Size.zero;
 
   @override
   void drawParagraph(ui.Paragraph paragraph, ui.Offset offset) {
-    final rect = offset & Size(paragraph.width, paragraph.height);
+    final rect = offset & Size(paragraph.maxIntrinsicWidth, paragraph.height);
     unitedRect = unitedRect.expandToInclude(rect);
-    if (rect.size > biggestDescendent) {
-      biggestDescendent = rect.size;
+    if (rect.size > biggestDescendant) {
+      biggestDescendant = rect.size;
       borderRadius = BorderRadius.circular(paragraph.height / 2);
     }
   }
@@ -67,8 +67,8 @@ class UnitingCanvas implements Canvas {
   void drawCircle(ui.Offset c, double radius, ui.Paint paint) {
     final rect = Rect.fromCircle(center: c, radius: radius);
     unitedRect = unitedRect.expandToInclude(rect);
-    if (rect.size > biggestDescendent) {
-      biggestDescendent = rect.size;
+    if (rect.size > biggestDescendant) {
+      biggestDescendant = rect.size;
       borderRadius = BorderRadius.circular(radius);
     }
   }
@@ -152,8 +152,8 @@ class UnitingCanvas implements Canvas {
   @override
   void drawRRect(ui.RRect rrect, ui.Paint paint) {
     unitedRect = unitedRect.expandToInclude(rrect.outerRect);
-    if (rrect.outerRect.size > biggestDescendent) {
-      biggestDescendent = rrect.outerRect.size;
+    if (rrect.outerRect.size > biggestDescendant) {
+      biggestDescendant = rrect.outerRect.size;
       borderRadius = BorderRadius.only(
         topLeft: Radius.circular(rrect.tlRadiusX),
         topRight: Radius.circular(rrect.trRadiusX),

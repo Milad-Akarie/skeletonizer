@@ -39,7 +39,7 @@ abstract class Skeletonizer extends StatefulWidget {
   /// defaults to true
   final bool ignorePointers;
 
-  final bool _zoned;
+  final bool _isZone;
 
   /// Default constructor
   const Skeletonizer._({
@@ -52,7 +52,7 @@ abstract class Skeletonizer extends StatefulWidget {
     this.justifyMultiLineText,
     this.containersColor,
     this.ignorePointers = true,
-  }) : _zoned = false;
+  }) : _isZone = false;
 
   /// Creates a Skeletonizer widget that only shades [Bone] widgets
   const Skeletonizer._zone({
@@ -65,7 +65,7 @@ abstract class Skeletonizer extends StatefulWidget {
     this.justifyMultiLineText,
     this.containersColor,
     this.ignorePointers = true,
-  }) : _zoned = true;
+  }) : _isZone = true;
 
   /// Creates a [Skeletonizer] widget
   const factory Skeletonizer({
@@ -203,7 +203,7 @@ class SkeletonizerState extends State<Skeletonizer> with TickerProviderStateMixi
   void _startAnimationIfNeeded() {
     assert(_effect != null);
     final scope = Skeletonizer.maybeOf(context);
-    final isInsideZone = scope?.zoned ?? false;
+    final isInsideZone = scope?.isZone ?? false;
     if (!isInsideZone && _effect!.duration.inMilliseconds != 0) {
       _animationController = AnimationController.unbounded(vsync: this)
         ..addListener(_onShimmerChange)
@@ -257,8 +257,9 @@ class SkeletonizerState extends State<Skeletonizer> with TickerProviderStateMixi
         textDirection: _textDirection,
         animationValue: _animationValue,
         ignorePointers: widget.ignorePointers,
-        zoned: widget._zoned,
+        isZone: widget._isZone,
         animationController: _animationController,
+        isInsideZone: Skeletonizer.maybeOf(context)?.isZone ?? false,
       ),
     );
   }
@@ -295,7 +296,8 @@ class _Skeletonizer extends Skeletonizer {
     return SkeletonizerScope(
       enabled: data.enabled,
       config: data.config,
-      zoned: data.zoned,
+      isZone: data.isZone,
+      isInsideZone: data.isInsideZone,
       animationController: data.animationController,
       child: enabled ? SkeletonizerRenderObjectWidget(data: data, child: child) : child,
     );
@@ -336,7 +338,8 @@ class SliverSkeletonizer extends Skeletonizer {
     return SkeletonizerScope(
       enabled: data.enabled,
       config: data.config,
-      zoned: data.zoned,
+      isZone: data.isZone,
+      isInsideZone: data.isInsideZone,
       animationController: data.animationController,
       child: enabled
           ? SliverSkeletonizerRenderObjectWidget(
@@ -358,8 +361,9 @@ class SkeletonizerBuildData {
     required this.textDirection,
     required this.animationValue,
     required this.ignorePointers,
-    required this.zoned,
+    required this.isZone,
     required this.animationController,
+    required this.isInsideZone,
   });
 
   /// Whether skeletonizing is enabled
@@ -386,7 +390,10 @@ class SkeletonizerBuildData {
   final bool ignorePointers;
 
   /// When true, the only [Bone] widgets will be shaded or nested skeletonizers
-  final bool zoned;
+  final bool isZone;
+
+  /// Whether the skeletonizer is inside a parent Skeletonizer's zone
+  final bool isInsideZone;
 
   @override
   bool operator ==(Object other) =>
@@ -396,7 +403,8 @@ class SkeletonizerBuildData {
           enabled == other.enabled &&
           config == other.config &&
           brightness == other.brightness &&
-          zoned == other.zoned &&
+          isZone == other.isZone &&
+          isInsideZone == other.isInsideZone &&
           textDirection == other.textDirection &&
           animationValue == other.animationValue &&
           animationController == other.animationController &&
@@ -410,7 +418,8 @@ class SkeletonizerBuildData {
       textDirection.hashCode ^
       animationValue.hashCode ^
       animationController.hashCode ^
-      zoned.hashCode ^
+      isZone.hashCode ^
+      isInsideZone.hashCode ^
       ignorePointers.hashCode;
 }
 
@@ -423,7 +432,8 @@ class SkeletonizerScope extends InheritedWidget {
     required super.child,
     required this.enabled,
     required this.config,
-    required this.zoned,
+    required this.isInsideZone,
+    required this.isZone,
     required this.animationController,
   });
 
@@ -431,7 +441,10 @@ class SkeletonizerScope extends InheritedWidget {
   final bool enabled;
 
   /// Whether this skeletonizer provides a skeletonization zone
-  final bool zoned;
+  final bool isZone;
+
+  /// Whether the skeletonizer is inside a parent Skeletonizer's zone
+  final bool isInsideZone;
 
   /// The current skeletonizer configuration
   final SkeletonizerConfigData config;
@@ -443,7 +456,8 @@ class SkeletonizerScope extends InheritedWidget {
   bool updateShouldNotify(covariant SkeletonizerScope oldWidget) {
     return enabled != oldWidget.enabled ||
         config != oldWidget.config ||
-        zoned != oldWidget.zoned ||
+        isZone != oldWidget.isZone ||
+        isInsideZone != oldWidget.isInsideZone ||
         animationController != oldWidget.animationController;
   }
 }

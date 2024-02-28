@@ -32,18 +32,14 @@ class _SkeletonizerDemoPageState extends State<SkeletonizerDemoPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        title: const Text('Skeletonizer Demo'),
-      ),
+      appBar: AppBar(title: const Text('Skeletonizer Demo')),
       floatingActionButton: Padding(
         padding: const EdgeInsets.only(bottom: 0, right: 4),
         child: Padding(
           padding: const EdgeInsets.only(bottom: 110),
           child: FloatingActionButton(
             child: Icon(
-              _enabled
-                  ? Icons.hourglass_bottom_rounded
-                  : Icons.hourglass_disabled_outlined,
+              _enabled ? Icons.hourglass_bottom_rounded : Icons.hourglass_disabled_outlined,
             ),
             onPressed: () {
               setState(() {
@@ -55,11 +51,6 @@ class _SkeletonizerDemoPageState extends State<SkeletonizerDemoPage> {
       ),
       body: Skeletonizer(
         enabled: _enabled,
-        effect: const ShimmerEffect(
-          highlightColor: Colors.red,
-          begin: AlignmentDirectional.topCenter,
-          end: AlignmentDirectional.bottomCenter,
-        ),
         child: ListView.builder(
           itemCount: 6,
           padding: const EdgeInsets.all(16),

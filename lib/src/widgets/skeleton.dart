@@ -84,10 +84,10 @@ abstract class Skeleton extends Widget {
 abstract class _BasicSkeleton extends SingleChildRenderObjectWidget
     implements Skeleton {
   const _BasicSkeleton({
-    Key? key,
-    required Widget child,
+    super.key,
+    required Widget super.child,
     bool enabled = true,
-  }) : super(key: key, child: child);
+  });
 
   @override
   RenderObject createRenderObject(BuildContext context) {
@@ -119,11 +119,10 @@ abstract class _BasicSkeleton extends SingleChildRenderObjectWidget
 class _IgnoreSkeleton extends SingleChildRenderObjectWidget
     implements Skeleton {
   const _IgnoreSkeleton({
-    Key? key,
-    required Widget child,
+    super.key,
+    required Widget super.child,
     bool ignore = true,
-  })  : enabled = ignore,
-        super(key: key, child: child);
+  })  : enabled = ignore;
 
   @override
   final bool enabled;
@@ -150,11 +149,11 @@ class _IgnoreSkeleton extends SingleChildRenderObjectWidget
 
 class _KeepSkeleton extends _BasicSkeleton {
   const _KeepSkeleton({
-    Key? key,
-    required Widget child,
+    super.key,
+    required super.child,
     bool keep = true,
   })  : enabled = keep,
-        super(key: key, child: child, enabled: keep);
+        super(enabled: keep);
 
   @override
   final bool enabled;
@@ -172,12 +171,12 @@ class _UnitingSkeleton extends _BasicSkeleton {
   final bool enabled;
 
   const _UnitingSkeleton({
-    Key? key,
-    required Widget child,
+    super.key,
+    required super.child,
     this.borderRadius,
     bool unite = true,
   })  : enabled = unite,
-        super(key: key, child: child, enabled: unite);
+        super(enabled: unite);
 
   @override
   void paint(SkeletonizerPaintingContext context, Rect paintBounds,
@@ -274,10 +273,10 @@ class RenderIgnoredSkeleton extends RenderProxyBox {
 
 class _LeafSkeleton extends _BasicSkeleton {
   const _LeafSkeleton({
-    Key? key,
-    required Widget child,
+    super.key,
+    required super.child,
     this.enabled = true,
-  }) : super(key: key, child: child);
+  });
 
   @override
   final bool enabled;

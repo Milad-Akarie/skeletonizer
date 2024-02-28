@@ -52,7 +52,6 @@ abstract class ShimmerEffect extends PaintingEffect {
   Paint createPaint(double t, Rect rect, TextDirection? textDirection) {
     final beginX = begin.resolve(textDirection).x;
     final endX = end.resolve(textDirection).x;
-    Alignment.topCenter;
     final isVertical = beginX == 0 && endX == 0;
     return Paint()
       ..shader = LinearGradient(
@@ -61,7 +60,7 @@ abstract class ShimmerEffect extends PaintingEffect {
         begin: begin,
         end: end,
         tileMode: tileMode,
-        transform: _SlidingGradientTransform(offset: t, isVertical: isVertical),
+        transform: _SlidingGradientTransform(offset: t , isVertical: isVertical),
       ).createShader(rect, textDirection: textDirection);
   }
 }
