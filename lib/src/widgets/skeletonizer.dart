@@ -130,7 +130,8 @@ abstract class Skeletonizer extends StatefulWidget {
 
   /// Depends on the the nearest SkeletonizerScope if any otherwise it throws
   static SkeletonizerScope of(BuildContext context) {
-    final scope = context.dependOnInheritedWidgetOfExactType<SkeletonizerScope>();
+    final scope =
+        context.dependOnInheritedWidgetOfExactType<SkeletonizerScope>();
     assert(() {
       if (scope == null) {
         throw FlutterError(
@@ -149,7 +150,8 @@ abstract class Skeletonizer extends StatefulWidget {
 }
 
 /// The state of [Skeletonizer] widget
-class SkeletonizerState extends State<Skeletonizer> with TickerProviderStateMixin<Skeletonizer> {
+class SkeletonizerState extends State<Skeletonizer>
+    with TickerProviderStateMixin<Skeletonizer> {
   AnimationController? _animationController;
 
   late bool _enabled = widget.enabled;
@@ -174,7 +176,9 @@ class SkeletonizerState extends State<Skeletonizer> with TickerProviderStateMixi
     _textDirection = Directionality.of(context);
     final isDarkMode = _brightness == Brightness.dark;
     var resolvedConfig = SkeletonizerConfig.maybeOf(context) ??
-        (isDarkMode ? const SkeletonizerConfigData.dark() : const SkeletonizerConfigData.light());
+        (isDarkMode
+            ? const SkeletonizerConfigData.dark()
+            : const SkeletonizerConfigData.light());
 
     resolvedConfig = resolvedConfig.copyWith(
       effect: widget.effect,
@@ -248,6 +252,12 @@ class SkeletonizerState extends State<Skeletonizer> with TickerProviderStateMixi
 
   @override
   Widget build(BuildContext context) {
+    final parent = Skeletonizer.maybeOf(context);
+    assert(parent == null || parent.isZone,
+        'Skeletonizer widgets can not be nested directly, use Skeletonizer.zone as a parent for child Skeletonizers.');
+
+    final isInsideZone = parent?.isZone ?? false;
+
     return widget.build(
       context,
       SkeletonizerBuildData(
@@ -259,7 +269,7 @@ class SkeletonizerState extends State<Skeletonizer> with TickerProviderStateMixi
         ignorePointers: widget.ignorePointers,
         isZone: widget._isZone,
         animationController: _animationController,
-        isInsideZone: Skeletonizer.maybeOf(context)?.isZone ?? false,
+        isInsideZone: isInsideZone,
       ),
     );
   }
@@ -292,14 +302,17 @@ class _Skeletonizer extends Skeletonizer {
 
   @override
   Widget build(BuildContext context, SkeletonizerBuildData data) {
-    final enabled = data.enabled && (Skeletonizer.maybeOf(context)?.enabled ?? true);
+    final enabled =
+        data.enabled && (Skeletonizer.maybeOf(context)?.enabled ?? true);
     return SkeletonizerScope(
       enabled: data.enabled,
       config: data.config,
       isZone: data.isZone,
       isInsideZone: data.isInsideZone,
       animationController: data.animationController,
-      child: enabled ? SkeletonizerRenderObjectWidget(data: data, child: child) : child,
+      child: enabled
+          ? SkeletonizerRenderObjectWidget(data: data, child: child)
+          : child,
     );
   }
 }
@@ -334,7 +347,8 @@ class SliverSkeletonizer extends Skeletonizer {
 
   @override
   Widget build(BuildContext context, SkeletonizerBuildData data) {
-    final enabled = data.enabled && (Skeletonizer.maybeOf(context)?.enabled ?? true);
+    final enabled =
+        data.enabled && (Skeletonizer.maybeOf(context)?.enabled ?? true);
     return SkeletonizerScope(
       enabled: data.enabled,
       config: data.config,

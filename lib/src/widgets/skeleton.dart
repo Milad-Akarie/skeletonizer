@@ -122,7 +122,7 @@ class _IgnoreSkeleton extends SingleChildRenderObjectWidget
     super.key,
     required Widget super.child,
     bool ignore = true,
-  })  : enabled = ignore;
+  }) : enabled = ignore;
 
   @override
   final bool enabled;

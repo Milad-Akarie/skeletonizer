@@ -1,3 +1,6 @@
+## 1.1.1
+- Chore: satisfy static analysis
+- throw an elaborative error message when nesting Skeletonizer widgets.
 ## 1.1.0
 - Rename Skeletonizer.bones to Skeletonizer.zone because it makes more sense
   Enhance Skeletonizer.zone implementation to be more optimized

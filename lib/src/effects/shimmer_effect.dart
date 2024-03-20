@@ -60,7 +60,7 @@ abstract class ShimmerEffect extends PaintingEffect {
         begin: begin,
         end: end,
         tileMode: tileMode,
-        transform: _SlidingGradientTransform(offset: t , isVertical: isVertical),
+        transform: _SlidingGradientTransform(offset: t, isVertical: isVertical),
       ).createShader(rect, textDirection: textDirection);
   }
 }
@@ -158,7 +158,12 @@ class _RawShimmerEffect extends ShimmerEffect {
 
   @override
   int get hashCode =>
-      colors.hashCode ^ stops.hashCode ^ begin.hashCode ^ end.hashCode ^ tileMode.hashCode ^ duration.hashCode;
+      colors.hashCode ^
+      stops.hashCode ^
+      begin.hashCode ^
+      end.hashCode ^
+      tileMode.hashCode ^
+      duration.hashCode;
 }
 
 class _SlidingGradientTransform extends GradientTransform {
@@ -175,7 +180,8 @@ class _SlidingGradientTransform extends GradientTransform {
     if (isVertical) {
       return Matrix4.translationValues(0.0, bounds.height * offset, 0.0);
     }
-    final resolvedOffset = textDirection == TextDirection.rtl ? -offset : offset;
+    final resolvedOffset =
+        textDirection == TextDirection.rtl ? -offset : offset;
     return Matrix4.translationValues(bounds.width * resolvedOffset, 0.0, 0.0);
   }
 }

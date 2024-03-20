@@ -6,7 +6,8 @@ import 'package:skeletonizer/src/painting/skeletonizer_painting_context.dart';
 
 /// Builds a renderer object that overrides the painting operation
 /// and provides a [SkeletonizerPaintingContext] to paint the skeleton effect
-class RenderSkeletonizer extends RenderProxyBox with _RenderSkeletonBase<RenderBox> {
+class RenderSkeletonizer extends RenderProxyBox
+    with _RenderSkeletonBase<RenderBox> {
   /// Default constructor
   RenderSkeletonizer({
     required TextDirection textDirection,
@@ -101,7 +102,8 @@ class RenderSkeletonizer extends RenderProxyBox with _RenderSkeletonBase<RenderB
 }
 
 /// Creates a Zoned version of [RenderSkeletonizer] that only shades [Bone] widgets or descendants Skeletonizer widgets
-class ZonedRenderSkeletonizer extends RenderSkeletonizer with _ZonedRenderSkeletonBase<RenderBox>{
+class ZonedRenderSkeletonizer extends RenderSkeletonizer
+    with _ZonedRenderSkeletonBase<RenderBox> {
   /// Default constructor
   ZonedRenderSkeletonizer({
     required super.textDirection,
@@ -120,7 +122,8 @@ class ZonedRenderSkeletonizer extends RenderSkeletonizer with _ZonedRenderSkelet
 
 /// Builds a sliver renderer object that overrides the painting operation
 /// and provides a [SkeletonizerPaintingContext] to paint the skeleton effect
-class RenderSliverSkeletonizer extends RenderProxySliver with _RenderSkeletonBase<RenderSliver> {
+class RenderSliverSkeletonizer extends RenderProxySliver
+    with _RenderSkeletonBase<RenderSliver> {
   /// Default constructor
   RenderSliverSkeletonizer({
     required TextDirection textDirection,
@@ -207,14 +210,18 @@ class RenderSliverSkeletonizer extends RenderProxySliver with _RenderSkeletonBas
   }
 
   @override
-  bool hitTest(SliverHitTestResult result, {required double mainAxisPosition, required double crossAxisPosition}) {
+  bool hitTest(SliverHitTestResult result,
+      {required double mainAxisPosition, required double crossAxisPosition}) {
     if (_ignorePointers) return false;
-    return super.hitTest(result, mainAxisPosition: mainAxisPosition, crossAxisPosition: crossAxisPosition);
+    return super.hitTest(result,
+        mainAxisPosition: mainAxisPosition,
+        crossAxisPosition: crossAxisPosition);
   }
 }
 
 /// Creates a Zoned version of [RenderSliverSkeletonizer] that only shades [Bone] widgets or descendants Skeletonizer widgets
-class ZonedSliverRenderSkeletonizer extends RenderSliverSkeletonizer with _ZonedRenderSkeletonBase<RenderSliver> {
+class ZonedSliverRenderSkeletonizer extends RenderSliverSkeletonizer
+    with _ZonedRenderSkeletonBase<RenderSliver> {
   /// Default constructor
   ZonedSliverRenderSkeletonizer({
     required super.textDirection,
@@ -230,11 +237,13 @@ class ZonedSliverRenderSkeletonizer extends RenderSliverSkeletonizer with _Zoned
   final bool shouldRecreateShader;
 }
 
-mixin _ZonedRenderSkeletonBase<R extends RenderObject> on _RenderSkeletonBase<R> {
+mixin _ZonedRenderSkeletonBase<R extends RenderObject>
+    on _RenderSkeletonBase<R> {
   bool get shouldRecreateShader;
 
   @override
-  SkeletonizerPaintingContext createSkeletonizerContext(PaintingContext context, Offset offset) {
+  SkeletonizerPaintingContext createSkeletonizerContext(
+      PaintingContext context, Offset offset) {
     assert(context is SkeletonizerPaintingContext);
     final skeletonizerContext = context as SkeletonizerPaintingContext;
     final Paint shaderPaint;
@@ -258,7 +267,8 @@ mixin _ZonedRenderSkeletonBase<R extends RenderObject> on _RenderSkeletonBase<R>
   }
 }
 
-mixin _RenderSkeletonBase<R extends RenderObject> on RenderObjectWithChildMixin<R> {
+mixin _RenderSkeletonBase<R extends RenderObject>
+    on RenderObjectWithChildMixin<R> {
   /// The text direction used to resolve Directional geometries
   TextDirection get textDirection;
 

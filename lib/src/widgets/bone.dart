@@ -151,7 +151,8 @@ class _Bone extends Bone {
         height: height,
         child: BoneRenderObjectWidget(
           decoration: BoxDecoration(
-            borderRadius: borderRadius ?? (uniRadius != null ? BorderRadius.circular(uniRadius!) : null),
+            borderRadius: borderRadius ??
+                (uniRadius != null ? BorderRadius.circular(uniRadius!) : null),
             shape: shape,
           ),
         ),
@@ -226,10 +227,13 @@ class _ButtonBone extends Bone {
     if (width != null) {
       effectiveWidth = width!;
     } else if (words != null) {
-      final effectiveFontSize = style.textStyle?.resolve(const {})?.fontSize ?? 14.0;
-      effectiveWidth = max(effectiveFontSize * words! * 5, buttonTheme.minWidth);
+      final effectiveFontSize =
+          style.textStyle?.resolve(const {})?.fontSize ?? 14.0;
+      effectiveWidth =
+          max(effectiveFontSize * words! * 5, buttonTheme.minWidth);
     }
-    var effectiveBorderRadius = uniRadius != null ? BorderRadius.circular(uniRadius!) : borderRadius;
+    var effectiveBorderRadius =
+        uniRadius != null ? BorderRadius.circular(uniRadius!) : borderRadius;
     var effectiveShape = shape;
     if (effectiveBorderRadius == null) {
       final shapeInfo = _getShape(
@@ -253,9 +257,15 @@ class _ButtonBone extends Bone {
   (BorderRadiusGeometry, BoxShape) _getShape(ButtonStyle style, double height) {
     final shape = style.shape?.resolve(const {});
     return switch (shape.runtimeType) {
-      RoundedRectangleBorder _ => ((shape as RoundedRectangleBorder).borderRadius, BoxShape.rectangle),
+      RoundedRectangleBorder _ => (
+          (shape as RoundedRectangleBorder).borderRadius,
+          BoxShape.rectangle
+        ),
       CircleBorder _ => (BorderRadius.zero, BoxShape.circle),
-      StadiumBorder _ => (BorderRadius.circular(height / 2), BoxShape.rectangle),
+      StadiumBorder _ => (
+          BorderRadius.circular(height / 2),
+          BoxShape.rectangle
+        ),
       _ => (BorderRadius.zero, BoxShape.rectangle)
     };
   }
@@ -263,13 +273,17 @@ class _ButtonBone extends Bone {
   ButtonStyle _getStyle(BuildContext context) {
     return switch (type) {
       BoneButtonType.elevated => ElevatedButtonTheme.of(context).style ??
-          const ElevatedButton(onPressed: null, child: SizedBox.shrink()).defaultStyleOf(context),
+          const ElevatedButton(onPressed: null, child: SizedBox.shrink())
+              .defaultStyleOf(context),
       BoneButtonType.filled => FilledButtonTheme.of(context).style ??
-          const FilledButton(onPressed: null, child: SizedBox.shrink()).defaultStyleOf(context),
+          const FilledButton(onPressed: null, child: SizedBox.shrink())
+              .defaultStyleOf(context),
       BoneButtonType.text => TextButtonTheme.of(context).style ??
-          const TextButton(onPressed: null, child: SizedBox.shrink()).defaultStyleOf(context),
+          const TextButton(onPressed: null, child: SizedBox.shrink())
+              .defaultStyleOf(context),
       BoneButtonType.outlined => OutlinedButtonTheme.of(context).style ??
-          const OutlinedButton(onPressed: null, child: SizedBox.shrink()).defaultStyleOf(context),
+          const OutlinedButton(onPressed: null, child: SizedBox.shrink())
+              .defaultStyleOf(context),
     };
   }
 }
@@ -294,17 +308,22 @@ class _IconButtonBone extends Bone {
     var height = size;
     if (size == null) {
       final style = IconButtonTheme.of(context).style;
-      final iconSize = style?.iconSize?.resolve(const {}) ?? IconTheme.of(context).size ?? 24.0;
-      final padding = style?.padding?.resolve(const {}) ?? const EdgeInsets.all(8);
+      final iconSize = style?.iconSize?.resolve(const {}) ??
+          IconTheme.of(context).size ??
+          24.0;
+      final padding =
+          style?.padding?.resolve(const {}) ?? const EdgeInsets.all(8);
       width = iconSize + padding.horizontal;
       height = iconSize + padding.vertical;
     }
-    final effectiveBorderRadius = uniRadius != null ? BorderRadius.circular(uniRadius!) : borderRadius;
+    final effectiveBorderRadius =
+        uniRadius != null ? BorderRadius.circular(uniRadius!) : borderRadius;
     return Bone(
       width: width,
       height: height,
       borderRadius: effectiveBorderRadius,
-      shape: effectiveBorderRadius == null ? BoxShape.circle : BoxShape.rectangle,
+      shape:
+          effectiveBorderRadius == null ? BoxShape.circle : BoxShape.rectangle,
       indent: indent,
       indentEnd: indentEnd,
     );
@@ -350,13 +369,17 @@ class _TextBone extends Bone {
 
   @override
   Widget build(BuildContext context) {
-    final effectiveFontSize = fontSize ?? style?.fontSize ?? DefaultTextStyle.of(context).style.fontSize ?? 14.0;
+    final effectiveFontSize = fontSize ??
+        style?.fontSize ??
+        DefaultTextStyle.of(context).style.fontSize ??
+        14.0;
     final effectiveWidth = width ?? effectiveFontSize * (words ?? 3) * 5;
     var effectiveBorderRadius = borderRadius;
     if (uniRadius == null && effectiveBorderRadius == null) {
       final textBorder = Skeletonizer.of(context).config.textBorderRadius;
       effectiveBorderRadius = (textBorder.usesHeightFactor
-              ? BorderRadius.circular(effectiveFontSize * textBorder.heightPercentage!)
+              ? BorderRadius.circular(
+                  effectiveFontSize * textBorder.heightPercentage!)
               : textBorder.borderRadius)
           ?.resolve(Directionality.of(context));
     }
@@ -414,12 +437,14 @@ class _MultiTextBone extends Bone {
   Widget build(BuildContext context) {
     final effectiveStyle = style ?? DefaultTextStyle.of(context).style;
     final effectiveFontSize = fontSize ?? effectiveStyle.fontSize ?? 14.0;
-    final effectiveFontHeight = (effectiveStyle.height ?? 1.4) * effectiveFontSize;
+    final effectiveFontHeight =
+        (effectiveStyle.height ?? 1.4) * effectiveFontSize;
     var effectiveBorderRadius = borderRadius;
     if (uniRadius == null && effectiveBorderRadius == null) {
       final textBorder = Skeletonizer.of(context).config.textBorderRadius;
       effectiveBorderRadius = (textBorder.usesHeightFactor
-              ? BorderRadius.circular(effectiveFontSize * textBorder.heightPercentage!)
+              ? BorderRadius.circular(
+                  effectiveFontSize * textBorder.heightPercentage!)
               : textBorder.borderRadius)
           ?.resolve(Directionality.of(context));
     }
@@ -429,7 +454,8 @@ class _MultiTextBone extends Bone {
         children: [
           for (var i = 0; i < lines; i++)
             Padding(
-              padding: EdgeInsets.symmetric(vertical: (effectiveFontHeight - effectiveFontSize) / 2),
+              padding: EdgeInsets.symmetric(
+                  vertical: (effectiveFontHeight - effectiveFontSize) / 2),
               child: Bone(
                 width: _getLineWidth(i, width ?? constraints.maxWidth),
                 height: effectiveFontSize,
@@ -466,7 +492,8 @@ class BoneRenderObjectWidget extends SingleChildRenderObjectWidget {
   }
 
   @override
-  void updateRenderObject(BuildContext context, covariant BoneRenderObject renderObject) {
+  void updateRenderObject(
+      BuildContext context, covariant BoneRenderObject renderObject) {
     (renderObject)
       ..decoration = decoration
       ..textDirection = Directionality.of(context);
@@ -503,10 +530,12 @@ class BoneRenderObject extends RenderProxyBox {
   @override
   void paint(PaintingContext context, Offset offset) {
     if (_decoration == null) return;
-    final paint = (context is SkeletonizerPaintingContext) ? context.shaderPaint : Paint()
-      ..color = Colors.grey;
+    final paint =
+        (context is SkeletonizerPaintingContext) ? context.shaderPaint : Paint()
+          ..color = Colors.grey;
     final painter = _BoneBoxDecorationPainter(_decoration!, paint);
-    painter.paint(context.canvas, offset, ImageConfiguration(size: size, textDirection: _textDirection));
+    painter.paint(context.canvas, offset,
+        ImageConfiguration(size: size, textDirection: _textDirection));
     super.paint(context, offset);
   }
 }
@@ -526,10 +555,13 @@ class _BoneBoxDecorationPainter extends BoxPainter {
         final double radius = rect.shortestSide / 2.0;
         canvas.drawCircle(center, radius, shaderPaint);
       case BoxShape.rectangle:
-        if (_decoration.borderRadius == null || _decoration.borderRadius == BorderRadius.zero) {
+        if (_decoration.borderRadius == null ||
+            _decoration.borderRadius == BorderRadius.zero) {
           canvas.drawRect(rect, shaderPaint);
         } else {
-          canvas.drawRRect(_decoration.borderRadius!.resolve(textDirection).toRRect(rect), shaderPaint);
+          canvas.drawRRect(
+              _decoration.borderRadius!.resolve(textDirection).toRRect(rect),
+              shaderPaint);
         }
     }
   }
