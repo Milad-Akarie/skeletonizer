@@ -93,7 +93,7 @@ we have no layout which means we have nothing to skeletonize.
 Skeletonizer(
   enabled: _loading,
   child: ListView.builder(
-    itemCount: users.lenght,
+    itemCount: users.length,
     itemBuilder: (context, index) {
       return Card(
         child: ListTile(
