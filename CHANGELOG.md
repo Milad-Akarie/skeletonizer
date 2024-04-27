@@ -1,3 +1,5 @@
+## 1.1.2+1
+- Fix pub.dev preview image
 ## 1.1.2
 - Fix Skeleton.leaf has no effect on android devices #30
 ## 1.1.1
