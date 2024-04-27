@@ -90,9 +90,9 @@ class SkeletonizerPaintingContext extends PaintingContext {
       if (child is RenderSemanticsAnnotations) {
         treatAaLeaf |= child.properties.button == true;
       }
-       if(treatAaLeaf) {
-         _treatedAsLeaf.add(key);
-       }
+      if (treatAaLeaf) {
+        _treatedAsLeaf.add(key);
+      }
     }
     child.paint(this, offset);
   }
