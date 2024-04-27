@@ -33,7 +33,7 @@ class SkeletonizerPaintingContext extends PaintingContext {
   /// The [Paint] that is used to draw the skeleton
   final Paint shaderPaint;
 
-  late final _treatedAsLeaf = <Offset, bool>{};
+  late final _treatedAsLeaf = <Offset>{};
 
   /// Creates a default child painting context
   void createDefaultContext(Rect rect, Painter paint) {
@@ -90,7 +90,9 @@ class SkeletonizerPaintingContext extends PaintingContext {
       if (child is RenderSemanticsAnnotations) {
         treatAaLeaf |= child.properties.button == true;
       }
-      _treatedAsLeaf[key] = treatAaLeaf;
+       if(treatAaLeaf) {
+         _treatedAsLeaf.add(key);
+       }
     }
     child.paint(this, offset);
   }
@@ -208,7 +210,7 @@ class SkeletonizerCanvas implements Canvas {
   void drawDRRect(ui.RRect outer, ui.RRect inner, ui.Paint paint) {
     if (paint.color.opacity == 0) return;
     context._didPaint = true;
-    final treatAsBone = context._treatedAsLeaf[outer.center] ?? false;
+    final treatAsBone = context._treatedAsLeaf.containsFuzzy(outer.center);
     if (treatAsBone) {
       parent.drawDRRect(
         outer,
@@ -302,8 +304,7 @@ class SkeletonizerCanvas implements Canvas {
     if (paint.color.opacity == 0) return;
     context._didPaint = true;
     final treatAsBone =
-        context._treatedAsLeaf[path.getBounds().center] ?? false;
-
+        context._treatedAsLeaf.containsFuzzy(path.getBounds().center);
     if (treatAsBone) {
       parent.drawPath(path, paint.copyWith(shader: _shaderPaint.shader));
     } else if (!_config.ignoreContainers) {
@@ -319,7 +320,7 @@ class SkeletonizerCanvas implements Canvas {
   void drawRect(ui.Rect rect, ui.Paint paint) {
     if (paint.color.opacity == 0) return;
     context._didPaint = true;
-    final treatAsBone = context._treatedAsLeaf[rect.center] ?? false;
+    final treatAsBone = context._treatedAsLeaf.containsFuzzy(rect.center);
     if (treatAsBone) {
       parent.drawRect(rect, paint.copyWith(shader: _shaderPaint.shader));
     } else if (!_config.ignoreContainers) {
@@ -335,7 +336,7 @@ class SkeletonizerCanvas implements Canvas {
   void drawRRect(ui.RRect rrect, ui.Paint paint) {
     if (paint.color.opacity == 0) return;
     context._didPaint = true;
-    final treatAsBone = context._treatedAsLeaf[rrect.center] ?? false;
+    final treatAsBone = context._treatedAsLeaf.containsFuzzy(rrect.center);
     if (treatAsBone) {
       parent.drawRRect(rrect, paint.copyWith(shader: _shaderPaint.shader));
     } else if (!_config.ignoreContainers) {
@@ -352,7 +353,7 @@ class SkeletonizerCanvas implements Canvas {
   void drawCircle(ui.Offset c, double radius, ui.Paint paint) {
     if (paint.color.opacity == 0) return;
     context._didPaint = true;
-    final treatAsBone = context._treatedAsLeaf[c] ?? false;
+    final treatAsBone = context._treatedAsLeaf.containsFuzzy(c);
     if (treatAsBone) {
       parent.drawCircle(c, radius, paint.copyWith(shader: _shaderPaint.shader));
     } else if (!_config.ignoreContainers) {
@@ -475,7 +476,7 @@ class LeafPaintingContext extends SkeletonizerPaintingContext {
   @override
   void paintChild(RenderObject child, ui.Offset offset) {
     if (!_didPaint) {
-      _treatedAsLeaf[child.paintBounds.shift(offset).center] = true;
+      _treatedAsLeaf.add(child.paintBounds.shift(offset).center);
       child.paint(this, offset);
     }
   }

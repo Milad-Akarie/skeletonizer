@@ -1,3 +1,5 @@
+## 1.1.2
+- Fix Skeleton.leaf has no effect on android devices #30
 ## 1.1.1
 - Chore: satisfy static analysis
 - throw an elaborative error message when nesting Skeletonizer widgets.

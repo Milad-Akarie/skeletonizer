@@ -1,10 +1,10 @@
 name: skeletonizer
 description: Converts already built widgets into skeleton loaders with no extra effort.
-version: 1.1.1
+version: 1.1.2
 homepage: https://github.com/Milad-Akarie/skeletonizer
 screenshots:
   - description: 'Example of skeletonizer in action.'
-    path: art/screen_shot_1.png
+    path: art/skeletonizer_logo_no_text.png
 topics:
   - skeleton
   - shimmer-loading
@@ -25,7 +25,7 @@ dev_dependencies:
   flutter_test:
     sdk: flutter
 
-  flutter_lints: ^3.0.1
+  flutter_lints: ^3.0.2
   alchemist: 0.7.0
 
 
