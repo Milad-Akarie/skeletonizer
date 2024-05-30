@@ -319,7 +319,7 @@ Card(
     trailing: Skeleton.replace( // the icon will be replaced when skeletonizer is enabled
         width: 50, // the width of the replacement
         height: 50, // the height of the replacement
-        replacment: // defaults to a DecoratedBox
+        replacement: // defaults to a DecoratedBox
         child: Icon(Icons.ac_unit, size: 40),
   ),
 )
