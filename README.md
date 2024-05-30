@@ -93,7 +93,7 @@ we have no layout which means we have nothing to skeletonize.
 Skeletonizer(
   enabled: _loading,
   child: ListView.builder(
-    itemCount: users.lenght,
+    itemCount: users.length,
     itemBuilder: (context, index) {
       return Card(
         child: ListTile(
@@ -177,7 +177,7 @@ called `Skeleton.replace` ..read more about annotations below.
 Skeletonizer(
   enabled: _loading,
   child: ListView.builder(
-    itemCount: users.lenght,
+    itemCount: users.length,
     itemBuilder: (context, index) {
       return Card(
         child: ListTile(
@@ -203,7 +203,7 @@ or you can do it directly like follows:
 Skeletonizer(
   enabled: _loading,
   child: ListView.builder(
-    itemCount: users.lenght,
+    itemCount: users.length,
     itemBuilder: (context, index) {
       return Card(
         child: ListTile(
@@ -319,7 +319,7 @@ Card(
     trailing: Skeleton.replace( // the icon will be replaced when skeletonizer is enabled
         width: 50, // the width of the replacement
         height: 50, // the height of the replacement
-        replacment: // defaults to a DecoratedBox
+        replacement: // defaults to a DecoratedBox
         child: Icon(Icons.ac_unit, size: 40),
   ),
 )
