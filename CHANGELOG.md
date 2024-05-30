@@ -1,3 +1,5 @@
+## 1.2.0
+- Feat: allow nested Skeletonizer widgets
 ## 1.1.2+1
 - Fix pub.dev preview image
 ## 1.1.2

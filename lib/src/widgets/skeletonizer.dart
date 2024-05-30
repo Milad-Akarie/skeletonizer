@@ -81,20 +81,6 @@ abstract class Skeletonizer extends StatefulWidget {
   }) = _Skeletonizer;
 
   /// Creates a Skeletonizer widget that only shades [Bone] and nested skeletonizers
-  @Deprecated('Use Skeletonizer.zone instead')
-  const factory Skeletonizer.bones({
-    Key? key,
-    required Widget child,
-    PaintingEffect? effect,
-    TextBoneBorderRadius? textBoneBorderRadius,
-    bool? ignoreContainers,
-    bool? justifyMultiLineText,
-    Color? containersColor,
-    bool ignorePointers,
-    bool enabled,
-  }) = _Skeletonizer.zone;
-
-  /// Creates a Skeletonizer widget that only shades [Bone] and nested skeletonizers
   const factory Skeletonizer.zone({
     Key? key,
     required Widget child,
@@ -206,9 +192,7 @@ class SkeletonizerState extends State<Skeletonizer>
 
   void _startAnimationIfNeeded() {
     assert(_effect != null);
-    final scope = Skeletonizer.maybeOf(context);
-    final isInsideZone = scope?.isZone ?? false;
-    if (!isInsideZone && _effect!.duration.inMilliseconds != 0) {
+    if (_effect!.duration.inMilliseconds != 0) {
       _animationController = AnimationController.unbounded(vsync: this)
         ..addListener(_onShimmerChange)
         ..repeat(
@@ -253,11 +237,7 @@ class SkeletonizerState extends State<Skeletonizer>
   @override
   Widget build(BuildContext context) {
     final parent = Skeletonizer.maybeOf(context);
-    assert(parent == null || parent.isZone,
-        'Skeletonizer widgets can not be nested directly, use Skeletonizer.zone as a parent for child Skeletonizers.');
-
     final isInsideZone = parent?.isZone ?? false;
-
     return widget.build(
       context,
       SkeletonizerBuildData(
@@ -302,15 +282,13 @@ class _Skeletonizer extends Skeletonizer {
 
   @override
   Widget build(BuildContext context, SkeletonizerBuildData data) {
-    final enabled =
-        data.enabled && (Skeletonizer.maybeOf(context)?.enabled ?? true);
     return SkeletonizerScope(
       enabled: data.enabled,
       config: data.config,
       isZone: data.isZone,
       isInsideZone: data.isInsideZone,
       animationController: data.animationController,
-      child: enabled
+      child: data.enabled
           ? SkeletonizerRenderObjectWidget(data: data, child: child)
           : child,
     );
@@ -333,7 +311,7 @@ class SliverSkeletonizer extends Skeletonizer {
   }) : super._();
 
   /// Creates a Skeletonizer widget that only shades [Bone] widgets
-  const SliverSkeletonizer.bones({
+  const SliverSkeletonizer.zone({
     required super.child,
     super.key,
     super.effect,
@@ -347,15 +325,13 @@ class SliverSkeletonizer extends Skeletonizer {
 
   @override
   Widget build(BuildContext context, SkeletonizerBuildData data) {
-    final enabled =
-        data.enabled && (Skeletonizer.maybeOf(context)?.enabled ?? true);
     return SkeletonizerScope(
       enabled: data.enabled,
       config: data.config,
       isZone: data.isZone,
       isInsideZone: data.isInsideZone,
       animationController: data.animationController,
-      child: enabled
+      child: data.enabled
           ? SliverSkeletonizerRenderObjectWidget(
               data: data,
               child: child,

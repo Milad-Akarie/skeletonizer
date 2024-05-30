@@ -16,19 +16,6 @@ class SkeletonizerRenderObjectWidget extends SingleChildRenderObjectWidget {
 
   @override
   RenderSkeletonizer createRenderObject(BuildContext context) {
-    if (data.isInsideZone) {
-      final shouldRecreateShader =
-          Skeletonizer.of(context).config.effect != data.config.effect;
-      return ZonedRenderSkeletonizer(
-        animationValue: data.animationValue,
-        brightness: data.brightness,
-        textDirection: data.textDirection,
-        config: data.config,
-        ignorePointers: data.ignorePointers,
-        isZone: data.isZone,
-        shouldRecreateShader: shouldRecreateShader,
-      );
-    }
     return RenderSkeletonizer(
       animationValue: data.animationValue,
       brightness: data.brightness,
@@ -69,20 +56,6 @@ class SliverSkeletonizerRenderObjectWidget
 
   @override
   RenderSliverSkeletonizer createRenderObject(BuildContext context) {
-    if (data.isInsideZone) {
-      final shouldRecreateShader =
-          Skeletonizer.of(context).config.effect != data.config.effect;
-      return ZonedSliverRenderSkeletonizer(
-        animationValue: data.animationValue,
-        brightness: data.brightness,
-        textDirection: data.textDirection,
-        config: data.config,
-        ignorePointers: data.ignorePointers,
-        isZone: data.isZone,
-        shouldRecreateShader: shouldRecreateShader,
-      );
-    }
-
     return RenderSliverSkeletonizer(
       animationValue: data.animationValue,
       brightness: data.brightness,

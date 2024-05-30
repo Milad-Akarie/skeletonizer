@@ -51,7 +51,7 @@ class _SkeletonizerDemoPageState extends State<SkeletonizerDemoPage> {
           ),
         ),
       ),
-      body: Skeletonizer(
+      body: Skeletonizer.zone(
         enabled: _enabled,
         child: ListView.builder(
           itemCount: 6,

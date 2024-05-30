@@ -101,25 +101,6 @@ class RenderSkeletonizer extends RenderProxyBox
   }
 }
 
-/// Creates a Zoned version of [RenderSkeletonizer] that only shades [Bone] widgets or descendants Skeletonizer widgets
-class ZonedRenderSkeletonizer extends RenderSkeletonizer
-    with _ZonedRenderSkeletonBase<RenderBox> {
-  /// Default constructor
-  ZonedRenderSkeletonizer({
-    required super.textDirection,
-    required super.animationValue,
-    required super.brightness,
-    required super.config,
-    required super.ignorePointers,
-    required super.isZone,
-    required this.shouldRecreateShader,
-  });
-
-  /// Whether the shader paint should be recreated for the sub Skeletonizer widget
-  @override
-  final bool shouldRecreateShader;
-}
-
 /// Builds a sliver renderer object that overrides the painting operation
 /// and provides a [SkeletonizerPaintingContext] to paint the skeleton effect
 class RenderSliverSkeletonizer extends RenderProxySliver
@@ -219,54 +200,6 @@ class RenderSliverSkeletonizer extends RenderProxySliver
   }
 }
 
-/// Creates a Zoned version of [RenderSliverSkeletonizer] that only shades [Bone] widgets or descendants Skeletonizer widgets
-class ZonedSliverRenderSkeletonizer extends RenderSliverSkeletonizer
-    with _ZonedRenderSkeletonBase<RenderSliver> {
-  /// Default constructor
-  ZonedSliverRenderSkeletonizer({
-    required super.textDirection,
-    required super.animationValue,
-    required super.brightness,
-    required super.config,
-    required super.ignorePointers,
-    required super.isZone,
-    required this.shouldRecreateShader,
-  });
-
-  @override
-  final bool shouldRecreateShader;
-}
-
-mixin _ZonedRenderSkeletonBase<R extends RenderObject>
-    on _RenderSkeletonBase<R> {
-  bool get shouldRecreateShader;
-
-  @override
-  SkeletonizerPaintingContext createSkeletonizerContext(
-      PaintingContext context, Offset offset) {
-    assert(context is SkeletonizerPaintingContext);
-    final skeletonizerContext = context as SkeletonizerPaintingContext;
-    final Paint shaderPaint;
-    if (shouldRecreateShader) {
-      shaderPaint = config.effect.createPaint(
-        context.animationValue,
-        context.estimatedBounds,
-        textDirection,
-      );
-    } else {
-      shaderPaint = skeletonizerContext.shaderPaint;
-    }
-    return SkeletonizerPaintingContext(
-      layer: skeletonizerContext.layer,
-      animationValue: animationValue,
-      estimatedBounds: paintBounds.shift(offset),
-      shaderPaint: shaderPaint,
-      config: config,
-      isZone: isZone,
-    );
-  }
-}
-
 mixin _RenderSkeletonBase<R extends RenderObject>
     on RenderObjectWithChildMixin<R> {
   /// The text direction used to resolve Directional geometries
@@ -281,7 +214,7 @@ mixin _RenderSkeletonBase<R extends RenderObject>
   /// The value to animate painting effects
   double get animationValue;
 
-  /// if true, only [Bone] widgets will be shaded
+  /// if true, only [Bone] and [Skeletonizer] widgets will be shaded
   bool get isZone;
 
   @override
@@ -289,6 +222,7 @@ mixin _RenderSkeletonBase<R extends RenderObject>
 
   SkeletonizerPaintingContext createSkeletonizerContext(
     PaintingContext context,
+    ContainerLayer layer,
     Offset offset,
   ) {
     final estimatedBounds = paintBounds.shift(offset);
@@ -298,7 +232,7 @@ mixin _RenderSkeletonBase<R extends RenderObject>
       textDirection,
     );
     return SkeletonizerPaintingContext(
-      layer: layer!,
+      layer: layer,
       animationValue: animationValue,
       estimatedBounds: estimatedBounds,
       shaderPaint: shaderPaint,
@@ -309,7 +243,8 @@ mixin _RenderSkeletonBase<R extends RenderObject>
 
   @override
   void paint(PaintingContext context, Offset offset) {
-    final skeletonizerContext = createSkeletonizerContext(context, offset);
+    final skeletonizerContext =
+        createSkeletonizerContext(context, layer!, offset);
     super.paint(skeletonizerContext, offset);
     skeletonizerContext.stopRecordingIfNeeded();
   }

@@ -3,6 +3,7 @@ import 'dart:ui' as ui;
 
 import 'package:flutter/rendering.dart';
 import 'package:skeletonizer/skeletonizer.dart';
+import 'package:skeletonizer/src/rendering/render_skeletonizer.dart';
 import 'package:skeletonizer/src/utils/utils.dart';
 
 /// A painting context that draws a skeleton of of widgets
@@ -82,6 +83,9 @@ class SkeletonizerPaintingContext extends PaintingContext {
 
   @override
   void paintChild(RenderObject child, ui.Offset offset) {
+    if (child is RenderSkeletonizer || child is RenderSliverSkeletonizer) {
+      return super.paintChild(child, offset);
+    }
     if (!isZone && child is RenderObjectWithChildMixin) {
       final key = child.paintBounds.shift(offset).center;
       final subChild = child.child;
