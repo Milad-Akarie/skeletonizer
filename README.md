@@ -391,6 +391,19 @@ liking.
 
 ![](https://github.com/Milad-Akarie/skeletonizer/blob/main/art/loading_effects_demo.gif?raw=true)
 
+### Animating the transition between skeleton and content (Slivers are not supported)
+ you can animate the transition between skeleton and content by setting `enableSwitchAnimation` to true, animation can be customized by providing a `SwitchAnimationConfig`.
+
+```dart
+   SwitchAnimationConfig({
+        this.duration = const Duration(milliseconds: 300),
+        this.switchInCurve = Curves.linear,
+        this.switchOutCurve = Curves.linear,
+        this.transitionBuilder = AnimatedSwitcher.defaultTransitionBuilder,
+        this.reverseDuration,
+  }); 
+```
+
 ### Text skeleton config
 
 You can provide a global text config options to skeletonizer widgets like

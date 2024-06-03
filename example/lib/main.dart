@@ -51,8 +51,9 @@ class _SkeletonizerDemoPageState extends State<SkeletonizerDemoPage> {
           ),
         ),
       ),
-      body: Skeletonizer.zone(
+      body: Skeletonizer(
         enabled: _enabled,
+        enableSwitchAnimation: true,
         child: ListView.builder(
           itemCount: 6,
           padding: const EdgeInsets.all(16),

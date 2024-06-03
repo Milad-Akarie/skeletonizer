@@ -25,6 +25,16 @@ class SkeletonizerConfigData {
   /// if null the actual color will be used
   final Color? containersColor;
 
+  /// Whether to enable switch animation
+  ///
+  /// This will animate the switch between the skeleton and the actual widget
+  final bool enableSwitchAnimation;
+
+  /// The switch animation config
+  ///
+  /// This will be used if [enableSwitchAnimation] is true
+  final SwitchAnimationConfig switchAnimationConfig;
+
   /// Default constructor
   const SkeletonizerConfigData({
     this.effect = const ShimmerEffect(),
@@ -32,6 +42,8 @@ class SkeletonizerConfigData {
     this.textBorderRadius = _defaultTextBoneBorderRadius,
     this.ignoreContainers = false,
     this.containersColor,
+    this.enableSwitchAnimation = false,
+    this.switchAnimationConfig = const SwitchAnimationConfig(),
   });
 
   /// Builds a light themed instance
@@ -41,6 +53,8 @@ class SkeletonizerConfigData {
     this.textBorderRadius = _defaultTextBoneBorderRadius,
     this.ignoreContainers = false,
     this.containersColor,
+    this.enableSwitchAnimation = false,
+    this.switchAnimationConfig = const SwitchAnimationConfig(),
   });
 
   /// Builds a dark themed instance
@@ -53,6 +67,8 @@ class SkeletonizerConfigData {
     this.justifyMultiLineText = true,
     this.textBorderRadius = _defaultTextBoneBorderRadius,
     this.ignoreContainers = false,
+    this.enableSwitchAnimation = false,
+    this.switchAnimationConfig = const SwitchAnimationConfig(),
   });
 
   @override
@@ -64,6 +80,8 @@ class SkeletonizerConfigData {
           textBorderRadius == other.textBorderRadius &&
           justifyMultiLineText == other.justifyMultiLineText &&
           ignoreContainers == other.ignoreContainers &&
+          enableSwitchAnimation == other.enableSwitchAnimation &&
+          switchAnimationConfig == other.switchAnimationConfig &&
           containersColor == other.containersColor;
 
   @override
@@ -71,6 +89,8 @@ class SkeletonizerConfigData {
       effect.hashCode ^
       textBorderRadius.hashCode ^
       justifyMultiLineText.hashCode ^
+      enableSwitchAnimation.hashCode ^
+      switchAnimationConfig.hashCode ^
       ignoreContainers.hashCode ^
       containersColor.hashCode;
 
@@ -81,6 +101,8 @@ class SkeletonizerConfigData {
     bool? justifyMultiLineText,
     bool? ignoreContainers,
     Color? containersColor,
+    bool? enableSwitchAnimation,
+    SwitchAnimationConfig? switchAnimationConfig,
   }) {
     return SkeletonizerConfigData(
       effect: effect ?? this.effect,
@@ -88,6 +110,10 @@ class SkeletonizerConfigData {
       justifyMultiLineText: justifyMultiLineText ?? this.justifyMultiLineText,
       ignoreContainers: ignoreContainers ?? this.ignoreContainers,
       containersColor: containersColor ?? this.containersColor,
+      enableSwitchAnimation:
+          enableSwitchAnimation ?? this.enableSwitchAnimation,
+      switchAnimationConfig:
+          switchAnimationConfig ?? this.switchAnimationConfig,
     );
   }
 }
@@ -184,4 +210,50 @@ class SkeletonizerConfig extends InheritedWidget {
   bool updateShouldNotify(covariant SkeletonizerConfig oldWidget) {
     return data != oldWidget.data;
   }
+}
+
+/// Holds the configuration for the switch animation
+class SwitchAnimationConfig {
+  /// The duration of the switch animation
+  final Duration duration;
+
+  /// The curve of the switch in animation
+  final Curve switchInCurve;
+
+  /// The curve of the switch out animation
+  final Curve switchOutCurve;
+
+  /// The duration of the reverse switch animation
+  final Duration? reverseDuration;
+
+  /// The transition builder
+  final AnimatedSwitcherTransitionBuilder transitionBuilder;
+
+  /// Default constructor
+  const SwitchAnimationConfig({
+    this.duration = const Duration(milliseconds: 300),
+    this.switchInCurve = Curves.linear,
+    this.switchOutCurve = Curves.linear,
+    this.transitionBuilder = AnimatedSwitcher.defaultTransitionBuilder,
+    this.reverseDuration,
+  });
+
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      other is SwitchAnimationConfig &&
+          runtimeType == other.runtimeType &&
+          duration == other.duration &&
+          switchInCurve == other.switchInCurve &&
+          switchOutCurve == other.switchOutCurve &&
+          reverseDuration == other.reverseDuration &&
+          transitionBuilder == other.transitionBuilder;
+
+  @override
+  int get hashCode =>
+      duration.hashCode ^
+      switchInCurve.hashCode ^
+      switchOutCurve.hashCode ^
+      reverseDuration.hashCode ^
+      transitionBuilder.hashCode;
 }

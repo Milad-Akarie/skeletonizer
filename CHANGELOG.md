@@ -1,3 +1,5 @@
+## 1.3.0
+- Feat: add switch animation option to animate the transition between skeleton and content
 ## 1.2.0
 - Feat: allow nested Skeletonizer widgets
 ## 1.1.2+1

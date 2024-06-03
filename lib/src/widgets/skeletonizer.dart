@@ -39,6 +39,16 @@ abstract class Skeletonizer extends StatefulWidget {
   /// defaults to true
   final bool ignorePointers;
 
+  /// Whether to enable switch animation
+  ///
+  /// This will animate the switch between the skeleton and the actual widget
+  final bool? enableSwitchAnimation;
+
+  /// The switch animation config
+  ///
+  /// This will be used if [enableSwitchAnimation] is true
+  final SwitchAnimationConfig? switchAnimationConfig;
+
   final bool _isZone;
 
   /// Default constructor
@@ -52,6 +62,8 @@ abstract class Skeletonizer extends StatefulWidget {
     this.justifyMultiLineText,
     this.containersColor,
     this.ignorePointers = true,
+    this.enableSwitchAnimation,
+    this.switchAnimationConfig,
   }) : _isZone = false;
 
   /// Creates a Skeletonizer widget that only shades [Bone] widgets
@@ -65,6 +77,8 @@ abstract class Skeletonizer extends StatefulWidget {
     this.justifyMultiLineText,
     this.containersColor,
     this.ignorePointers = true,
+    this.enableSwitchAnimation,
+    this.switchAnimationConfig,
   }) : _isZone = true;
 
   /// Creates a [Skeletonizer] widget
@@ -78,6 +92,8 @@ abstract class Skeletonizer extends StatefulWidget {
     bool? justifyMultiLineText,
     Color? containersColor,
     bool ignorePointers,
+    bool? enableSwitchAnimation,
+    SwitchAnimationConfig? switchAnimationConfig,
   }) = _Skeletonizer;
 
   /// Creates a Skeletonizer widget that only shades [Bone] and nested skeletonizers
@@ -91,6 +107,8 @@ abstract class Skeletonizer extends StatefulWidget {
     Color? containersColor,
     bool ignorePointers,
     bool enabled,
+    bool? enableSwitchAnimation,
+    SwitchAnimationConfig? switchAnimationConfig,
   }) = _Skeletonizer.zone;
 
   /// Creates a [SliverSkeletonizer] widget
@@ -172,6 +190,8 @@ class SkeletonizerState extends State<Skeletonizer>
       ignoreContainers: widget.ignoreContainers,
       justifyMultiLineText: widget.justifyMultiLineText,
       containersColor: widget.containersColor,
+      enableSwitchAnimation: widget.enableSwitchAnimation,
+      switchAnimationConfig: widget.switchAnimationConfig,
     );
     if (resolvedConfig != _config) {
       _config = resolvedConfig;
@@ -266,6 +286,8 @@ class _Skeletonizer extends Skeletonizer {
     super.justifyMultiLineText,
     super.containersColor,
     super.ignorePointers,
+    super.enableSwitchAnimation,
+    super.switchAnimationConfig,
   }) : super._();
 
   const _Skeletonizer.zone({
@@ -278,19 +300,40 @@ class _Skeletonizer extends Skeletonizer {
     super.containersColor,
     super.ignorePointers,
     super.enabled,
+    super.enableSwitchAnimation,
+    super.switchAnimationConfig,
   }) : super._zone();
 
   @override
   Widget build(BuildContext context, SkeletonizerBuildData data) {
+    Widget body = data.enabled
+        ? SkeletonizerRenderObjectWidget(
+            key: const ValueKey('skeletonizer'),
+            data: data,
+            child: child,
+          )
+        : KeyedSubtree(
+            key: const ValueKey('content'),
+            child: child,
+          );
+    if (data.config.enableSwitchAnimation) {
+      final switchConfig = data.config.switchAnimationConfig;
+      body = AnimatedSwitcher(
+        duration: switchConfig.duration,
+        reverseDuration: switchConfig.reverseDuration,
+        switchInCurve: switchConfig.switchInCurve,
+        switchOutCurve: switchConfig.switchOutCurve,
+        transitionBuilder: switchConfig.transitionBuilder,
+        child: body,
+      );
+    }
     return SkeletonizerScope(
       enabled: data.enabled,
       config: data.config,
       isZone: data.isZone,
       isInsideZone: data.isInsideZone,
       animationController: data.animationController,
-      child: data.enabled
-          ? SkeletonizerRenderObjectWidget(data: data, child: child)
-          : child,
+      child: body,
     );
   }
 }
@@ -308,7 +351,7 @@ class SliverSkeletonizer extends Skeletonizer {
     super.justifyMultiLineText,
     super.containersColor,
     super.ignorePointers,
-  }) : super._();
+  }) : super._(enableSwitchAnimation: false);
 
   /// Creates a Skeletonizer widget that only shades [Bone] widgets
   const SliverSkeletonizer.zone({
