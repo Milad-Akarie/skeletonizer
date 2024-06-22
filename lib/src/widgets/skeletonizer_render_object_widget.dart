@@ -18,7 +18,6 @@ class SkeletonizerRenderObjectWidget extends SingleChildRenderObjectWidget {
   RenderSkeletonizer createRenderObject(BuildContext context) {
     return RenderSkeletonizer(
       animationValue: data.animationValue,
-      brightness: data.brightness,
       textDirection: data.textDirection,
       config: data.config,
       ignorePointers: data.ignorePointers,
@@ -33,7 +32,6 @@ class SkeletonizerRenderObjectWidget extends SingleChildRenderObjectWidget {
   ) {
     renderObject
       ..animationValue = data.animationValue
-      ..brightness = data.brightness
       ..config = data.config
       ..ignorePointers = data.ignorePointers
       ..isZone = data.isZone
@@ -58,7 +56,6 @@ class SliverSkeletonizerRenderObjectWidget
   RenderSliverSkeletonizer createRenderObject(BuildContext context) {
     return RenderSliverSkeletonizer(
       animationValue: data.animationValue,
-      brightness: data.brightness,
       textDirection: data.textDirection,
       config: data.config,
       ignorePointers: data.ignorePointers,
@@ -73,7 +70,6 @@ class SliverSkeletonizerRenderObjectWidget
   ) {
     renderObject
       ..animationValue = data.animationValue
-      ..brightness = data.brightness
       ..config = data.config
       ..ignorePointers = data.ignorePointers
       ..isZone = data.isZone
