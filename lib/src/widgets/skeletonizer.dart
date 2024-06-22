@@ -166,7 +166,6 @@ class SkeletonizerState extends State<Skeletonizer>
 
   PaintingEffect? get _effect => _config?.effect;
 
-  Brightness _brightness = Brightness.light;
   TextDirection _textDirection = TextDirection.ltr;
 
   @override
@@ -176,13 +175,9 @@ class SkeletonizerState extends State<Skeletonizer>
   }
 
   void _setupEffect() {
-    _brightness = Theme.of(context).brightness;
     _textDirection = Directionality.of(context);
-    final isDarkMode = _brightness == Brightness.dark;
-    var resolvedConfig = SkeletonizerConfig.maybeOf(context) ??
-        (isDarkMode
-            ? const SkeletonizerConfigData.dark()
-            : const SkeletonizerConfigData.light());
+  var resolvedConfig =
+        SkeletonizerConfig.maybeOf(context) ?? skeletonizerConfigData;
 
     resolvedConfig = resolvedConfig.copyWith(
       effect: widget.effect,
@@ -263,7 +258,6 @@ class SkeletonizerState extends State<Skeletonizer>
       SkeletonizerBuildData(
         enabled: _enabled,
         config: _config!,
-        brightness: _brightness,
         textDirection: _textDirection,
         animationValue: _animationValue,
         ignorePointers: widget.ignorePointers,
@@ -390,7 +384,6 @@ class SkeletonizerBuildData {
   const SkeletonizerBuildData({
     required this.enabled,
     required this.config,
-    required this.brightness,
     required this.textDirection,
     required this.animationValue,
     required this.ignorePointers,
@@ -407,9 +400,6 @@ class SkeletonizerBuildData {
 
   /// The animation controller used to animate the skeletonization
   final AnimationController? animationController;
-
-  /// The brightness of the theme
-  final Brightness brightness;
 
   /// The text direction of the theme
   final TextDirection textDirection;
@@ -435,7 +425,6 @@ class SkeletonizerBuildData {
           runtimeType == other.runtimeType &&
           enabled == other.enabled &&
           config == other.config &&
-          brightness == other.brightness &&
           isZone == other.isZone &&
           isInsideZone == other.isInsideZone &&
           textDirection == other.textDirection &&
@@ -447,7 +436,6 @@ class SkeletonizerBuildData {
   int get hashCode =>
       enabled.hashCode ^
       config.hashCode ^
-      brightness.hashCode ^
       textDirection.hashCode ^
       animationValue.hashCode ^
       animationController.hashCode ^

@@ -1,10 +1,30 @@
-import 'package:flutter/cupertino.dart';
+import 'package:flutter/material.dart';
 import 'package:skeletonizer/skeletonizer.dart';
 
 const _defaultTextBoneBorderRadius = TextBoneBorderRadius.fromHeightFactor(.5);
 
-/// Holds [Skeletonizer] theme data
-class SkeletonizerConfigData {
+/// The immutable configuration data for the skeletonizer theme.
+@immutable
+class SkeletonizerConfigData extends ThemeExtension<SkeletonizerConfigData> {
+  /// Constructs a [SkeletonizerConfigData] instance with the given properties.
+  ///
+  /// - [effect]: The painting effect to apply on the skeletonized elements.
+  /// - [textBorderRadius]: The border radius configuration for text elements.
+  /// - [justifyMultiLineText]: Whether to justify multi-line text bones.
+  /// - [ignoreContainers]: Whether to ignore container elements and only paint the dependents.
+  /// - [containersColor]: The color of the container elements. If null, the actual color will be used.
+  /// - [enableSwitchAnimation]: Whether to enable switch animation between the skeleton and the actual widget.
+  /// - [switchAnimationConfig]: The configuration for the switch animation.
+  const SkeletonizerConfigData({
+    required this.effect,
+    required this.textBorderRadius,
+    required this.justifyMultiLineText,
+    required this.ignoreContainers,
+    required this.containersColor,
+    required this.enableSwitchAnimation,
+    required this.switchAnimationConfig,
+  });
+
   /// The painting effect to apply
   /// on the skeletonized elements
   final PaintingEffect effect;
@@ -35,66 +55,7 @@ class SkeletonizerConfigData {
   /// This will be used if [enableSwitchAnimation] is true
   final SwitchAnimationConfig switchAnimationConfig;
 
-  /// Default constructor
-  const SkeletonizerConfigData({
-    this.effect = const ShimmerEffect(),
-    this.justifyMultiLineText = true,
-    this.textBorderRadius = _defaultTextBoneBorderRadius,
-    this.ignoreContainers = false,
-    this.containersColor,
-    this.enableSwitchAnimation = false,
-    this.switchAnimationConfig = const SwitchAnimationConfig(),
-  });
-
-  /// Builds a light themed instance
-  const SkeletonizerConfigData.light({
-    this.effect = const ShimmerEffect(),
-    this.justifyMultiLineText = true,
-    this.textBorderRadius = _defaultTextBoneBorderRadius,
-    this.ignoreContainers = false,
-    this.containersColor,
-    this.enableSwitchAnimation = false,
-    this.switchAnimationConfig = const SwitchAnimationConfig(),
-  });
-
-  /// Builds a dark themed instance
-  const SkeletonizerConfigData.dark({
-    this.effect = const ShimmerEffect(
-      baseColor: Color(0xFF3A3A3A),
-      highlightColor: Color(0xFF424242),
-    ),
-    this.containersColor,
-    this.justifyMultiLineText = true,
-    this.textBorderRadius = _defaultTextBoneBorderRadius,
-    this.ignoreContainers = false,
-    this.enableSwitchAnimation = false,
-    this.switchAnimationConfig = const SwitchAnimationConfig(),
-  });
-
   @override
-  bool operator ==(Object other) =>
-      identical(this, other) ||
-      other is SkeletonizerConfigData &&
-          runtimeType == other.runtimeType &&
-          effect == other.effect &&
-          textBorderRadius == other.textBorderRadius &&
-          justifyMultiLineText == other.justifyMultiLineText &&
-          ignoreContainers == other.ignoreContainers &&
-          enableSwitchAnimation == other.enableSwitchAnimation &&
-          switchAnimationConfig == other.switchAnimationConfig &&
-          containersColor == other.containersColor;
-
-  @override
-  int get hashCode =>
-      effect.hashCode ^
-      textBorderRadius.hashCode ^
-      justifyMultiLineText.hashCode ^
-      enableSwitchAnimation.hashCode ^
-      switchAnimationConfig.hashCode ^
-      ignoreContainers.hashCode ^
-      containersColor.hashCode;
-
-  /// Clones the instance with overrides
   SkeletonizerConfigData copyWith({
     PaintingEffect? effect,
     TextBoneBorderRadius? textBorderRadius,
@@ -116,7 +77,35 @@ class SkeletonizerConfigData {
           switchAnimationConfig ?? this.switchAnimationConfig,
     );
   }
+
+  @override
+  SkeletonizerConfigData lerp(SkeletonizerConfigData? other, double t) {
+    if (other == null) return this;
+    return SkeletonizerConfigData(
+      effect: t < 0.5 ? effect : other.effect,
+      textBorderRadius: t < 0.5 ? textBorderRadius : other.textBorderRadius,
+      justifyMultiLineText:
+          t < 0.5 ? justifyMultiLineText : other.justifyMultiLineText,
+      ignoreContainers: t < 0.5 ? ignoreContainers : other.ignoreContainers,
+      containersColor: t < 0.5 ? containersColor : other.containersColor,
+      enableSwitchAnimation:
+          t < 0.5 ? enableSwitchAnimation : other.enableSwitchAnimation,
+      switchAnimationConfig:
+          t < 0.5 ? switchAnimationConfig : other.switchAnimationConfig,
+    );
+  }
 }
+
+/// Singleton instance for skeletonizer theme configurations.
+const SkeletonizerConfigData skeletonizerConfigData = SkeletonizerConfigData(
+  effect: ShimmerEffect(),
+  textBorderRadius: _defaultTextBoneBorderRadius,
+  justifyMultiLineText: true,
+  ignoreContainers: false,
+  containersColor: null,
+  enableSwitchAnimation: false,
+  switchAnimationConfig: SwitchAnimationConfig(),
+);
 
 /// Holds border radius information
 /// for [TextElement]
@@ -177,26 +166,14 @@ class SkeletonizerConfig extends InheritedWidget {
 
   /// Depends on the the nearest SkeletonizerConfigData if any
   static SkeletonizerConfigData? maybeOf(BuildContext context) {
-    return context
-        .dependOnInheritedWidgetOfExactType<SkeletonizerConfig>()
-        ?.data;
+    return Theme.of(context).extension<SkeletonizerConfigData>() ??
+        skeletonizerConfigData;
   }
 
   /// Depends on the the nearest SkeletonizerConfigData if any otherwise it throws
   static SkeletonizerConfigData of(BuildContext context) {
-    final scope =
-        context.dependOnInheritedWidgetOfExactType<SkeletonizerConfig>();
-    assert(() {
-      if (scope == null) {
-        throw FlutterError(
-          'SkeletonizerTheme operation requested with a context that does not include a SkeletonizerTheme.\n'
-          'The context used to push or pop routes from the Navigator must be that of a '
-          'widget that is a descendant of a SkeletonizerTheme widget.',
-        );
-      }
-      return true;
-    }());
-    return scope!.data;
+    return Theme.of(context).extension<SkeletonizerConfigData>() ??
+        skeletonizerConfigData;
   }
 
   /// Default constructor

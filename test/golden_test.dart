@@ -25,8 +25,8 @@ void runTests() {
     'Skeletonize Text successfully',
     fileName: 'text',
     builder: () => SkeletonizerConfig(
-      data: const SkeletonizerConfigData.light(
-        effect: SoldColorEffect(color: Colors.green),
+      data: skeletonizerConfigData.copyWith(
+        effect: const SoldColorEffect(color: Colors.green),
       ),
       child: GoldenTestGroup(
         scenarioConstraints: const BoxConstraints(maxWidth: 500),
@@ -101,8 +101,8 @@ void runTests() {
     'Skeletonize containers successfully',
     fileName: 'container',
     builder: () => SkeletonizerConfig(
-      data: const SkeletonizerConfigData.light(
-        effect: SoldColorEffect(color: Colors.green),
+      data: skeletonizerConfigData.copyWith(
+        effect: const SoldColorEffect(color: Colors.green),
       ),
       child: GoldenTestGroup(
         scenarioConstraints: const BoxConstraints(maxWidth: 500),
@@ -220,8 +220,8 @@ void runTests() {
     'Skeletonize containers without drawing them successfully',
     fileName: 'ignored_container',
     builder: () => SkeletonizerConfig(
-      data: const SkeletonizerConfigData.light(
-        effect: SoldColorEffect(color: Colors.green),
+      data: skeletonizerConfigData.copyWith(
+        effect: const SoldColorEffect(color: Colors.green),
         ignoreContainers: true,
       ),
       child: GoldenTestGroup(
@@ -339,8 +339,8 @@ void runTests() {
     'Skeletonize containers and override their color',
     fileName: 'container_color_override',
     builder: () => SkeletonizerConfig(
-      data: const SkeletonizerConfigData.light(
-        effect: SoldColorEffect(color: Colors.green),
+      data: skeletonizerConfigData.copyWith(
+        effect: const SoldColorEffect(color: Colors.green),
         containersColor: Colors.purple,
       ),
       child: GoldenTestGroup(
@@ -457,8 +457,8 @@ void runTests() {
     'Skeletonize ListTile successfully',
     fileName: 'list_tile',
     builder: () => SkeletonizerConfig(
-      data: const SkeletonizerConfigData.light(
-        effect: SoldColorEffect(color: Colors.green),
+      data: skeletonizerConfigData.copyWith(
+        effect: const SoldColorEffect(color: Colors.green),
       ),
       child: GoldenTestGroup(
         children: [
@@ -562,8 +562,8 @@ void runTests() {
     'Skeletonize with annotations successfully',
     fileName: 'skeleton_annotations',
     builder: () => SkeletonizerConfig(
-      data: const SkeletonizerConfigData.light(
-        effect: SoldColorEffect(color: Colors.green),
+      data: skeletonizerConfigData.copyWith(
+        effect: const SoldColorEffect(color: Colors.green),
       ),
       child: GoldenTestGroup(
         scenarioConstraints: const BoxConstraints(maxWidth: 500),
@@ -639,8 +639,8 @@ void runTests() {
     'Skeletonize clippers successfully',
     fileName: 'clippers',
     builder: () => SkeletonizerConfig(
-      data: const SkeletonizerConfigData.light(
-        effect: SoldColorEffect(color: Colors.green),
+      data: skeletonizerConfigData.copyWith(
+        effect: const SoldColorEffect(color: Colors.green),
       ),
       child: GoldenTestGroup(
         scenarioConstraints: const BoxConstraints(maxWidth: 500),
@@ -745,8 +745,8 @@ void runTests() {
     'Skeletonize transformers successfully',
     fileName: 'transformers',
     builder: () => SkeletonizerConfig(
-      data: const SkeletonizerConfigData.light(
-        effect: SoldColorEffect(color: Colors.green),
+      data: skeletonizerConfigData.copyWith(
+        effect: const SoldColorEffect(color: Colors.green),
       ),
       child: GoldenTestGroup(
         scenarioConstraints: const BoxConstraints(maxWidth: 500),

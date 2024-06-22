@@ -1,5 +1,3 @@
-import 'dart:ui';
-
 import 'package:flutter/rendering.dart';
 import 'package:skeletonizer/skeletonizer.dart';
 import 'package:skeletonizer/src/painting/skeletonizer_painting_context.dart';
@@ -12,14 +10,12 @@ class RenderSkeletonizer extends RenderProxyBox
   RenderSkeletonizer({
     required TextDirection textDirection,
     required double animationValue,
-    required Brightness brightness,
     required SkeletonizerConfigData config,
     required bool ignorePointers,
     required bool isZone,
     RenderBox? child,
   })  : _animationValue = animationValue,
         _textDirection = textDirection,
-        _brightness = brightness,
         _config = config,
         _isZone = isZone,
         _ignorePointers = ignorePointers,
@@ -45,18 +41,6 @@ class RenderSkeletonizer extends RenderProxyBox
   set config(SkeletonizerConfigData value) {
     if (_config != value) {
       _config = value;
-      markNeedsPaint();
-    }
-  }
-
-  Brightness _brightness;
-
-  @override
-  Brightness get brightness => _brightness;
-
-  set brightness(Brightness value) {
-    if (_brightness != value) {
-      _brightness = value;
       markNeedsPaint();
     }
   }
@@ -109,14 +93,12 @@ class RenderSliverSkeletonizer extends RenderProxySliver
   RenderSliverSkeletonizer({
     required TextDirection textDirection,
     required double animationValue,
-    required Brightness brightness,
     required SkeletonizerConfigData config,
     required bool ignorePointers,
     required bool isZone,
     RenderSliver? child,
   })  : _animationValue = animationValue,
         _textDirection = textDirection,
-        _brightness = brightness,
         _config = config,
         _isZone = isZone,
         _ignorePointers = ignorePointers,
@@ -142,18 +124,6 @@ class RenderSliverSkeletonizer extends RenderProxySliver
   set config(SkeletonizerConfigData value) {
     if (_config != value) {
       _config = value;
-      markNeedsPaint();
-    }
-  }
-
-  Brightness _brightness;
-
-  @override
-  Brightness get brightness => _brightness;
-
-  set brightness(Brightness value) {
-    if (_brightness != value) {
-      _brightness = value;
       markNeedsPaint();
     }
   }
@@ -207,9 +177,6 @@ mixin _RenderSkeletonBase<R extends RenderObject>
 
   /// The resolved skeletonizer theme data
   SkeletonizerConfigData get config;
-
-  /// The selected brightness
-  Brightness get brightness;
 
   /// The value to animate painting effects
   double get animationValue;
