@@ -3,8 +3,18 @@ import 'package:skeletonizer/skeletonizer.dart';
 
 const _defaultTextBoneBorderRadius = TextBoneBorderRadius.fromHeightFactor(.5);
 
+/// The immutable configuration data for the skeletonizer theme.
 @immutable
 class SkeletonizerConfigData extends ThemeExtension<SkeletonizerConfigData> {
+  /// Constructs a [SkeletonizerConfigData] instance with the given properties.
+  ///
+  /// - [effect]: The painting effect to apply on the skeletonized elements.
+  /// - [textBorderRadius]: The border radius configuration for text elements.
+  /// - [justifyMultiLineText]: Whether to justify multi-line text bones.
+  /// - [ignoreContainers]: Whether to ignore container elements and only paint the dependents.
+  /// - [containersColor]: The color of the container elements. If null, the actual color will be used.
+  /// - [enableSwitchAnimation]: Whether to enable switch animation between the skeleton and the actual widget.
+  /// - [switchAnimationConfig]: The configuration for the switch animation.
   const SkeletonizerConfigData({
     required this.effect,
     required this.textBorderRadius,
@@ -15,12 +25,34 @@ class SkeletonizerConfigData extends ThemeExtension<SkeletonizerConfigData> {
     required this.switchAnimationConfig,
   });
 
+  /// The painting effect to apply
+  /// on the skeletonized elements
   final PaintingEffect effect;
+
+  /// The [TextElement] border radius config
   final TextBoneBorderRadius textBorderRadius;
+
+  /// Whether to justify multi line text bones
   final bool justifyMultiLineText;
+
+  /// Whether to ignore container elements and only paint
+  /// the dependents
   final bool ignoreContainers;
+
+  /// The color of the container elements
+  /// this includes [Container], [Card], [DecoratedBox] ..etc
+  ///
+  /// if null the actual color will be used
   final Color? containersColor;
+
+  /// Whether to enable switch animation
+  ///
+  /// This will animate the switch between the skeleton and the actual widget
   final bool enableSwitchAnimation;
+
+  /// The switch animation config
+  ///
+  /// This will be used if [enableSwitchAnimation] is true
   final SwitchAnimationConfig switchAnimationConfig;
 
   @override
