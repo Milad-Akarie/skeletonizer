@@ -186,7 +186,7 @@ Skeletonizer(
             leading: Skeleton.replace(
             width: 48, // width of replacement
             height: 48, // height of replacement
-            child; CircleAvatar(
+            child: CircleAvatar(
             radius: 24,
             backgroundImage: NetworkImage(users[index].avatar),
           ),
