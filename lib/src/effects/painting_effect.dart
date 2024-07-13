@@ -27,4 +27,7 @@ abstract class PaintingEffect {
   ///
   /// typically used to create shaders e.g [LinearGradient] shaders
   Paint createPaint(double t, Rect rect, TextDirection? textDirection);
+
+  /// lerp between two painting effects
+  PaintingEffect lerp(PaintingEffect? other, double t);
 }

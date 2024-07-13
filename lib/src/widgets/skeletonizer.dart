@@ -176,8 +176,11 @@ class SkeletonizerState extends State<Skeletonizer>
 
   void _setupEffect() {
     _textDirection = Directionality.of(context);
-  var resolvedConfig =
-        SkeletonizerConfig.maybeOf(context) ?? skeletonizerConfigData;
+    late final brightness = Theme.of(context).brightness;
+    var resolvedConfig = SkeletonizerConfig.maybeOf(context) ??
+        (brightness == Brightness.light
+            ? const SkeletonizerConfigData.light()
+            : const SkeletonizerConfigData.dark());
 
     resolvedConfig = resolvedConfig.copyWith(
       effect: widget.effect,

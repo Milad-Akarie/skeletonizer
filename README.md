@@ -1,6 +1,6 @@
 <br/>
 <p align="center">                    
-<img  src="https://raw.githubusercontent.com/Milad-Akarie/skeletonizer/main/art/skeletonizer_logo.svg" height="130">                    
+<img  src="https://raw.githubusercontent.com/Milad-Akarie/skeletonizer/main/art/skeletonizer_logo.svg" height="130" alt="skeletonizer logo">                    
 </p>                    
 
 <p align="center">                    
@@ -391,17 +391,30 @@ liking.
 
 ![](https://github.com/Milad-Akarie/skeletonizer/blob/main/art/loading_effects_demo.gif?raw=true)
 
+Effects are configurable, e.g you can change the base color, highlight color, direction, and duration of ShineEffect like so:
+
+```dart
+Skeletonizer(
+  effect: const ShimmerEffect(
+    baseColor: Colors.grey[300],
+    highlightColor: Colors.grey[100],
+    duration: Duration(seconds: 1),
+  ),
+  child: ...
+)
+```
+
 ### Animating the transition between skeleton and content (Slivers are not supported)
  you can animate the transition between skeleton and content by setting `enableSwitchAnimation` to true, animation can be customized by providing a `SwitchAnimationConfig`.
 
 ```dart
-   SwitchAnimationConfig({
-        this.duration = const Duration(milliseconds: 300),
-        this.switchInCurve = Curves.linear,
-        this.switchOutCurve = Curves.linear,
-        this.transitionBuilder = AnimatedSwitcher.defaultTransitionBuilder,
-        this.reverseDuration,
-  }); 
+SwitchAnimationConfig({
+    this.duration = const Duration(milliseconds: 300),
+    this.switchInCurve = Curves.linear,
+    this.switchOutCurve = Curves.linear,
+    this.transitionBuilder = AnimatedSwitcher.defaultTransitionBuilder,
+    this.reverseDuration,
+}); 
 ```
 
 ### Text skeleton config
@@ -425,11 +438,27 @@ if you want to ignore all containers and only skeletonize their children you can
 ### containersColor
 if provided, all containers will be painted with this color otherwise the actual color will be
 
-### Using the inheritable SkeletonizerConfig widget
+### Using the inheritable Config data
+You can pass a `SkeletonizerConfigData` as a theme extension to provide default configurations to
+all skeletonizer widgets in your app.
 
-Use `SkeletonizerConfig` somewhere up your widgets tree e.g above the `MaterialApp` widget to
-provide
-default skeletonizer configurations to your whole App.
+```dart
+MaterialApp(
+  theme: ThemeData(
+    extensions: const [
+      SkeletonizerConfigData.light(), // light theme config
+    ],
+  ),
+  darkTheme: ThemeData(
+    brightness: Brightness.dark,
+    extensions: const [
+      SkeletonizerConfigData.dark(), // dark theme config
+    ],
+  ),
+  ...
+)
+```
+or you can Use `SkeletonizerConfig` to provide inheritable config data to all descendant Skeletonizer widgets.
 
 ```dart
 SkeletonizerConfig(

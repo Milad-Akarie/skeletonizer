@@ -116,6 +116,20 @@ class _ShimmerEffect extends ShimmerEffect {
       end.hashCode ^
       tileMode.hashCode ^
       duration.hashCode;
+
+  @override
+  PaintingEffect lerp(PaintingEffect? other, double t) {
+    if (other is _ShimmerEffect) {
+      return _ShimmerEffect(
+        baseColor: Color.lerp(baseColor, other.baseColor, t)!,
+        highlightColor: Color.lerp(highlightColor, other.highlightColor, t)!,
+        begin: AlignmentGeometry.lerp(begin, other.begin, t)!,
+        end: AlignmentGeometry.lerp(end, other.end, t)!,
+        duration: duration,
+      );
+    }
+    return this;
+  }
 }
 
 class _RawShimmerEffect extends ShimmerEffect {
@@ -164,6 +178,24 @@ class _RawShimmerEffect extends ShimmerEffect {
       end.hashCode ^
       tileMode.hashCode ^
       duration.hashCode;
+
+  @override
+  PaintingEffect lerp(PaintingEffect? other, double t) {
+    if (other is _RawShimmerEffect) {
+      return _RawShimmerEffect(
+        colors: List.generate(
+          colors.length,
+          (index) => Color.lerp(colors[index], other.colors[index], t)!,
+        ),
+        stops: stops,
+        begin: AlignmentGeometry.lerp(begin, other.begin, t)!,
+        end: AlignmentGeometry.lerp(end, other.end, t)!,
+        tileMode: tileMode,
+        duration: duration,
+      );
+    }
+    return this;
+  }
 }
 
 class _SlidingGradientTransform extends GradientTransform {

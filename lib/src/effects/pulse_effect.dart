@@ -44,4 +44,16 @@ class PulseEffect extends PaintingEffect {
 
   @override
   int get hashCode => from.hashCode ^ to.hashCode ^ duration.hashCode;
+
+  @override
+  PaintingEffect lerp(PaintingEffect? other, double t) {
+    if (other is PulseEffect) {
+      return PulseEffect(
+        from: Color.lerp(from, other.from, t)!,
+        to: Color.lerp(to, other.to, t)!,
+        duration: duration,
+      );
+    }
+    return this;
+  }
 }

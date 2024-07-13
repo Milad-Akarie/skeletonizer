@@ -1,3 +1,5 @@
+import 'dart:ui';
+
 import 'package:flutter/material.dart';
 import 'package:skeletonizer/skeletonizer.dart';
 
@@ -23,6 +25,31 @@ class SkeletonizerConfigData extends ThemeExtension<SkeletonizerConfigData> {
     required this.containersColor,
     required this.enableSwitchAnimation,
     required this.switchAnimationConfig,
+  });
+
+  /// Constructs a [SkeletonizerConfigData] instance with the given properties for light theme.
+  const SkeletonizerConfigData.light({
+    this.effect = const ShimmerEffect(),
+    this.textBorderRadius = _defaultTextBoneBorderRadius,
+    this.justifyMultiLineText = true,
+    this.ignoreContainers = false,
+    this.containersColor,
+    this.enableSwitchAnimation = false,
+    this.switchAnimationConfig = const SwitchAnimationConfig(),
+  });
+
+  /// Constructs a [SkeletonizerConfigData] instance with the given properties for dark theme.
+  const SkeletonizerConfigData.dark({
+    this.effect = const ShimmerEffect(
+      baseColor: Color(0xFF3A3A3A),
+      highlightColor: Color(0xFF424242),
+    ),
+    this.textBorderRadius = _defaultTextBoneBorderRadius,
+    this.justifyMultiLineText = true,
+    this.ignoreContainers = false,
+    this.containersColor,
+    this.enableSwitchAnimation = false,
+    this.switchAnimationConfig = const SwitchAnimationConfig(),
   });
 
   /// The painting effect to apply
@@ -82,8 +109,8 @@ class SkeletonizerConfigData extends ThemeExtension<SkeletonizerConfigData> {
   SkeletonizerConfigData lerp(SkeletonizerConfigData? other, double t) {
     if (other == null) return this;
     return SkeletonizerConfigData(
-      effect: t < 0.5 ? effect : other.effect,
-      textBorderRadius: t < 0.5 ? textBorderRadius : other.textBorderRadius,
+      effect: effect.lerp(other.effect, t),
+      textBorderRadius: textBorderRadius.lerp(other.textBorderRadius, t),
       justifyMultiLineText:
           t < 0.5 ? justifyMultiLineText : other.justifyMultiLineText,
       ignoreContainers: t < 0.5 ? ignoreContainers : other.ignoreContainers,
@@ -157,23 +184,54 @@ class TextBoneBorderRadius {
       _borderRadius.hashCode ^
       _heightPercentage.hashCode ^
       usesHeightFactor.hashCode;
+
+  /// Linearly interpolate between two [TextBoneBorderRadius]
+  TextBoneBorderRadius lerp(TextBoneBorderRadius? other, double t) {
+    if (other == null) return this;
+    if (usesHeightFactor && other.usesHeightFactor) {
+      return TextBoneBorderRadius.fromHeightFactor(
+        lerpDouble(_heightPercentage!, other._heightPercentage!, t)!,
+      );
+    } else if (!usesHeightFactor && !other.usesHeightFactor) {
+      return TextBoneBorderRadius(
+        BorderRadiusGeometry.lerp(_borderRadius, other._borderRadius, t)!,
+      );
+    } else {
+      return this;
+    }
+  }
 }
 
 /// Provided the scoped [SkeletonizerConfigData] to descended widgets
-class SkeletonizerConfig extends InheritedWidget {
+class SkeletonizerConfig extends InheritedTheme {
   /// The Scoped config data
   final SkeletonizerConfigData data;
 
-  /// Depends on the the nearest SkeletonizerConfigData if any
+  /// The [SkeletonizerConfigData] instance of the closest ancestor Theme.extension
+  /// if exists, otherwise null.
   static SkeletonizerConfigData? maybeOf(BuildContext context) {
-    return Theme.of(context).extension<SkeletonizerConfigData>() ??
-        skeletonizerConfigData;
+    final SkeletonizerConfig? inherited =
+        context.dependOnInheritedWidgetOfExactType<SkeletonizerConfig>();
+    return inherited?.data ??
+        Theme.of(context).extension<SkeletonizerConfigData>();
   }
 
-  /// Depends on the the nearest SkeletonizerConfigData if any otherwise it throws
+  /// The [SkeletonizerConfigData] instance of the closest ancestor Theme.extension
+  /// if not found it will throw an exception
   static SkeletonizerConfigData of(BuildContext context) {
-    return Theme.of(context).extension<SkeletonizerConfigData>() ??
-        skeletonizerConfigData;
+    final SkeletonizerConfig? inherited =
+        context.dependOnInheritedWidgetOfExactType<SkeletonizerConfig>();
+    late final fromThemeExtension =
+        Theme.of(context).extension<SkeletonizerConfigData>();
+    assert(() {
+      if (inherited == null && fromThemeExtension == null) {
+        throw FlutterError(
+            'SkeletonizerConfig.of() called with a context that does not contain a SkeletonizerConfigData.\n'
+            'try wrapping the context with SkeletonizerConfig widget or provide the data using Theme.extension');
+      }
+      return true;
+    }());
+    return inherited?.data ?? fromThemeExtension!;
   }
 
   /// Default constructor
@@ -186,6 +244,11 @@ class SkeletonizerConfig extends InheritedWidget {
   @override
   bool updateShouldNotify(covariant SkeletonizerConfig oldWidget) {
     return data != oldWidget.data;
+  }
+
+  @override
+  Widget wrap(BuildContext context, Widget child) {
+    return SkeletonizerConfig(data: data, child: child);
   }
 }
 

@@ -12,9 +12,17 @@ class MyApp extends StatelessWidget {
   Widget build(BuildContext context) {
     return MaterialApp(
       title: 'Skeletonizer Demo',
-      debugShowCheckedModeBanner: false,
-      theme: ThemeData.light(useMaterial3: true),
-      home: const SkeletonizerDemoPage(),
+      theme: ThemeData(
+        extensions: const [
+          SkeletonizerConfigData.light(),
+        ],
+      ),
+      darkTheme: ThemeData(
+        brightness: Brightness.dark,
+        extensions: const [
+          SkeletonizerConfigData.dark(),
+        ],
+      ),
     );
   }
 }

@@ -34,4 +34,14 @@ class SoldColorEffect extends PaintingEffect {
 
   @override
   int get hashCode => color.hashCode;
+
+  @override
+  PaintingEffect lerp(PaintingEffect? other, double t) {
+    if (other is SoldColorEffect) {
+      return SoldColorEffect(
+        color: Color.lerp(color, other.color, t)!,
+      );
+    }
+    return this;
+  }
 }

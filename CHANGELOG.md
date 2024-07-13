@@ -1,3 +1,7 @@
+
+## 1.4.0
+- Feat: SkeletonizerConfigData can now be used as Theme.extension to provide default configuration
+  values for Skeletonizer widgets. by @waadsulaiman
 ## 1.3.0
 - Feat: add switch animation option to animate the transition between skeleton and content
 ## 1.2.0
