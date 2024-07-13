@@ -23,6 +23,7 @@ class MyApp extends StatelessWidget {
           SkeletonizerConfigData.dark(),
         ],
       ),
+      home: const SkeletonizerDemoPage(),
     );
   }
 }
