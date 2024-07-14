@@ -1,4 +1,6 @@
 
+## 1.4.1
+- deprecated SkeletonizerConfigData.light constructor  in favor of default constructor
 ## 1.4.0
 - Feat: SkeletonizerConfigData can now be used as Theme.extension to provide default configuration
   values for Skeletonizer widgets. by @waadsulaiman
