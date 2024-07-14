@@ -20,7 +20,7 @@
 - [Basic usage](#basic-usage)
 - [The need for fake data](#the-need-for-fake-data)
 - [Annotations](#annotations)
-- [Creating Skeletons manually](#creating-skeletons-manually) (New)
+- [Creating Skeletons manually](#creating-skeletons-manually)
 - [Customization](#customization)
 - [Resources](#resources)
 
@@ -446,7 +446,7 @@ all skeletonizer widgets in your app.
 MaterialApp(
   theme: ThemeData(
     extensions: const [
-      SkeletonizerConfigData.light(), // light theme config
+      SkeletonizerConfigData(), // default constructor has light theme config
     ],
   ),
   darkTheme: ThemeData(

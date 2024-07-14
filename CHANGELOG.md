@@ -1,4 +1,5 @@
-
+## 1.4.1+1 (no changes)
+- update README.md
 ## 1.4.1
 - deprecated SkeletonizerConfigData.light constructor  in favor of default constructor
 ## 1.4.0
