@@ -14,7 +14,7 @@ class MyApp extends StatelessWidget {
       title: 'Skeletonizer Demo',
       theme: ThemeData(
         extensions: const [
-          SkeletonizerConfigData.light(),
+          SkeletonizerConfigData(),
         ],
       ),
       darkTheme: ThemeData(

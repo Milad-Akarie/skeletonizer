@@ -179,7 +179,7 @@ class SkeletonizerState extends State<Skeletonizer>
     late final brightness = Theme.of(context).brightness;
     var resolvedConfig = SkeletonizerConfig.maybeOf(context) ??
         (brightness == Brightness.light
-            ? const SkeletonizerConfigData.light()
+            ? const SkeletonizerConfigData()
             : const SkeletonizerConfigData.dark());
 
     resolvedConfig = resolvedConfig.copyWith(
