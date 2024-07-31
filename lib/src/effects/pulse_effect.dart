@@ -11,13 +11,13 @@ class PulseEffect extends PaintingEffect {
   final Color to;
 
   /// Default constructor
-  const PulseEffect(
-      {this.from = const Color(0xFFEBEBF4),
-      this.to = const Color(0xFFF6F6F6),
-      super.lowerBound,
-      super.upperBound,
-      super.duration = const Duration(milliseconds: 1000)})
-      : super(reverse: true);
+  const PulseEffect({
+    this.from = const Color(0xFFf4f4f4),
+    this.to = const Color(0xFFe5e5e5),
+    super.lowerBound,
+    super.upperBound,
+    super.duration = const Duration(milliseconds: 1000),
+  }) : super(reverse: true);
 
   @override
   Paint createPaint(double t, Rect rect, TextDirection? textDirection) {

@@ -1,3 +1,6 @@
+## 1.4.2
+- pass static analysis
+- change the default colors of PulseEffect
 ## 1.4.1+1 (no changes)
 - update README.md
 ## 1.4.1
