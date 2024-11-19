@@ -321,6 +321,7 @@ class _Skeletonizer extends Skeletonizer {
         switchInCurve: switchConfig.switchInCurve,
         switchOutCurve: switchConfig.switchOutCurve,
         transitionBuilder: switchConfig.transitionBuilder,
+        layoutBuilder: switchConfig.layoutBuilder,
         child: body,
       );
     }
