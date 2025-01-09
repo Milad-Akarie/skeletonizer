@@ -1,3 +1,5 @@
+## 1.4.3
+- feat: expose AnimatedSwitcher.layoutBuilder
 ## 1.4.2
 - pass static analysis
 - change the default colors of PulseEffect
