@@ -270,12 +270,16 @@ class SwitchAnimationConfig {
   /// The transition builder
   final AnimatedSwitcherTransitionBuilder transitionBuilder;
 
+  /// The layout builder
+  final AnimatedSwitcherLayoutBuilder layoutBuilder;
+
   /// Default constructor
   const SwitchAnimationConfig({
     this.duration = const Duration(milliseconds: 300),
     this.switchInCurve = Curves.linear,
     this.switchOutCurve = Curves.linear,
     this.transitionBuilder = AnimatedSwitcher.defaultTransitionBuilder,
+    this.layoutBuilder = AnimatedSwitcher.defaultLayoutBuilder,
     this.reverseDuration,
   });
 
@@ -288,7 +292,8 @@ class SwitchAnimationConfig {
           switchInCurve == other.switchInCurve &&
           switchOutCurve == other.switchOutCurve &&
           reverseDuration == other.reverseDuration &&
-          transitionBuilder == other.transitionBuilder;
+          transitionBuilder == other.transitionBuilder &&
+          layoutBuilder == other.layoutBuilder;
 
   @override
   int get hashCode =>
@@ -296,5 +301,6 @@ class SwitchAnimationConfig {
       switchInCurve.hashCode ^
       switchOutCurve.hashCode ^
       reverseDuration.hashCode ^
-      transitionBuilder.hashCode;
+      transitionBuilder.hashCode ^
+      layoutBuilder.hashCode;
 }

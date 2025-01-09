@@ -413,6 +413,7 @@ SwitchAnimationConfig({
     this.switchInCurve = Curves.linear,
     this.switchOutCurve = Curves.linear,
     this.transitionBuilder = AnimatedSwitcher.defaultTransitionBuilder,
+    this.layoutBuilder = AnimatedSwitcher.defaultLayoutBuilder,
     this.reverseDuration,
 }); 
 ```
