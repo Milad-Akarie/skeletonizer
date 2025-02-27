@@ -212,7 +212,7 @@ class SkeletonizerCanvas implements Canvas {
 
   @override
   void drawDRRect(ui.RRect outer, ui.RRect inner, ui.Paint paint) {
-    if (paint.color.opacity == 0) return;
+    if (paint.color.a == 0) return;
     context._didPaint = true;
     final treatAsBone = context._treatedAsLeaf.containsFuzzy(outer.center);
     if (treatAsBone) {
@@ -305,7 +305,7 @@ class SkeletonizerCanvas implements Canvas {
 
   @override
   void drawPath(ui.Path path, ui.Paint paint) {
-    if (paint.color.opacity == 0) return;
+    if (paint.color.a == 0) return;
     context._didPaint = true;
     final treatAsBone =
         context._treatedAsLeaf.containsFuzzy(path.getBounds().center);
@@ -322,7 +322,7 @@ class SkeletonizerCanvas implements Canvas {
 
   @override
   void drawRect(ui.Rect rect, ui.Paint paint) {
-    if (paint.color.opacity == 0) return;
+    if (paint.color.a == 0) return;
     context._didPaint = true;
     final treatAsBone = context._treatedAsLeaf.containsFuzzy(rect.center);
     if (treatAsBone) {
@@ -338,7 +338,7 @@ class SkeletonizerCanvas implements Canvas {
 
   @override
   void drawRRect(ui.RRect rrect, ui.Paint paint) {
-    if (paint.color.opacity == 0) return;
+    if (paint.color.a == 0) return;
     context._didPaint = true;
     final treatAsBone = context._treatedAsLeaf.containsFuzzy(rrect.center);
     if (treatAsBone) {
@@ -355,7 +355,7 @@ class SkeletonizerCanvas implements Canvas {
 
   @override
   void drawCircle(ui.Offset c, double radius, ui.Paint paint) {
-    if (paint.color.opacity == 0) return;
+    if (paint.color.a == 0) return;
     context._didPaint = true;
     final treatAsBone = context._treatedAsLeaf.containsFuzzy(c);
     if (treatAsBone) {
