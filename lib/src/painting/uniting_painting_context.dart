@@ -236,6 +236,13 @@ class UnitingCanvas implements Canvas {
 
   @override
   void saveLayer(ui.Rect? bounds, ui.Paint paint) {}
+
+  @override
+  void clipRSuperellipse(ui.RSuperellipse rse, {bool doAntiAlias = true}) {}
+
+  @override
+  void drawRSuperellipse(ui.RSuperellipse rse, ui.Paint paint) =>
+      unitedRect = unitedRect.expandToInclude(rse.outerRect);
 }
 
 /// A [PaintingContext] that unites all the painted rectangles.
