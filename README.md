@@ -86,7 +86,7 @@ Skeletonizer(ignoreContainers: true)
 ## The need for fake data
 
 In order for skeletonizer to work it actually needs a layout, but in most cases the layout would
-need data to shape, e.g the following ListView ill not render anything unless `users` is populated, because if users is empty
+need data to shape, e.g the following ListView will not render anything unless `users` is populated, because if users is empty
 we have no layout which means we have nothing to skeletonize.
 
 ```dart
