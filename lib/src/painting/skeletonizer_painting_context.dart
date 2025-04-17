@@ -464,6 +464,16 @@ class SkeletonizerCanvas implements Canvas {
 
   @override
   void restoreToCount(int count) => parent.restoreToCount(count);
+
+  @override
+  void clipRSuperellipse(ui.RSuperellipse rse, {bool doAntiAlias = true}) =>
+      parent.clipRSuperellipse(rse, doAntiAlias: doAntiAlias);
+
+  @override
+  void drawRSuperellipse(ui.RSuperellipse rse, ui.Paint paint) {
+    context._didPaint = true;
+    parent.drawRSuperellipse(rse, paint);
+  }
 }
 
 /// A [PaintingContext] that marks all children as leafs
