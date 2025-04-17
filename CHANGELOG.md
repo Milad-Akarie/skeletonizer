@@ -1,3 +1,5 @@
+## 2.0.0-pre
+- chore: support flutter 3.31.0.pre+
 ## 1.4.3
 - feat: expose AnimatedSwitcher.layoutBuilder
 ## 1.4.2
