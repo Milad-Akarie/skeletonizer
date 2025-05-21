@@ -2,12 +2,14 @@ import 'dart:typed_data';
 import 'dart:ui' as ui;
 
 import 'package:flutter/rendering.dart';
+import 'package:skeletonizer/src/painting/text_utils.dart';
+import 'package:skeletonizer/src/skeletonizer_config.dart';
 
 /// A [PaintingContext] that unites all the painted rectangles.
 /// into a single rectangle.
 class UnitingCanvas implements Canvas {
   /// The united rectangle of all the painted rectangles.
-  var unitedRect = Rect.zero;
+  var unitedRect = Rect.fromLTRB(double.infinity, double.infinity, 0, 0);
 
   /// The border radius of the biggest descendant of all the painted rectangles.
   BorderRadius? borderRadius;
@@ -15,13 +17,29 @@ class UnitingCanvas implements Canvas {
   /// The biggest descendant of all the painted rectangles.
   Size biggestDescendant = Size.zero;
 
+  /// The configuration data for the skeletonizer.
+  final SkeletonizerConfigData _config;
+
+  /// Creates a [UnitingCanvas] with the given [config].
+  UnitingCanvas(this._config);
+
   @override
   void drawParagraph(ui.Paragraph paragraph, ui.Offset offset) {
-    final rect = offset & Size(paragraph.maxIntrinsicWidth, paragraph.height);
-    unitedRect = unitedRect.expandToInclude(rect);
-    if (rect.size > biggestDescendant) {
-      biggestDescendant = rect.size;
-      borderRadius = BorderRadius.circular(paragraph.height / 2);
+    Rect paragraphRect = Rect.fromLTRB(double.infinity, double.infinity, 0, 0);
+    for (final line in paragraph.computeLineMetrics()) {
+      final rect = lineToRect(
+        line: line,
+        offset: offset,
+        numberOfLines: paragraph.numberOfLines,
+        justifyMultiLineText: _config.justifyMultiLineText,
+        paragraphWidth: paragraph.width,
+      );
+      paragraphRect = paragraphRect.expandToInclude(rect);
+    }
+    unitedRect = unitedRect.expandToInclude(paragraphRect);
+    if (paragraphRect.size > biggestDescendant) {
+      biggestDescendant = paragraphRect.size;
+      borderRadius = BorderRadius.circular(paragraphRect.height / 2);
     }
   }
 
@@ -248,10 +266,11 @@ class UnitingCanvas implements Canvas {
 /// A [PaintingContext] that unites all the painted rectangles.
 class UnitingPaintingContext extends PaintingContext {
   /// Creates a [UnitingPaintingContext] with the given [containerLayer] and [estimatedBounds].
-  UnitingPaintingContext(super.containerLayer, super.estimatedBounds);
+  UnitingPaintingContext(super.containerLayer, super.estimatedBounds, this._config);
 
+  final SkeletonizerConfigData _config;
   @override
-  final UnitingCanvas canvas = UnitingCanvas();
+  late final UnitingCanvas canvas = UnitingCanvas(_config);
 
   @override
   void paintChild(RenderObject child, ui.Offset offset) {
