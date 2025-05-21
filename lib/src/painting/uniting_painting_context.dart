@@ -266,7 +266,8 @@ class UnitingCanvas implements Canvas {
 /// A [PaintingContext] that unites all the painted rectangles.
 class UnitingPaintingContext extends PaintingContext {
   /// Creates a [UnitingPaintingContext] with the given [containerLayer] and [estimatedBounds].
-  UnitingPaintingContext(super.containerLayer, super.estimatedBounds, this._config);
+  UnitingPaintingContext(
+      super.containerLayer, super.estimatedBounds, this._config);
 
   final SkeletonizerConfigData _config;
   @override

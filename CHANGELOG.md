@@ -1,5 +1,6 @@
-## 2.0.0-pre
-- chore: support flutter 3.31.0.pre+
+## 2.0.0
+- chore: support flutter 3.32.0
+- Fix: Skeleton.unite Does Not Respect TextAlign.center #54
 ## 1.4.3
 - feat: expose AnimatedSwitcher.layoutBuilder
 ## 1.4.2
