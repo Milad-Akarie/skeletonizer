@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:skeletonizer/src/effects/painting_effect.dart';
 import 'package:skeletonizer/src/skeletonizer_config.dart';
 import 'package:skeletonizer/src/widgets/skeletonizer_render_object_widget.dart';
+import 'package:sliver_tools/sliver_tools.dart';
 
 /// Paints a skeleton of the [child] widget
 ///
@@ -122,6 +123,7 @@ abstract class Skeletonizer extends StatefulWidget {
     bool? justifyMultiLineText,
     Color? containersColor,
     bool ignorePointers,
+    SwitchAnimationConfig? switchAnimationConfig,
   }) = SliverSkeletonizer;
 
   @override
@@ -320,8 +322,10 @@ class _Skeletonizer extends Skeletonizer {
         reverseDuration: switchConfig.reverseDuration,
         switchInCurve: switchConfig.switchInCurve,
         switchOutCurve: switchConfig.switchOutCurve,
-        transitionBuilder: switchConfig.transitionBuilder,
-        layoutBuilder: switchConfig.layoutBuilder,
+        transitionBuilder: switchConfig.transitionBuilder ??
+            AnimatedSwitcher.defaultTransitionBuilder,
+        layoutBuilder:
+            switchConfig.layoutBuilder ?? AnimatedSwitcher.defaultLayoutBuilder,
         child: body,
       );
     }
@@ -349,7 +353,9 @@ class SliverSkeletonizer extends Skeletonizer {
     super.justifyMultiLineText,
     super.containersColor,
     super.ignorePointers,
-  }) : super._(enableSwitchAnimation: false);
+    super.enableSwitchAnimation,
+    super.switchAnimationConfig,
+  }) : super._();
 
   /// Creates a Skeletonizer widget that only shades [Bone] widgets
   const SliverSkeletonizer.zone({
@@ -362,22 +368,45 @@ class SliverSkeletonizer extends Skeletonizer {
     super.containersColor,
     super.ignorePointers,
     super.enabled,
+    super.enableSwitchAnimation,
+    super.switchAnimationConfig,
   }) : super._zone();
 
   @override
   Widget build(BuildContext context, SkeletonizerBuildData data) {
+    Widget body = data.enabled
+        ? SliverSkeletonizerRenderObjectWidget(
+            key: const ValueKey('skeletonizer'),
+            data: data,
+            child: child,
+          )
+        : KeyedSubtree(
+            key: const ValueKey('content'),
+            child: child,
+          );
+
+    if (data.config.enableSwitchAnimation) {
+      final switchConfig = data.config.switchAnimationConfig;
+      body = AnimatedSwitcher(
+        duration: switchConfig.duration,
+        reverseDuration: switchConfig.reverseDuration,
+        switchInCurve: switchConfig.switchInCurve,
+        switchOutCurve: switchConfig.switchOutCurve,
+        transitionBuilder: switchConfig.transitionBuilder ??
+            SliverAnimatedSwitcher.defaultTransitionBuilder,
+        layoutBuilder: switchConfig.layoutBuilder ??
+            SliverAnimatedSwitcher.defaultLayoutBuilder,
+        child: body,
+      );
+    }
+
     return SkeletonizerScope(
       enabled: data.enabled,
       config: data.config,
       isZone: data.isZone,
       isInsideZone: data.isInsideZone,
       animationController: data.animationController,
-      child: data.enabled
-          ? SliverSkeletonizerRenderObjectWidget(
-              data: data,
-              child: child,
-            )
-          : child,
+      child: body,
     );
   }
 }

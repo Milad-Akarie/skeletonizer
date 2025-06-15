@@ -268,18 +268,18 @@ class SwitchAnimationConfig {
   final Duration? reverseDuration;
 
   /// The transition builder
-  final AnimatedSwitcherTransitionBuilder transitionBuilder;
+  final AnimatedSwitcherTransitionBuilder? transitionBuilder;
 
   /// The layout builder
-  final AnimatedSwitcherLayoutBuilder layoutBuilder;
+  final AnimatedSwitcherLayoutBuilder? layoutBuilder;
 
   /// Default constructor
   const SwitchAnimationConfig({
     this.duration = const Duration(milliseconds: 300),
     this.switchInCurve = Curves.linear,
     this.switchOutCurve = Curves.linear,
-    this.transitionBuilder = AnimatedSwitcher.defaultTransitionBuilder,
-    this.layoutBuilder = AnimatedSwitcher.defaultLayoutBuilder,
+    this.transitionBuilder,
+    this.layoutBuilder,
     this.reverseDuration,
   });
 
