@@ -1,9 +1,9 @@
+import 'dart:async';
+
 import 'package:alchemist/alchemist.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:skeletonizer/skeletonizer.dart';
-
-import 'dart:async';
 
 import 'helpers.dart';
 
@@ -43,19 +43,32 @@ void runTests() {
             ),
           ),
           GoldenTestScenario(
+            name: 'Fixed border radius',
+            child: Skeletonizer(
+              textBoneBorderRadius: TextBoneBorderRadius(BorderRadius.circular(24)),
+              child: Text('English'),
+            ),
+          ),
+          GoldenTestScenario(
+            name: 'Fixed border radius RSuperellipse',
+            child: Skeletonizer(
+              textBoneBorderRadius: TextBoneBorderRadius(
+                BorderRadius.circular(24),
+                borderShape: TextBoneBorderShape.roundedSuperellipse,
+              ),
+              child: Text('English'),
+            ),
+          ),
+          GoldenTestScenario(
             name: ' With TextAlign.center',
             child: const Skeletonizer(
-              child: SizedBox(
-                  width: double.infinity,
-                  child: Text('English', textAlign: TextAlign.center)),
+              child: SizedBox(width: double.infinity, child: Text('English', textAlign: TextAlign.center)),
             ),
           ),
           GoldenTestScenario(
             name: ' With TextAlign.right',
             child: const Skeletonizer(
-              child: SizedBox(
-                  width: double.infinity,
-                  child: Text('English', textAlign: TextAlign.right)),
+              child: SizedBox(width: double.infinity, child: Text('English', textAlign: TextAlign.right)),
             ),
           ),
           GoldenTestScenario(

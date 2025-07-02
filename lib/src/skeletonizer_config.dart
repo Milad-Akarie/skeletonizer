@@ -99,10 +99,8 @@ class SkeletonizerConfigData extends ThemeExtension<SkeletonizerConfigData> {
       justifyMultiLineText: justifyMultiLineText ?? this.justifyMultiLineText,
       ignoreContainers: ignoreContainers ?? this.ignoreContainers,
       containersColor: containersColor ?? this.containersColor,
-      enableSwitchAnimation:
-          enableSwitchAnimation ?? this.enableSwitchAnimation,
-      switchAnimationConfig:
-          switchAnimationConfig ?? this.switchAnimationConfig,
+      enableSwitchAnimation: enableSwitchAnimation ?? this.enableSwitchAnimation,
+      switchAnimationConfig: switchAnimationConfig ?? this.switchAnimationConfig,
     );
   }
 
@@ -112,14 +110,11 @@ class SkeletonizerConfigData extends ThemeExtension<SkeletonizerConfigData> {
     return SkeletonizerConfigData(
       effect: effect.lerp(other.effect, t),
       textBorderRadius: textBorderRadius.lerp(other.textBorderRadius, t),
-      justifyMultiLineText:
-          t < 0.5 ? justifyMultiLineText : other.justifyMultiLineText,
+      justifyMultiLineText: t < 0.5 ? justifyMultiLineText : other.justifyMultiLineText,
       ignoreContainers: t < 0.5 ? ignoreContainers : other.ignoreContainers,
       containersColor: t < 0.5 ? containersColor : other.containersColor,
-      enableSwitchAnimation:
-          t < 0.5 ? enableSwitchAnimation : other.enableSwitchAnimation,
-      switchAnimationConfig:
-          t < 0.5 ? switchAnimationConfig : other.switchAnimationConfig,
+      enableSwitchAnimation: t < 0.5 ? enableSwitchAnimation : other.enableSwitchAnimation,
+      switchAnimationConfig: t < 0.5 ? switchAnimationConfig : other.switchAnimationConfig,
     );
   }
 }
@@ -141,22 +136,27 @@ class TextBoneBorderRadius {
   final BorderRadiusGeometry? _borderRadius;
   final double? _heightPercentage;
 
+  /// The shape of the border
+  final TextBoneBorderShape borderShape;
+
   /// Whether this is constructed using [fromHeightFactor]
   final bool usesHeightFactor;
 
   /// Builds TextBoneBorderRadius instance that
   /// uses default/fixed border radius
   const TextBoneBorderRadius(
-    BorderRadiusGeometry borderRadius,
-  )   : _borderRadius = borderRadius,
+    BorderRadiusGeometry borderRadius, {
+    this.borderShape = TextBoneBorderShape.roundedRectangle,
+  })  : _borderRadius = borderRadius,
         _heightPercentage = null,
         usesHeightFactor = false;
 
   /// Builds TextBoneBorderRadius instance that
   /// uses a high factor to resolve used border radius
   const TextBoneBorderRadius.fromHeightFactor(
-    double factor,
-  )   : assert(factor >= 0 && factor <= 1),
+    double factor, {
+    this.borderShape = TextBoneBorderShape.roundedRectangle,
+  })  : assert(factor >= 0 && factor <= 1),
         _borderRadius = null,
         _heightPercentage = factor,
         usesHeightFactor = true;
@@ -177,14 +177,13 @@ class TextBoneBorderRadius {
       other is TextBoneBorderRadius &&
           runtimeType == other.runtimeType &&
           _borderRadius == other._borderRadius &&
+          borderShape == other.borderShape &&
           _heightPercentage == other._heightPercentage &&
           usesHeightFactor == other.usesHeightFactor;
 
   @override
   int get hashCode =>
-      _borderRadius.hashCode ^
-      _heightPercentage.hashCode ^
-      usesHeightFactor.hashCode;
+      _borderRadius.hashCode ^ _heightPercentage.hashCode ^ usesHeightFactor.hashCode ^ borderShape.hashCode;
 
   /// Linearly interpolate between two [TextBoneBorderRadius]
   TextBoneBorderRadius lerp(TextBoneBorderRadius? other, double t) {
@@ -192,15 +191,26 @@ class TextBoneBorderRadius {
     if (usesHeightFactor && other.usesHeightFactor) {
       return TextBoneBorderRadius.fromHeightFactor(
         lerpDouble(_heightPercentage!, other._heightPercentage!, t)!,
+        borderShape: borderShape == other.borderShape ? borderShape : other.borderShape,
       );
     } else if (!usesHeightFactor && !other.usesHeightFactor) {
       return TextBoneBorderRadius(
         BorderRadiusGeometry.lerp(_borderRadius, other._borderRadius, t)!,
+        borderShape: borderShape == other.borderShape ? borderShape : other.borderShape,
       );
     } else {
       return this;
     }
   }
+}
+
+/// Enum to define the type of border for text bones
+enum TextBoneBorderShape {
+  /// Rectangular border shape
+  roundedRectangle,
+
+  /// Superellipse border shape
+  roundedSuperellipse
 }
 
 /// Provided the scoped [SkeletonizerConfigData] to descended widgets
@@ -211,19 +221,15 @@ class SkeletonizerConfig extends InheritedTheme {
   /// The [SkeletonizerConfigData] instance of the closest ancestor Theme.extension
   /// if exists, otherwise null.
   static SkeletonizerConfigData? maybeOf(BuildContext context) {
-    final SkeletonizerConfig? inherited =
-        context.dependOnInheritedWidgetOfExactType<SkeletonizerConfig>();
-    return inherited?.data ??
-        Theme.of(context).extension<SkeletonizerConfigData>();
+    final SkeletonizerConfig? inherited = context.dependOnInheritedWidgetOfExactType<SkeletonizerConfig>();
+    return inherited?.data ?? Theme.of(context).extension<SkeletonizerConfigData>();
   }
 
   /// The [SkeletonizerConfigData] instance of the closest ancestor Theme.extension
   /// if not found it will throw an exception
   static SkeletonizerConfigData of(BuildContext context) {
-    final SkeletonizerConfig? inherited =
-        context.dependOnInheritedWidgetOfExactType<SkeletonizerConfig>();
-    late final fromThemeExtension =
-        Theme.of(context).extension<SkeletonizerConfigData>();
+    final SkeletonizerConfig? inherited = context.dependOnInheritedWidgetOfExactType<SkeletonizerConfig>();
+    late final fromThemeExtension = Theme.of(context).extension<SkeletonizerConfigData>();
     assert(() {
       if (inherited == null && fromThemeExtension == null) {
         throw FlutterError(

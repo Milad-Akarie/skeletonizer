@@ -1,3 +1,5 @@
+## 2.1.0
+- Feat: add TextBoneBorderShape to TextBoneBorderRadius to support the new RoundedSuperellipseBorder
 ## 2.0.1
 - Fix: Fix Bone.text does not respect TextStyle.height #45
 ## 2.0.0
