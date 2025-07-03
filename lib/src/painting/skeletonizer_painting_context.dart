@@ -137,7 +137,6 @@ class SkeletonizerCanvas implements Canvas {
 
       if (borderRadius != null) {
         final borderShape = _config.textBorderRadius.borderShape;
-        print(borderShape);
         switch (borderShape) {
           case TextBoneBorderShape.roundedRectangle:
             parent.drawRRect(borderRadius.toRRect(rect), _shaderPaint);
