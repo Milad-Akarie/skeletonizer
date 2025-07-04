@@ -1,3 +1,5 @@
+## 2.1.0+1
+- Chore: remove a forgotten print statement
 ## 2.1.0
 - Feat: add TextBoneBorderShape to TextBoneBorderRadius to support the new RoundedSuperellipseBorder
 ## 2.0.1
