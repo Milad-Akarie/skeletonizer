@@ -142,7 +142,12 @@ class SkeletonizerCanvas implements Canvas {
             parent.drawRRect(borderRadius.toRRect(rect), _shaderPaint);
             break;
           case TextBoneBorderShape.roundedSuperellipse:
-            parent.drawRSuperellipse(borderRadius.toRSuperellipse(rect), _shaderPaint);
+            final maybeRse = _tryToRSuperellipse(borderRadius, rect);
+            if (maybeRse != null) {
+              _drawRSuperellipseCompat(parent, maybeRse, rect, _shaderPaint);
+            } else {
+              parent.drawRRect(borderRadius.toRRect(rect), _shaderPaint);
+            }
             break;
         }
       } else {
@@ -453,13 +458,79 @@ class SkeletonizerCanvas implements Canvas {
   void restoreToCount(int count) => parent.restoreToCount(count);
 
   @override
-  void clipRSuperellipse(ui.RSuperellipse rse, {bool doAntiAlias = true}) =>
-      parent.clipRSuperellipse(rse, doAntiAlias: doAntiAlias);
+  void clipRSuperellipse(dynamic rse, {bool doAntiAlias = true}) =>
+      _clipRSuperellipseCompat(parent, rse, doAntiAlias: doAntiAlias);
 
   @override
-  void drawRSuperellipse(ui.RSuperellipse rse, ui.Paint paint) {
-    context._didPaint = true;
-    parent.drawRSuperellipse(rse, paint);
+  void drawRSuperellipse(dynamic rse, ui.Paint paint) {
+    ui.Rect fallbackRect;
+    try {
+      final b = (rse as dynamic).getBounds();
+      if (b is ui.Rect) {
+        fallbackRect = b;
+      } else {
+        fallbackRect = ui.Rect.zero;
+      }
+    } on Object catch (_) {
+      fallbackRect = ui.Rect.zero;
+    }
+    _drawRSuperellipseCompat(parent, rse, fallbackRect, paint);
+  }
+
+  /// Helpers: try dynamic call to toRSuperellipse / drawRSuperellipse / clipRSuperellipse
+  /// All operations are guarded: if the new API is missing we fall back to RRect/Rect.
+  /// Attempts to call `toRSuperellipse` dynamically. Returns `null` if not available.
+  dynamic _tryToRSuperellipse(dynamic borderRadius, ui.Rect rect) {
+    try {
+      return (borderRadius as dynamic).toRSuperellipse(rect);
+    } on Object catch (_) {
+      return null;
+    }
+  }
+
+  /// Attempts to draw an RSuperellipse. Falls back to [drawRRect] or [drawRect].
+  void _drawRSuperellipseCompat(Canvas canvas, dynamic maybeRse, ui.Rect fallbackRect, ui.Paint paint) {
+    try {
+      (canvas as dynamic).drawRSuperellipse(maybeRse, paint);
+      return;
+    } on Object catch (_) {
+      // Fallbacks
+      if (maybeRse is ui.RRect) {
+        canvas.drawRRect(maybeRse, paint);
+        return;
+      }
+      try {
+        final r = (maybeRse as dynamic).toRRect();
+        if (r is ui.RRect) {
+          canvas.drawRRect(r, paint);
+          return;
+        }
+      } on Object catch (_) {
+        canvas.drawRect(fallbackRect, paint);
+      }
+    }
+  }
+
+  /// Attempts to clip to an RSuperellipse. Falls back to [clipRRect] if possible.
+  void _clipRSuperellipseCompat(Canvas canvas, dynamic maybeRse, {bool doAntiAlias = true}) {
+    try {
+      (canvas as dynamic).clipRSuperellipse(maybeRse, doAntiAlias: doAntiAlias);
+      return;
+    } on Object catch (_) {
+      if (maybeRse is ui.RRect) {
+        canvas.clipRRect(maybeRse, doAntiAlias: doAntiAlias);
+        return;
+      }
+      try {
+        final r = (maybeRse as dynamic).toRRect();
+        if (r is ui.RRect) {
+          canvas.clipRRect(r, doAntiAlias: doAntiAlias);
+          return;
+        }
+      } on Object catch (_) {
+        // No-op fallback
+      }
+    }
   }
 }
 

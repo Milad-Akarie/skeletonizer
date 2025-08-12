@@ -256,18 +256,16 @@ class UnitingCanvas implements Canvas {
   void saveLayer(ui.Rect? bounds, ui.Paint paint) {}
 
   @override
-  void clipRSuperellipse(ui.RSuperellipse rse, {bool doAntiAlias = true}) {}
+  void clipRSuperellipse(dynamic rse, {bool doAntiAlias = true}) {}
 
   @override
-  void drawRSuperellipse(ui.RSuperellipse rse, ui.Paint paint) =>
-      unitedRect = unitedRect.expandToInclude(rse.outerRect);
+  void drawRSuperellipse(dynamic rse, ui.Paint paint) => unitedRect = unitedRect.expandToInclude(rse.outerRect);
 }
 
 /// A [PaintingContext] that unites all the painted rectangles.
 class UnitingPaintingContext extends PaintingContext {
   /// Creates a [UnitingPaintingContext] with the given [containerLayer] and [estimatedBounds].
-  UnitingPaintingContext(
-      super.containerLayer, super.estimatedBounds, this._config);
+  UnitingPaintingContext(super.containerLayer, super.estimatedBounds, this._config);
 
   final SkeletonizerConfigData _config;
   @override
