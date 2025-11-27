@@ -1,10 +1,9 @@
-import 'dart:typed_data';
 import 'dart:ui' as ui;
 
+import 'package:flutter/foundation.dart';
 import 'package:flutter/rendering.dart';
 import 'package:skeletonizer/skeletonizer.dart';
 import 'package:skeletonizer/src/painting/text_utils.dart';
-import 'package:skeletonizer/src/rendering/render_skeletonizer.dart';
 import 'package:skeletonizer/src/utils/utils.dart';
 
 /// A painting context that draws a skeleton of of widgets
@@ -82,9 +81,6 @@ class SkeletonizerPaintingContext extends PaintingContext {
 
   @override
   void paintChild(RenderObject child, ui.Offset offset) {
-    if (child is RenderSkeletonizer || child is RenderSliverSkeletonizer) {
-      return super.paintChild(child, offset);
-    }
     if (!isZone && child is RenderObjectWithChildMixin) {
       final key = child.paintBounds.shift(offset).center;
       final subChild = child.child;
@@ -96,7 +92,29 @@ class SkeletonizerPaintingContext extends PaintingContext {
         _treatedAsLeaf.add(key);
       }
     }
+    _painChild(child, offset);
+  }
+
+  void _painChild(RenderObject child, ui.Offset offset) {
+    assert(() {
+      debugOnProfilePaint?.call(child);
+      return true;
+    }());
+
+    if (!kReleaseMode && debugProfilePaintsEnabled) {
+      Map<String, String>? debugTimelineArguments;
+      assert(() {
+        if (debugEnhancePaintTimelineArguments) {
+          debugTimelineArguments = child.toDiagnosticsNode().toTimelineArguments();
+        }
+        return true;
+      }());
+      FlutterTimeline.startSync('$runtimeType', arguments: debugTimelineArguments);
+    }
     child.paint(this, offset);
+    if (!kReleaseMode && debugProfilePaintsEnabled) {
+      FlutterTimeline.finishSync();
+    }
   }
 }
 

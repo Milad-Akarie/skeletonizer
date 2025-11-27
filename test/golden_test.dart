@@ -45,7 +45,8 @@ void runTests() {
           GoldenTestScenario(
             name: 'Fixed border radius',
             child: Skeletonizer(
-              textBoneBorderRadius: TextBoneBorderRadius(BorderRadius.circular(24)),
+              textBoneBorderRadius:
+                  TextBoneBorderRadius(BorderRadius.circular(24)),
               child: Text('English'),
             ),
           ),
@@ -62,13 +63,17 @@ void runTests() {
           GoldenTestScenario(
             name: ' With TextAlign.center',
             child: const Skeletonizer(
-              child: SizedBox(width: double.infinity, child: Text('English', textAlign: TextAlign.center)),
+              child: SizedBox(
+                  width: double.infinity,
+                  child: Text('English', textAlign: TextAlign.center)),
             ),
           ),
           GoldenTestScenario(
             name: ' With TextAlign.right',
             child: const Skeletonizer(
-              child: SizedBox(width: double.infinity, child: Text('English', textAlign: TextAlign.right)),
+              child: SizedBox(
+                  width: double.infinity,
+                  child: Text('English', textAlign: TextAlign.right)),
             ),
           ),
           GoldenTestScenario(

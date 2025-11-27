@@ -274,6 +274,12 @@ class UnitingPaintingContext extends PaintingContext {
   late final UnitingCanvas canvas = UnitingCanvas(_config);
 
   @override
+  PaintingContext createChildContext(
+      ContainerLayer childLayer, ui.Rect bounds) {
+    return UnitingPaintingContext(childLayer, bounds, _config);
+  }
+
+  @override
   void paintChild(RenderObject child, ui.Offset offset) {
     child.paint(this, offset);
   }

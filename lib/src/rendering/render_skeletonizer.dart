@@ -184,14 +184,8 @@ mixin _RenderSkeletonBase<R extends RenderObject>
   /// if true, only [Bone] and [Skeletonizer] widgets will be shaded
   bool get isZone;
 
-  @override
-  bool get isRepaintBoundary => true;
-
   SkeletonizerPaintingContext createSkeletonizerContext(
-    PaintingContext context,
-    ContainerLayer layer,
-    Offset offset,
-  ) {
+      ContainerLayer layer, Offset offset) {
     final estimatedBounds = paintBounds.shift(offset);
     final shaderPaint = config.effect.createPaint(
       animationValue,
@@ -209,9 +203,16 @@ mixin _RenderSkeletonBase<R extends RenderObject>
   }
 
   @override
+  OffsetLayer? get layer => super.layer as OffsetLayer?;
+
+  @override
   void paint(PaintingContext context, Offset offset) {
-    final skeletonizerContext =
-        createSkeletonizerContext(context, layer!, offset);
+    layer ??= OffsetLayer();
+    if (layer!.hasChildren) {
+      layer!.removeAllChildren();
+    }
+    context.addLayer(layer!);
+    final skeletonizerContext = createSkeletonizerContext(layer!, offset);
     super.paint(skeletonizerContext, offset);
     skeletonizerContext.stopRecordingIfNeeded();
   }
