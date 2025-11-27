@@ -1,3 +1,7 @@
+## 2.1.1
+- Refactor: improve painting logic and add debug timeline events
+- Refactor: simplify render object implementation by removing redundant isRepaintBoundary override
+- Feat: add equality operator and hashCode to SkeletonizerConfigData
 ## 2.1.0+1
 - Chore: remove a forgotten print statement
 ## 2.1.0
