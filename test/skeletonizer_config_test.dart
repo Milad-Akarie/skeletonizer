@@ -308,4 +308,68 @@ void main() {
       expect(buildCount, equals(2));
     });
   });
+
+  group('Additional coverage for SkeletonizerConfig', () {
+    test('Deprecated SkeletonizerConfigData.light factory works', () {
+      // ignore: deprecated_member_use_from_same_package
+      const config = SkeletonizerConfigData.light(
+        effect: ShimmerEffect(),
+        textBorderRadius: TextBoneBorderRadius.fromHeightFactor(0.5),
+        justifyMultiLineText: true,
+        ignoreContainers: false,
+        containersColor: null,
+        enableSwitchAnimation: false,
+        switchAnimationConfig: SwitchAnimationConfig(),
+      );
+      expect(config, isA<SkeletonizerConfigData>());
+    });
+
+    testWidgets('SkeletonizerConfig.of throws when no config is present', (tester) async {
+      await tester.pumpWidget(
+        MaterialApp(
+          home: Builder(
+            builder: (context) {
+              expect(() => SkeletonizerConfig.of(context), throwsA(isA<FlutterError>()));
+              return const SizedBox();
+            },
+          ),
+        ),
+      );
+    });
+
+    testWidgets('SkeletonizerConfig.wrap returns a new widget', (tester) async {
+      final key = GlobalKey();
+      const configData = SkeletonizerConfigData();
+      await tester.pumpWidget(
+        MaterialApp(
+          home: SkeletonizerConfig(
+            key: key,
+            data: configData,
+            child: const SizedBox(),
+          ),
+        ),
+      );
+      final context = key.currentContext;
+      expect(context, isNotNull);
+      final config = context!.widget as SkeletonizerConfig;
+      final wrapped = config.wrap(context, const SizedBox());
+      expect(wrapped, isA<SkeletonizerConfig>());
+    });
+
+    test('TextBoneBorderRadius with different border shapes', () {
+      const br1 = TextBoneBorderRadius.fromHeightFactor(0.5, borderShape: TextBoneBorderShape.roundedRectangle);
+      const br2 = TextBoneBorderRadius.fromHeightFactor(0.5, borderShape: TextBoneBorderShape.roundedSuperellipse);
+      expect(br1.borderShape, isNot(br2.borderShape));
+    });
+
+    test('SwitchAnimationConfig with custom transition and layout builders', () {
+      final config = SwitchAnimationConfig(
+        transitionBuilder: (child, animation) => FadeTransition(opacity: animation, child: child),
+        layoutBuilder: (currentChild, previousChildren) =>
+            Stack(children: [if (currentChild != null) currentChild, ...previousChildren]),
+      );
+      expect(config.transitionBuilder, isNotNull);
+      expect(config.layoutBuilder, isNotNull);
+    });
+  });
 }
