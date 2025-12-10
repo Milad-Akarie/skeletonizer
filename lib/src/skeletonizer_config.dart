@@ -29,15 +29,15 @@ class SkeletonizerConfigData extends ThemeExtension<SkeletonizerConfigData> {
 
   /// Constructs a [SkeletonizerConfigData] instance with the given properties for light theme.
   @Deprecated('use the default constructor instead')
-  const SkeletonizerConfigData.light({
-    this.effect = const ShimmerEffect(),
-    this.textBorderRadius = _defaultTextBoneBorderRadius,
-    this.justifyMultiLineText = true,
-    this.ignoreContainers = false,
-    this.containersColor,
-    this.enableSwitchAnimation = false,
-    this.switchAnimationConfig = const SwitchAnimationConfig(),
-  });
+  const factory SkeletonizerConfigData.light({
+    PaintingEffect effect,
+    TextBoneBorderRadius textBorderRadius,
+    bool justifyMultiLineText,
+    bool ignoreContainers,
+    Color? containersColor,
+    bool enableSwitchAnimation,
+    SwitchAnimationConfig switchAnimationConfig,
+  }) = SkeletonizerConfigData;
 
   /// Constructs a [SkeletonizerConfigData] instance with the given properties for dark theme.
   const SkeletonizerConfigData.dark({
@@ -99,10 +99,8 @@ class SkeletonizerConfigData extends ThemeExtension<SkeletonizerConfigData> {
       justifyMultiLineText: justifyMultiLineText ?? this.justifyMultiLineText,
       ignoreContainers: ignoreContainers ?? this.ignoreContainers,
       containersColor: containersColor ?? this.containersColor,
-      enableSwitchAnimation:
-          enableSwitchAnimation ?? this.enableSwitchAnimation,
-      switchAnimationConfig:
-          switchAnimationConfig ?? this.switchAnimationConfig,
+      enableSwitchAnimation: enableSwitchAnimation ?? this.enableSwitchAnimation,
+      switchAnimationConfig: switchAnimationConfig ?? this.switchAnimationConfig,
     );
   }
 
@@ -112,14 +110,11 @@ class SkeletonizerConfigData extends ThemeExtension<SkeletonizerConfigData> {
     return SkeletonizerConfigData(
       effect: effect.lerp(other.effect, t),
       textBorderRadius: textBorderRadius.lerp(other.textBorderRadius, t),
-      justifyMultiLineText:
-          t < 0.5 ? justifyMultiLineText : other.justifyMultiLineText,
+      justifyMultiLineText: t < 0.5 ? justifyMultiLineText : other.justifyMultiLineText,
       ignoreContainers: t < 0.5 ? ignoreContainers : other.ignoreContainers,
       containersColor: t < 0.5 ? containersColor : other.containersColor,
-      enableSwitchAnimation:
-          t < 0.5 ? enableSwitchAnimation : other.enableSwitchAnimation,
-      switchAnimationConfig:
-          t < 0.5 ? switchAnimationConfig : other.switchAnimationConfig,
+      enableSwitchAnimation: t < 0.5 ? enableSwitchAnimation : other.enableSwitchAnimation,
+      switchAnimationConfig: t < 0.5 ? switchAnimationConfig : other.switchAnimationConfig,
     );
   }
 
@@ -137,14 +132,8 @@ class SkeletonizerConfigData extends ThemeExtension<SkeletonizerConfigData> {
           switchAnimationConfig == other.switchAnimationConfig;
 
   @override
-  int get hashCode => Object.hash(
-      effect,
-      textBorderRadius,
-      justifyMultiLineText,
-      ignoreContainers,
-      containersColor,
-      enableSwitchAnimation,
-      switchAnimationConfig);
+  int get hashCode => Object.hash(effect, textBorderRadius, justifyMultiLineText, ignoreContainers, containersColor,
+      enableSwitchAnimation, switchAnimationConfig);
 }
 
 /// Singleton instance for skeletonizer theme configurations.
@@ -211,10 +200,7 @@ class TextBoneBorderRadius {
 
   @override
   int get hashCode =>
-      _borderRadius.hashCode ^
-      _heightPercentage.hashCode ^
-      usesHeightFactor.hashCode ^
-      borderShape.hashCode;
+      _borderRadius.hashCode ^ _heightPercentage.hashCode ^ usesHeightFactor.hashCode ^ borderShape.hashCode;
 
   /// Linearly interpolate between two [TextBoneBorderRadius]
   TextBoneBorderRadius lerp(TextBoneBorderRadius? other, double t) {
@@ -222,14 +208,12 @@ class TextBoneBorderRadius {
     if (usesHeightFactor && other.usesHeightFactor) {
       return TextBoneBorderRadius.fromHeightFactor(
         lerpDouble(_heightPercentage!, other._heightPercentage!, t)!,
-        borderShape:
-            borderShape == other.borderShape ? borderShape : other.borderShape,
+        borderShape: borderShape == other.borderShape ? borderShape : other.borderShape,
       );
     } else if (!usesHeightFactor && !other.usesHeightFactor) {
       return TextBoneBorderRadius(
         BorderRadiusGeometry.lerp(_borderRadius, other._borderRadius, t)!,
-        borderShape:
-            borderShape == other.borderShape ? borderShape : other.borderShape,
+        borderShape: borderShape == other.borderShape ? borderShape : other.borderShape,
       );
     } else {
       return this;
@@ -254,19 +238,15 @@ class SkeletonizerConfig extends InheritedTheme {
   /// The [SkeletonizerConfigData] instance of the closest ancestor Theme.extension
   /// if exists, otherwise null.
   static SkeletonizerConfigData? maybeOf(BuildContext context) {
-    final SkeletonizerConfig? inherited =
-        context.dependOnInheritedWidgetOfExactType<SkeletonizerConfig>();
-    return inherited?.data ??
-        Theme.of(context).extension<SkeletonizerConfigData>();
+    final SkeletonizerConfig? inherited = context.dependOnInheritedWidgetOfExactType<SkeletonizerConfig>();
+    return inherited?.data ?? Theme.of(context).extension<SkeletonizerConfigData>();
   }
 
   /// The [SkeletonizerConfigData] instance of the closest ancestor Theme.extension
   /// if not found it will throw an exception
   static SkeletonizerConfigData of(BuildContext context) {
-    final SkeletonizerConfig? inherited =
-        context.dependOnInheritedWidgetOfExactType<SkeletonizerConfig>();
-    late final fromThemeExtension =
-        Theme.of(context).extension<SkeletonizerConfigData>();
+    final SkeletonizerConfig? inherited = context.dependOnInheritedWidgetOfExactType<SkeletonizerConfig>();
+    late final fromThemeExtension = Theme.of(context).extension<SkeletonizerConfigData>();
     assert(() {
       if (inherited == null && fromThemeExtension == null) {
         throw FlutterError(
