@@ -27,10 +27,7 @@ class SoldColorEffect extends PaintingEffect {
 
   @override
   bool operator ==(Object other) =>
-      identical(this, other) ||
-      other is SoldColorEffect &&
-          runtimeType == other.runtimeType &&
-          color == other.color;
+      identical(this, other) || other is SoldColorEffect && runtimeType == other.runtimeType && color == other.color;
 
   @override
   int get hashCode => color.hashCode;

@@ -70,46 +70,31 @@ void main() {
 
   group('OffsetsSet extension', () {
     test('containsFuzzy returns true for exact match', () {
-      final offsets = <Offset>{
-        const Offset(10, 20),
-        const Offset(30, 40),
-      };
+      final offsets = <Offset>{const Offset(10, 20), const Offset(30, 40)};
 
       expect(offsets.containsFuzzy(const Offset(10, 20)), isTrue);
       expect(offsets.containsFuzzy(const Offset(30, 40)), isTrue);
     });
 
     test('containsFuzzy returns true for close matches within tolerance', () {
-      final offsets = <Offset>{
-        const Offset(10, 20),
-      };
+      final offsets = <Offset>{const Offset(10, 20)};
 
       expect(offsets.containsFuzzy(const Offset(10.05, 20.05)), isTrue);
       expect(offsets.containsFuzzy(const Offset(9.95, 19.95)), isTrue);
     });
 
     test('containsFuzzy returns false for matches outside tolerance', () {
-      final offsets = <Offset>{
-        const Offset(10, 20),
-      };
+      final offsets = <Offset>{const Offset(10, 20)};
 
       expect(offsets.containsFuzzy(const Offset(10.2, 20.2)), isFalse);
       expect(offsets.containsFuzzy(const Offset(9.8, 19.8)), isFalse);
     });
 
     test('containsFuzzy respects custom tolerance', () {
-      final offsets = <Offset>{
-        const Offset(10, 20),
-      };
+      final offsets = <Offset>{const Offset(10, 20)};
 
-      expect(
-        offsets.containsFuzzy(const Offset(10.5, 20.5), tolerance: 1.0),
-        isTrue,
-      );
-      expect(
-        offsets.containsFuzzy(const Offset(10.5, 20.5), tolerance: 0.1),
-        isFalse,
-      );
+      expect(offsets.containsFuzzy(const Offset(10.5, 20.5), tolerance: 1.0), isTrue);
+      expect(offsets.containsFuzzy(const Offset(10.5, 20.5), tolerance: 0.1), isFalse);
     });
 
     test('containsFuzzy returns false for empty set', () {
@@ -119,9 +104,7 @@ void main() {
     });
 
     test('containsFuzzy handles negative offsets', () {
-      final offsets = <Offset>{
-        const Offset(-10, -20),
-      };
+      final offsets = <Offset>{const Offset(-10, -20)};
 
       expect(offsets.containsFuzzy(const Offset(-10, -20)), isTrue);
       expect(offsets.containsFuzzy(const Offset(-10.05, -20.05)), isTrue);

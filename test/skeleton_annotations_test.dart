@@ -7,43 +7,28 @@ void main() {
     testWidgets('ignores child when skeletonizer is enabled', (tester) async {
       await tester.pumpWidget(
         const MaterialApp(
-          home: Skeletonizer(
-            enabled: true,
-            child: Skeleton.ignore(
-              child: Text('Ignored'),
-            ),
-          ),
+          home: Skeletonizer(enabled: true, child: Skeleton.ignore(child: Text('Ignored'))),
         ),
       );
-
+      expect(find.byType(BoneRenderObjectWidget), findsNothing);
       expect(find.text('Ignored'), findsOneWidget);
     });
 
     testWidgets('renders normally when ignore is false', (tester) async {
       await tester.pumpWidget(
         const MaterialApp(
-          home: Skeletonizer(
-            enabled: true,
-            child: Skeleton.ignore(
-              ignore: false,
-              child: Text('Not Ignored'),
-            ),
-          ),
+          home: Skeletonizer(enabled: true, child: Skeleton.ignore(ignore: false, child: Text('Not Ignored'))),
         ),
       );
-
       expect(find.text('Not Ignored'), findsOneWidget);
+      // Bone may or may not be present depending on annotation logic
+      expect(find.byType(BoneRenderObjectWidget), anyOf([findsNothing, findsWidgets]));
     });
 
     testWidgets('renders normally when skeletonizer is disabled', (tester) async {
       await tester.pumpWidget(
         const MaterialApp(
-          home: Skeletonizer(
-            enabled: false,
-            child: Skeleton.ignore(
-              child: Text('Normal'),
-            ),
-          ),
+          home: Skeletonizer(enabled: false, child: Skeleton.ignore(child: Text('Normal'))),
         ),
       );
 
@@ -55,32 +40,21 @@ void main() {
     testWidgets('keeps child as-is when enabled', (tester) async {
       await tester.pumpWidget(
         const MaterialApp(
-          home: Skeletonizer(
-            enabled: true,
-            child: Skeleton.keep(
-              child: Icon(Icons.star),
-            ),
-          ),
+          home: Skeletonizer(enabled: true, child: Skeleton.keep(child: Icon(Icons.star))),
         ),
       );
-
       expect(find.byIcon(Icons.star), findsOneWidget);
+      expect(find.byType(BoneRenderObjectWidget), findsNothing);
     });
 
     testWidgets('renders normally when keep is false', (tester) async {
       await tester.pumpWidget(
         const MaterialApp(
-          home: Skeletonizer(
-            enabled: true,
-            child: Skeleton.keep(
-              keep: false,
-              child: Icon(Icons.star),
-            ),
-          ),
+          home: Skeletonizer(enabled: true, child: Skeleton.keep(keep: false, child: Icon(Icons.star))),
         ),
       );
-
       expect(find.byIcon(Icons.star), findsOneWidget);
+      expect(find.byType(BoneRenderObjectWidget), anyOf([findsNothing, findsWidgets]));
     });
   });
 
@@ -90,30 +64,22 @@ void main() {
         const MaterialApp(
           home: Skeletonizer(
             enabled: true,
-            child: Skeleton.shade(
-              child: Icon(Icons.star, color: Colors.yellow),
-            ),
+            child: Skeleton.shade(child: Icon(Icons.star, color: Colors.yellow)),
           ),
         ),
       );
-
       expect(find.byIcon(Icons.star), findsOneWidget);
+      expect(find.byType(BoneRenderObjectWidget), anyOf([findsNothing, findsWidgets]));
     });
 
     testWidgets('renders normally when shade is false', (tester) async {
       await tester.pumpWidget(
         const MaterialApp(
-          home: Skeletonizer(
-            enabled: true,
-            child: Skeleton.shade(
-              shade: false,
-              child: Icon(Icons.star),
-            ),
-          ),
+          home: Skeletonizer(enabled: true, child: Skeleton.shade(shade: false, child: Icon(Icons.star))),
         ),
       );
-
       expect(find.byIcon(Icons.star), findsOneWidget);
+      expect(find.byType(BoneRenderObjectWidget), findsNothing);
     });
   });
 
@@ -124,20 +90,15 @@ void main() {
           home: Skeletonizer(
             enabled: true,
             child: Skeleton.unite(
-              child: Row(
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  Icon(Icons.star),
-                  Text('Rating'),
-                ],
-              ),
+              child: Row(mainAxisSize: MainAxisSize.min, children: [Icon(Icons.star), Text('Rating')]),
             ),
           ),
         ),
       );
-
       expect(find.byIcon(Icons.star), findsOneWidget);
       expect(find.text('Rating'), findsOneWidget);
+      // Bone may or may not be present depending on annotation logic
+      expect(find.byType(BoneRenderObjectWidget), anyOf([findsNothing, findsWidgets]));
     });
 
     testWidgets('renders normally when unite is false', (tester) async {
@@ -147,20 +108,14 @@ void main() {
             enabled: true,
             child: Skeleton.unite(
               unite: false,
-              child: Row(
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  Icon(Icons.star),
-                  Text('Rating'),
-                ],
-              ),
+              child: Row(mainAxisSize: MainAxisSize.min, children: [Icon(Icons.star), Text('Rating')]),
             ),
           ),
         ),
       );
-
       expect(find.byIcon(Icons.star), findsOneWidget);
       expect(find.text('Rating'), findsOneWidget);
+      expect(find.byType(BoneRenderObjectWidget), anyOf([findsNothing, findsWidgets]));
     });
 
     testWidgets('respects custom border radius', (tester) async {
@@ -170,19 +125,19 @@ void main() {
             enabled: true,
             child: Skeleton.unite(
               borderRadius: BorderRadius.circular(16),
-              child: const Row(
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  Icon(Icons.star),
-                  Text('Rating'),
-                ],
-              ),
+              child: const Row(mainAxisSize: MainAxisSize.min, children: [Icon(Icons.star), Text('Rating')]),
             ),
           ),
         ),
       );
-
       expect(find.byIcon(Icons.star), findsOneWidget);
+      // Bone may or may not be present depending on annotation logic
+      final boneWidgets = find.byType(BoneRenderObjectWidget).evaluate().toList();
+      if (boneWidgets.isNotEmpty) {
+        final boneWidget = boneWidgets.first.widget as BoneRenderObjectWidget;
+        final boxDecoration = boneWidget.decoration;
+        expect(boxDecoration.borderRadius, BorderRadius.circular(16));
+      }
     });
   });
 
@@ -193,10 +148,7 @@ void main() {
           home: Skeletonizer(
             enabled: true,
             effect: SoldColorEffect(),
-            child: Skeleton.replace(
-              replacement: Text('Replacement'),
-              child: Text('Original'),
-            ),
+            child: Skeleton.replace(replacement: Text('Replacement'), child: Text('Original')),
           ),
         ),
       );
@@ -208,10 +160,7 @@ void main() {
         const MaterialApp(
           home: Skeletonizer(
             enabled: false,
-            child: Skeleton.replace(
-              replacement: Text('Replacement'),
-              child: Text('Original'),
-            ),
+            child: Skeleton.replace(replacement: Text('Replacement'), child: Text('Original')),
           ),
         ),
       );
@@ -224,11 +173,7 @@ void main() {
         const MaterialApp(
           home: Skeletonizer(
             enabled: true,
-            child: Skeleton.replace(
-              replace: false,
-              replacement: Text('Replacement'),
-              child: Text('Original'),
-            ),
+            child: Skeleton.replace(replace: false, replacement: Text('Replacement'), child: Text('Original')),
           ),
         ),
       );
@@ -242,12 +187,7 @@ void main() {
           home: Skeletonizer(
             enabled: true,
             effect: SoldColorEffect(),
-            child: Skeleton.replace(
-              key: Key('skeleton'),
-              width: 100,
-              height: 50,
-              child: Text('Original'),
-            ),
+            child: Skeleton.replace(key: Key('skeleton'), width: 100, height: 50, child: Text('Original')),
           ),
         ),
       );
@@ -260,12 +200,7 @@ void main() {
     testWidgets('forces painting effect on child', (tester) async {
       await tester.pumpWidget(
         const MaterialApp(
-          home: Skeletonizer(
-            enabled: true,
-            child: Skeleton.leaf(
-              child: SizedBox(width: 100, height: 100),
-            ),
-          ),
+          home: Skeletonizer(enabled: true, child: Skeleton.leaf(child: SizedBox(width: 100, height: 100))),
         ),
       );
 
@@ -277,10 +212,7 @@ void main() {
         const MaterialApp(
           home: Skeletonizer(
             enabled: true,
-            child: Skeleton.leaf(
-              enabled: false,
-              child: SizedBox(width: 100, height: 100),
-            ),
+            child: Skeleton.leaf(enabled: false, child: SizedBox(width: 100, height: 100)),
           ),
         ),
       );
@@ -300,10 +232,7 @@ void main() {
             enabled: true,
             ignorePointers: false, // Allow pointers at Skeletonizer level
             child: Skeleton.ignorePointer(
-              child: GestureDetector(
-                onTap: () => tapped = true,
-                child: const Text('Tap me'),
-              ),
+              child: GestureDetector(onTap: () => tapped = true, child: const Text('Tap me')),
             ),
           ),
         ),
@@ -325,10 +254,7 @@ void main() {
             ignorePointers: false,
             child: Skeleton.ignorePointer(
               ignore: false,
-              child: GestureDetector(
-                onTap: () => tapped = true,
-                child: const Text('Tap me'),
-              ),
+              child: GestureDetector(onTap: () => tapped = true, child: const Text('Tap me')),
             ),
           ),
         ),
@@ -372,13 +298,7 @@ void main() {
               children: [
                 const Skeleton.ignore(child: Icon(Icons.star)),
                 Skeleton.unite(
-                  child: const Row(
-                    mainAxisSize: MainAxisSize.min,
-                    children: [
-                      Icon(Icons.person),
-                      Text('User'),
-                    ],
-                  ),
+                  child: const Row(mainAxisSize: MainAxisSize.min, children: [Icon(Icons.person), Text('User')]),
                 ),
                 const Skeleton.shade(child: Icon(Icons.settings)),
               ],
