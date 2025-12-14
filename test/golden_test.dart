@@ -12,10 +12,9 @@ void main() => testExecutable(runTests);
 Future<void> testExecutable(FutureOr<void> Function() testMain) async {
   return AlchemistConfig.runWithConfig(
     config: AlchemistConfig(
-        platformGoldensConfig: PlatformGoldensConfig(
-          theme: ThemeData.light(),
-        ),
-        ciGoldensConfig: const CiGoldensConfig(enabled: false)),
+      platformGoldensConfig: PlatformGoldensConfig(theme: ThemeData.light()),
+      ciGoldensConfig: const CiGoldensConfig(enabled: false),
+    ),
     run: testMain,
   );
 }
@@ -45,8 +44,9 @@ void runTests() {
           GoldenTestScenario(
             name: 'Fixed border radius',
             child: Skeletonizer(
-              textBoneBorderRadius:
-                  TextBoneBorderRadius(BorderRadius.circular(24)),
+              textBoneBorderRadius: TextBoneBorderRadius(
+                BorderRadius.circular(24),
+              ),
               child: Text('English'),
             ),
           ),
@@ -64,16 +64,18 @@ void runTests() {
             name: ' With TextAlign.center',
             child: const Skeletonizer(
               child: SizedBox(
-                  width: double.infinity,
-                  child: Text('English', textAlign: TextAlign.center)),
+                width: double.infinity,
+                child: Text('English', textAlign: TextAlign.center),
+              ),
             ),
           ),
           GoldenTestScenario(
             name: ' With TextAlign.right',
             child: const Skeletonizer(
               child: SizedBox(
-                  width: double.infinity,
-                  child: Text('English', textAlign: TextAlign.right)),
+                width: double.infinity,
+                child: Text('English', textAlign: TextAlign.right),
+              ),
             ),
           ),
           GoldenTestScenario(
@@ -83,7 +85,8 @@ void runTests() {
               child: SizedBox(
                 width: 300,
                 child: Text(
-                    'It is a long established fact that a reader will be distracted by the readable content of a page when looking at its layout'),
+                  'It is a long established fact that a reader will be distracted by the readable content of a page when looking at its layout',
+                ),
               ),
             ),
           ),
@@ -94,17 +97,19 @@ void runTests() {
               child: SizedBox(
                 width: 300,
                 child: Text(
-                    'It is a long established fact that a reader will be distracted by the readable content of a page when looking at its layout'),
+                  'It is a long established fact that a reader will be distracted by the readable content of a page when looking at its layout',
+                ),
               ),
             ),
           ),
           GoldenTestScenario(
             name: 'Simple RTL text',
             child: const Skeletonizer(
-                child: SizedBox(
-              width: double.infinity,
-              child: Text('نص عربي', textDirection: TextDirection.rtl),
-            )),
+              child: SizedBox(
+                width: double.infinity,
+                child: Text('نص عربي', textDirection: TextDirection.rtl),
+              ),
+            ),
           ),
           GoldenTestScenario(
             name: 'Icon text',
@@ -341,10 +346,7 @@ void runTests() {
               child: SizedBox(
                 width: 200,
                 height: 100,
-                child: ColoredBox(
-                  color: Colors.white,
-                  child: Text("Foo"),
-                ),
+                child: ColoredBox(color: Colors.white, child: Text("Foo")),
               ),
             ),
           ),
@@ -460,10 +462,7 @@ void runTests() {
               child: SizedBox(
                 width: 200,
                 height: 100,
-                child: ColoredBox(
-                  color: Colors.white,
-                  child: Text("Foo"),
-                ),
+                child: ColoredBox(color: Colors.white, child: Text("Foo")),
               ),
             ),
           ),
@@ -537,10 +536,7 @@ void runTests() {
                     borderRadius: BorderRadius.circular(16),
                     color: Colors.white,
                     boxShadow: const [
-                      BoxShadow(
-                        offset: Offset(3, 3),
-                        blurRadius: 4,
-                      )
+                      BoxShadow(offset: Offset(3, 3), blurRadius: 4),
                     ],
                   ),
                   child: const ListTile(
@@ -589,9 +585,7 @@ void runTests() {
           GoldenTestScenario(
             name: 'ignore',
             child: const Skeletonizer(
-              child: Skeleton.ignore(
-                child: Icon(Icons.ac_unit_outlined),
-              ),
+              child: Skeleton.ignore(child: Icon(Icons.ac_unit_outlined)),
             ),
           ),
           GoldenTestScenario(
@@ -613,41 +607,40 @@ void runTests() {
             name: 'shade',
             child: const Skeletonizer(
               effect: SoldColorEffect(color: Colors.red),
-              child: Skeleton.shade(
-                  child: Icon(
-                Icons.ac_unit_outlined,
-              )),
+              child: Skeleton.shade(child: Icon(Icons.ac_unit_outlined)),
             ),
           ),
           GoldenTestScenario(
             name: 'unite',
             child: const Skeletonizer(
               child: Skeleton.unite(
-                  child: Row(
-                children: [
-                  Icon(Icons.ac_unit_outlined),
-                  SizedBox(width: 20),
-                  Icon(Icons.ac_unit_outlined),
-                  Icon(Icons.ac_unit_outlined),
-                ],
-              )),
+                child: Row(
+                  children: [
+                    Icon(Icons.ac_unit_outlined),
+                    SizedBox(width: 20),
+                    Icon(Icons.ac_unit_outlined),
+                    Icon(Icons.ac_unit_outlined),
+                  ],
+                ),
+              ),
             ),
           ),
           GoldenTestScenario(
             name: 'unite:borderRadius',
             child: const Skeletonizer(
               child: Skeleton.unite(
-                  borderRadius: BorderRadius.zero,
-                  child: Row(
-                    children: [
-                      Icon(Icons.ac_unit_outlined),
-                      SizedBox(width: 20),
-                      Icon(Icons.ac_unit_outlined),
-                      Icon(Icons.ac_unit_outlined),
-                    ],
-                  )),
+                borderRadius: BorderRadius.zero,
+                child: Row(
+                  children: [
+                    Icon(Icons.ac_unit_outlined),
+                    SizedBox(width: 20),
+                    Icon(Icons.ac_unit_outlined),
+                    Icon(Icons.ac_unit_outlined),
+                  ],
+                ),
+              ),
             ),
-          )
+          ),
         ],
       ),
     ),
@@ -669,9 +662,7 @@ void runTests() {
               child: ClipRRect(
                 borderRadius: BorderRadius.circular(20),
                 child: Container(
-                  decoration: const BoxDecoration(
-                    color: Colors.green,
-                  ),
+                  decoration: const BoxDecoration(color: Colors.green),
                   width: 100,
                   height: 50,
                 ),
@@ -685,9 +676,7 @@ void runTests() {
                 borderRadius: BorderRadius.circular(20),
                 clipBehavior: Clip.none,
                 child: Container(
-                  decoration: const BoxDecoration(
-                    color: Colors.green,
-                  ),
+                  decoration: const BoxDecoration(color: Colors.green),
                   width: 100,
                   height: 50,
                 ),
@@ -699,9 +688,7 @@ void runTests() {
             child: Skeletonizer(
               child: ClipOval(
                 child: Container(
-                  decoration: const BoxDecoration(
-                    color: Colors.green,
-                  ),
+                  decoration: const BoxDecoration(color: Colors.green),
                   width: 100,
                   height: 50,
                 ),
@@ -714,9 +701,7 @@ void runTests() {
               child: ClipOval(
                 clipBehavior: Clip.none,
                 child: Container(
-                  decoration: const BoxDecoration(
-                    color: Colors.green,
-                  ),
+                  decoration: const BoxDecoration(color: Colors.green),
                   width: 100,
                   height: 50,
                 ),
@@ -729,9 +714,7 @@ void runTests() {
               child: ClipPath(
                 clipper: TestPathClipper(),
                 child: Container(
-                  decoration: const BoxDecoration(
-                    color: Colors.green,
-                  ),
+                  decoration: const BoxDecoration(color: Colors.green),
                   width: 100,
                   height: 50,
                 ),
@@ -745,9 +728,7 @@ void runTests() {
                 clipper: TestPathClipper(),
                 clipBehavior: Clip.none,
                 child: Container(
-                  decoration: const BoxDecoration(
-                    color: Colors.green,
-                  ),
+                  decoration: const BoxDecoration(color: Colors.green),
                   width: 100,
                   height: 50,
                 ),
@@ -775,9 +756,7 @@ void runTests() {
               child: Transform.scale(
                 scale: 1.3,
                 child: Container(
-                  decoration: const BoxDecoration(
-                    color: Colors.green,
-                  ),
+                  decoration: const BoxDecoration(color: Colors.green),
                   width: 50,
                   height: 50,
                 ),
@@ -790,9 +769,7 @@ void runTests() {
               child: Transform.translate(
                 offset: const Offset(50, 0),
                 child: Container(
-                  decoration: const BoxDecoration(
-                    color: Colors.green,
-                  ),
+                  decoration: const BoxDecoration(color: Colors.green),
                   width: 50,
                   height: 50,
                 ),
@@ -805,9 +782,7 @@ void runTests() {
               child: Transform.rotate(
                 angle: 1,
                 child: Container(
-                  decoration: const BoxDecoration(
-                    color: Colors.green,
-                  ),
+                  decoration: const BoxDecoration(color: Colors.green),
                   width: 50,
                   height: 50,
                 ),
@@ -820,9 +795,7 @@ void runTests() {
               child: RotatedBox(
                 quarterTurns: 2,
                 child: Container(
-                  decoration: const BoxDecoration(
-                    color: Colors.green,
-                  ),
+                  decoration: const BoxDecoration(color: Colors.green),
                   width: 50,
                   height: 70,
                 ),
@@ -830,6 +803,128 @@ void runTests() {
             ),
           ),
         ],
+      ),
+    ),
+  );
+  goldenTest(
+    'Skeletonize slivers successfully',
+    fileName: 'slivers',
+    builder: () => SkeletonizerConfig(
+      data: skeletonizerConfigData.copyWith(
+        effect: const SoldColorEffect(color: Colors.green),
+      ),
+      child: GoldenTestGroup(
+        children: [
+          GoldenTestScenario(
+            name: 'SliverList',
+            child: SizedBox(
+              width: 300,
+              height: 200,
+              child: CustomScrollView(
+                slivers: [
+                  SliverSkeletonizer(
+                    child: SliverList(
+                      delegate: SliverChildListDelegate([
+                        const ListTile(title: Text('Item 1')),
+                        const ListTile(title: Text('Item 2')),
+                      ]),
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          ),
+
+          GoldenTestScenario(
+            name: 'SliverGrid',
+            child: SizedBox(
+              width: 300,
+              height: 200,
+              child: CustomScrollView(
+                slivers: [
+                  SliverSkeletonizer(
+                    child: SliverGrid(
+                      gridDelegate:
+                          const SliverGridDelegateWithFixedCrossAxisCount(
+                            crossAxisCount: 2,
+                          ),
+                      delegate: SliverChildListDelegate([
+                        Container(height: 50, color: Colors.blue),
+                        Container(height: 50, color: Colors.red),
+                      ]),
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          ),
+        ],
+      ),
+    ),
+  );
+
+  goldenTest(
+    'Skeletonize zones successfully',
+    fileName: 'zones',
+    builder: () => SkeletonizerConfig(
+      data: skeletonizerConfigData.copyWith(
+        effect: const SoldColorEffect(color: Colors.green),
+      ),
+      child: GoldenTestGroup(
+        scenarioConstraints: const BoxConstraints(maxWidth: 500),
+        children: [
+          GoldenTestScenario(
+            name: 'Mixed Content',
+            child: Skeletonizer.zone(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  const Text('Ignored Text'),
+                  const SizedBox(height: 8),
+                  const Bone.text(words: 2),
+                  const SizedBox(height: 8),
+                  Container(width: 50, height: 50, color: Colors.red),
+                  const SizedBox(height: 8),
+                  const Bone.square(size: 50),
+                ],
+              ),
+            ),
+          ),
+        ],
+      ),
+    ),
+  );
+
+  goldenTest(
+    'Bone widgets successfully',
+    fileName: 'bones',
+    builder: () => SkeletonizerConfig(
+      data: skeletonizerConfigData.copyWith(
+        effect: const SoldColorEffect(color: Colors.green),
+      ),
+      child: Skeletonizer(
+        child: GoldenTestGroup(
+          scenarioConstraints: const BoxConstraints(maxWidth: 500),
+          children: [
+            GoldenTestScenario(
+              name: 'Bone.circle',
+              child: const Bone.circle(size: 48),
+            ),
+            GoldenTestScenario(
+              name: 'Bone.square',
+              child: const Bone.square(size: 48),
+            ),
+            GoldenTestScenario(name: 'Bone.icon', child: const Bone.icon()),
+            GoldenTestScenario(
+              name: 'Bone.text',
+              child: const Bone.text(words: 3),
+            ),
+            GoldenTestScenario(
+              name: 'Bone.button',
+              child: const Bone.button(words: 2),
+            ),
+          ],
+        ),
       ),
     ),
   );
