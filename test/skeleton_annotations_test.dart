@@ -7,7 +7,10 @@ void main() {
     testWidgets('ignores child when skeletonizer is enabled', (tester) async {
       await tester.pumpWidget(
         const MaterialApp(
-          home: Skeletonizer(enabled: true, child: Skeleton.ignore(child: Text('Ignored'))),
+          home: Skeletonizer(
+            enabled: true,
+            child: Skeleton.ignore(child: Text('Ignored')),
+          ),
         ),
       );
       expect(find.byType(BoneRenderObjectWidget), findsNothing);
@@ -17,18 +20,29 @@ void main() {
     testWidgets('renders normally when ignore is false', (tester) async {
       await tester.pumpWidget(
         const MaterialApp(
-          home: Skeletonizer(enabled: true, child: Skeleton.ignore(ignore: false, child: Text('Not Ignored'))),
+          home: Skeletonizer(
+            enabled: true,
+            child: Skeleton.ignore(ignore: false, child: Text('Not Ignored')),
+          ),
         ),
       );
       expect(find.text('Not Ignored'), findsOneWidget);
       // Bone may or may not be present depending on annotation logic
-      expect(find.byType(BoneRenderObjectWidget), anyOf([findsNothing, findsWidgets]));
+      expect(
+        find.byType(BoneRenderObjectWidget),
+        anyOf([findsNothing, findsWidgets]),
+      );
     });
 
-    testWidgets('renders normally when skeletonizer is disabled', (tester) async {
+    testWidgets('renders normally when skeletonizer is disabled', (
+      tester,
+    ) async {
       await tester.pumpWidget(
         const MaterialApp(
-          home: Skeletonizer(enabled: false, child: Skeleton.ignore(child: Text('Normal'))),
+          home: Skeletonizer(
+            enabled: false,
+            child: Skeleton.ignore(child: Text('Normal')),
+          ),
         ),
       );
 
@@ -40,7 +54,10 @@ void main() {
     testWidgets('keeps child as-is when enabled', (tester) async {
       await tester.pumpWidget(
         const MaterialApp(
-          home: Skeletonizer(enabled: true, child: Skeleton.keep(child: Icon(Icons.star))),
+          home: Skeletonizer(
+            enabled: true,
+            child: Skeleton.keep(child: Icon(Icons.star)),
+          ),
         ),
       );
       expect(find.byIcon(Icons.star), findsOneWidget);
@@ -50,11 +67,17 @@ void main() {
     testWidgets('renders normally when keep is false', (tester) async {
       await tester.pumpWidget(
         const MaterialApp(
-          home: Skeletonizer(enabled: true, child: Skeleton.keep(keep: false, child: Icon(Icons.star))),
+          home: Skeletonizer(
+            enabled: true,
+            child: Skeleton.keep(keep: false, child: Icon(Icons.star)),
+          ),
         ),
       );
       expect(find.byIcon(Icons.star), findsOneWidget);
-      expect(find.byType(BoneRenderObjectWidget), anyOf([findsNothing, findsWidgets]));
+      expect(
+        find.byType(BoneRenderObjectWidget),
+        anyOf([findsNothing, findsWidgets]),
+      );
     });
   });
 
@@ -64,18 +87,26 @@ void main() {
         const MaterialApp(
           home: Skeletonizer(
             enabled: true,
-            child: Skeleton.shade(child: Icon(Icons.star, color: Colors.yellow)),
+            child: Skeleton.shade(
+              child: Icon(Icons.star, color: Colors.yellow),
+            ),
           ),
         ),
       );
       expect(find.byIcon(Icons.star), findsOneWidget);
-      expect(find.byType(BoneRenderObjectWidget), anyOf([findsNothing, findsWidgets]));
+      expect(
+        find.byType(BoneRenderObjectWidget),
+        anyOf([findsNothing, findsWidgets]),
+      );
     });
 
     testWidgets('renders normally when shade is false', (tester) async {
       await tester.pumpWidget(
         const MaterialApp(
-          home: Skeletonizer(enabled: true, child: Skeleton.shade(shade: false, child: Icon(Icons.star))),
+          home: Skeletonizer(
+            enabled: true,
+            child: Skeleton.shade(shade: false, child: Icon(Icons.star)),
+          ),
         ),
       );
       expect(find.byIcon(Icons.star), findsOneWidget);
@@ -90,7 +121,10 @@ void main() {
           home: Skeletonizer(
             enabled: true,
             child: Skeleton.unite(
-              child: Row(mainAxisSize: MainAxisSize.min, children: [Icon(Icons.star), Text('Rating')]),
+              child: Row(
+                mainAxisSize: MainAxisSize.min,
+                children: [Icon(Icons.star), Text('Rating')],
+              ),
             ),
           ),
         ),
@@ -98,7 +132,10 @@ void main() {
       expect(find.byIcon(Icons.star), findsOneWidget);
       expect(find.text('Rating'), findsOneWidget);
       // Bone may or may not be present depending on annotation logic
-      expect(find.byType(BoneRenderObjectWidget), anyOf([findsNothing, findsWidgets]));
+      expect(
+        find.byType(BoneRenderObjectWidget),
+        anyOf([findsNothing, findsWidgets]),
+      );
     });
 
     testWidgets('renders normally when unite is false', (tester) async {
@@ -108,14 +145,20 @@ void main() {
             enabled: true,
             child: Skeleton.unite(
               unite: false,
-              child: Row(mainAxisSize: MainAxisSize.min, children: [Icon(Icons.star), Text('Rating')]),
+              child: Row(
+                mainAxisSize: MainAxisSize.min,
+                children: [Icon(Icons.star), Text('Rating')],
+              ),
             ),
           ),
         ),
       );
       expect(find.byIcon(Icons.star), findsOneWidget);
       expect(find.text('Rating'), findsOneWidget);
-      expect(find.byType(BoneRenderObjectWidget), anyOf([findsNothing, findsWidgets]));
+      expect(
+        find.byType(BoneRenderObjectWidget),
+        anyOf([findsNothing, findsWidgets]),
+      );
     });
 
     testWidgets('respects custom border radius', (tester) async {
@@ -125,14 +168,20 @@ void main() {
             enabled: true,
             child: Skeleton.unite(
               borderRadius: BorderRadius.circular(16),
-              child: const Row(mainAxisSize: MainAxisSize.min, children: [Icon(Icons.star), Text('Rating')]),
+              child: const Row(
+                mainAxisSize: MainAxisSize.min,
+                children: [Icon(Icons.star), Text('Rating')],
+              ),
             ),
           ),
         ),
       );
       expect(find.byIcon(Icons.star), findsOneWidget);
       // Bone may or may not be present depending on annotation logic
-      final boneWidgets = find.byType(BoneRenderObjectWidget).evaluate().toList();
+      final boneWidgets = find
+          .byType(BoneRenderObjectWidget)
+          .evaluate()
+          .toList();
       if (boneWidgets.isNotEmpty) {
         final boneWidget = boneWidgets.first.widget as BoneRenderObjectWidget;
         final boxDecoration = boneWidget.decoration;
@@ -148,7 +197,10 @@ void main() {
           home: Skeletonizer(
             enabled: true,
             effect: SoldColorEffect(),
-            child: Skeleton.replace(replacement: Text('Replacement'), child: Text('Original')),
+            child: Skeleton.replace(
+              replacement: Text('Replacement'),
+              child: Text('Original'),
+            ),
           ),
         ),
       );
@@ -160,7 +212,10 @@ void main() {
         const MaterialApp(
           home: Skeletonizer(
             enabled: false,
-            child: Skeleton.replace(replacement: Text('Replacement'), child: Text('Original')),
+            child: Skeleton.replace(
+              replacement: Text('Replacement'),
+              child: Text('Original'),
+            ),
           ),
         ),
       );
@@ -173,7 +228,11 @@ void main() {
         const MaterialApp(
           home: Skeletonizer(
             enabled: true,
-            child: Skeleton.replace(replace: false, replacement: Text('Replacement'), child: Text('Original')),
+            child: Skeleton.replace(
+              replace: false,
+              replacement: Text('Replacement'),
+              child: Text('Original'),
+            ),
           ),
         ),
       );
@@ -187,7 +246,12 @@ void main() {
           home: Skeletonizer(
             enabled: true,
             effect: SoldColorEffect(),
-            child: Skeleton.replace(key: Key('skeleton'), width: 100, height: 50, child: Text('Original')),
+            child: Skeleton.replace(
+              key: Key('skeleton'),
+              width: 100,
+              height: 50,
+              child: Text('Original'),
+            ),
           ),
         ),
       );
@@ -200,7 +264,10 @@ void main() {
     testWidgets('forces painting effect on child', (tester) async {
       await tester.pumpWidget(
         const MaterialApp(
-          home: Skeletonizer(enabled: true, child: Skeleton.leaf(child: SizedBox(width: 100, height: 100))),
+          home: Skeletonizer(
+            enabled: true,
+            child: Skeleton.leaf(child: SizedBox(width: 100, height: 100)),
+          ),
         ),
       );
 
@@ -212,7 +279,10 @@ void main() {
         const MaterialApp(
           home: Skeletonizer(
             enabled: true,
-            child: Skeleton.leaf(enabled: false, child: SizedBox(width: 100, height: 100)),
+            child: Skeleton.leaf(
+              enabled: false,
+              child: SizedBox(width: 100, height: 100),
+            ),
           ),
         ),
       );
@@ -232,7 +302,10 @@ void main() {
             enabled: true,
             ignorePointers: false, // Allow pointers at Skeletonizer level
             child: Skeleton.ignorePointer(
-              child: GestureDetector(onTap: () => tapped = true, child: const Text('Tap me')),
+              child: GestureDetector(
+                onTap: () => tapped = true,
+                child: const Text('Tap me'),
+              ),
             ),
           ),
         ),
@@ -254,7 +327,10 @@ void main() {
             ignorePointers: false,
             child: Skeleton.ignorePointer(
               ignore: false,
-              child: GestureDetector(onTap: () => tapped = true, child: const Text('Tap me')),
+              child: GestureDetector(
+                onTap: () => tapped = true,
+                child: const Text('Tap me'),
+              ),
             ),
           ),
         ),
@@ -298,7 +374,10 @@ void main() {
               children: [
                 const Skeleton.ignore(child: Icon(Icons.star)),
                 Skeleton.unite(
-                  child: const Row(mainAxisSize: MainAxisSize.min, children: [Icon(Icons.person), Text('User')]),
+                  child: const Row(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [Icon(Icons.person), Text('User')],
+                  ),
                 ),
                 const Skeleton.shade(child: Icon(Icons.settings)),
               ],
@@ -311,6 +390,185 @@ void main() {
       expect(find.byIcon(Icons.person), findsOneWidget);
       expect(find.text('User'), findsOneWidget);
       expect(find.byIcon(Icons.settings), findsOneWidget);
+    });
+  });
+
+  group('Skeleton render object updates', () {
+    testWidgets('_RenderBasicSkeleton updates enabled property', (
+      tester,
+    ) async {
+      const key = Key('skeleton-keep');
+      await tester.pumpWidget(
+        const MaterialApp(
+          home: Skeletonizer(
+            enabled: true,
+            child: Skeleton.keep(key: key, keep: true, child: Icon(Icons.star)),
+          ),
+        ),
+      );
+
+      expect(find.byIcon(Icons.star), findsOneWidget);
+
+      // Update with keep: false
+      await tester.pumpWidget(
+        const MaterialApp(
+          home: Skeletonizer(
+            enabled: true,
+            child: Skeleton.keep(
+              key: key,
+              keep: false,
+              child: Icon(Icons.star),
+            ),
+          ),
+        ),
+      );
+
+      await tester.pump();
+      expect(find.byIcon(Icons.star), findsOneWidget);
+    });
+
+    testWidgets('RenderIgnoredSkeleton updates enabled property', (
+      tester,
+    ) async {
+      const key = Key('skeleton-ignore');
+      await tester.pumpWidget(
+        const MaterialApp(
+          home: Skeletonizer(
+            enabled: true,
+            child: Skeleton.ignore(key: key, ignore: true, child: Text('Test')),
+          ),
+        ),
+      );
+
+      expect(find.text('Test'), findsOneWidget);
+
+      // Update with ignore: false
+      await tester.pumpWidget(
+        const MaterialApp(
+          home: Skeletonizer(
+            enabled: true,
+            child: Skeleton.ignore(
+              key: key,
+              ignore: false,
+              child: Text('Test'),
+            ),
+          ),
+        ),
+      );
+
+      await tester.pump();
+      expect(find.text('Test'), findsOneWidget);
+    });
+
+    testWidgets('_RenderSkeletonShaderMask updates shade property', (
+      tester,
+    ) async {
+      const key = Key('skeleton-shade');
+      await tester.pumpWidget(
+        const MaterialApp(
+          home: Skeletonizer(
+            enabled: true,
+            child: Skeleton.shade(
+              key: key,
+              shade: true,
+              child: Icon(Icons.star),
+            ),
+          ),
+        ),
+      );
+
+      expect(find.byIcon(Icons.star), findsOneWidget);
+
+      // Update with shade: false
+      await tester.pumpWidget(
+        const MaterialApp(
+          home: Skeletonizer(
+            enabled: true,
+            child: Skeleton.shade(
+              key: key,
+              shade: false,
+              child: Icon(Icons.star),
+            ),
+          ),
+        ),
+      );
+
+      await tester.pump();
+      expect(find.byIcon(Icons.star), findsOneWidget);
+    });
+
+    testWidgets('Skeleton.leaf with disabled skeletonizer', (tester) async {
+      await tester.pumpWidget(
+        const MaterialApp(
+          home: Skeletonizer(
+            enabled: false,
+            child: Skeleton.leaf(child: SizedBox(width: 100, height: 100)),
+          ),
+        ),
+      );
+
+      expect(find.byType(SizedBox), findsOneWidget);
+    });
+
+    testWidgets('Skeleton.unite with null borderRadius', (tester) async {
+      await tester.pumpWidget(
+        MaterialApp(
+          home: Skeletonizer(
+            enabled: true,
+            child: Skeleton.unite(
+              borderRadius: null,
+              child: const Row(
+                mainAxisSize: MainAxisSize.min,
+                children: [Icon(Icons.star), Text('Rating')],
+              ),
+            ),
+          ),
+        ),
+      );
+
+      expect(find.byIcon(Icons.star), findsOneWidget);
+      expect(find.text('Rating'), findsOneWidget);
+    });
+
+    testWidgets('Skeleton.ignorePointer when skeletonizer is disabled', (
+      tester,
+    ) async {
+      bool tapped = false;
+
+      await tester.pumpWidget(
+        MaterialApp(
+          home: Skeletonizer(
+            enabled: false,
+            child: Skeleton.ignorePointer(
+              child: GestureDetector(
+                onTap: () => tapped = true,
+                child: const Text('Tap me'),
+              ),
+            ),
+          ),
+        ),
+      );
+
+      await tester.tap(find.text('Tap me'));
+      await tester.pump();
+
+      expect(tapped, isTrue);
+    });
+
+    testWidgets('Skeleton.replace with default replacement', (tester) async {
+      await tester.pumpWidget(
+        const MaterialApp(
+          home: Skeletonizer(
+            enabled: true,
+            effect: SoldColorEffect(),
+            child: Skeleton.replace(child: Text('Original')),
+          ),
+        ),
+      );
+
+      // Default replacement is ColoredBox(color: Colors.black)
+      expect(find.byType(ColoredBox), findsWidgets);
+      expect(find.text('Original'), findsNothing);
     });
   });
 }
