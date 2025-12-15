@@ -7,6 +7,9 @@
 <a href="https://img.shields.io/badge/License-MIT-green"><img src="https://img.shields.io/badge/License-MIT-green" alt="MIT License"></a>                    
 <a href="https://github.com/Milad-Akarie/skeletonizer/stargazers"><img src="https://img.shields.io/github/stars/Milad-Akarie/skeletonizer?style=flat&logo=github&colorB=green&label=stars" alt="stars"></a>                    
 <a href="https://pub.dev/packages/skeletonizer"><img src="https://img.shields.io/pub/v/skeletonizer.svg?label=pub&color=orange" alt="pub version"></a>                    
+<a align="center" href="https://codecov.io/github/Milad-Akarie/skeletonizer" > 
+ <img src="https://codecov.io/github/Milad-Akarie/skeletonizer/graph/badge.svg?token=ZSTW5VFTJD"/> 
+ </a>
 </p>                    
 
 <p align="center">                  
