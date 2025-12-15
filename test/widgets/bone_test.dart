@@ -8,7 +8,7 @@ void main() {
       await tester.pumpWidget(
         const MaterialApp(
           home: Skeletonizer.zone(
-            effect: SoldColorEffect(),
+            effect: SolidColorEffect(),
             enabled: true,
             child: Bone(key: ValueKey('Bone-default')),
           ),
@@ -21,7 +21,7 @@ void main() {
       await tester.pumpWidget(
         const MaterialApp(
           home: Skeletonizer.zone(
-            effect: SoldColorEffect(),
+            effect: SolidColorEffect(),
             enabled: true,
             child: Bone(key: ValueKey('Bone-size'), width: 100, height: 50),
           ),
@@ -34,7 +34,7 @@ void main() {
       await tester.pumpWidget(
         MaterialApp(
           home: Skeletonizer.zone(
-            effect: SoldColorEffect(),
+            effect: SolidColorEffect(),
             enabled: true,
             child: Bone(
               key: const ValueKey('Bone-radius'),
@@ -52,7 +52,7 @@ void main() {
       await tester.pumpWidget(
         const MaterialApp(
           home: Skeletonizer.zone(
-            effect: SoldColorEffect(),
+            effect: SolidColorEffect(),
             enabled: true,
             child: Bone(
               key: ValueKey('Bone-uniRadius'),
@@ -70,7 +70,7 @@ void main() {
       await tester.pumpWidget(
         const MaterialApp(
           home: Skeletonizer.zone(
-            effect: SoldColorEffect(),
+            effect: SolidColorEffect(),
             enabled: true,
             child: Bone(
               key: ValueKey('Bone-indent'),
@@ -91,7 +91,7 @@ void main() {
       await tester.pumpWidget(
         const MaterialApp(
           home: Skeletonizer.zone(
-            effect: SoldColorEffect(),
+            effect: SolidColorEffect(),
             enabled: true,
             child: Bone.circle(key: ValueKey('Bone-circle'), size: 50),
           ),
@@ -104,7 +104,7 @@ void main() {
       await tester.pumpWidget(
         const MaterialApp(
           home: Skeletonizer.zone(
-            effect: SoldColorEffect(),
+            effect: SolidColorEffect(),
             enabled: true,
             child: Bone.circle(key: ValueKey('Bone-circle-indent'), size: 50, indent: 10),
           ),
@@ -119,7 +119,7 @@ void main() {
       await tester.pumpWidget(
         const MaterialApp(
           home: Skeletonizer.zone(
-            effect: SoldColorEffect(),
+            effect: SolidColorEffect(),
             enabled: true,
             child: Bone.square(key: ValueKey('Bone-square'), size: 50),
           ),
@@ -132,7 +132,7 @@ void main() {
       await tester.pumpWidget(
         MaterialApp(
           home: Skeletonizer.zone(
-            effect: SoldColorEffect(),
+            effect: SolidColorEffect(),
             enabled: true,
             child: Bone.square(
               key: const ValueKey('Bone-square-radius'),
@@ -151,7 +151,7 @@ void main() {
       await tester.pumpWidget(
         const MaterialApp(
           home: Skeletonizer.zone(
-            effect: SoldColorEffect(),
+            effect: SolidColorEffect(),
             enabled: true,
             child: Bone.icon(key: ValueKey('Bone-icon')),
           ),
@@ -164,7 +164,7 @@ void main() {
       await tester.pumpWidget(
         const MaterialApp(
           home: Skeletonizer.zone(
-            effect: SoldColorEffect(),
+            effect: SolidColorEffect(),
             enabled: true,
             child: Bone.icon(key: ValueKey('Bone-icon-size'), size: 32),
           ),
@@ -179,7 +179,7 @@ void main() {
           home: IconTheme(
             data: IconThemeData(size: 48),
             child: Skeletonizer.zone(
-              effect: SoldColorEffect(),
+              effect: SolidColorEffect(),
               enabled: true,
               child: Bone.icon(key: ValueKey('Bone-icon-theme')),
             ),
@@ -195,7 +195,7 @@ void main() {
       await tester.pumpWidget(
         const MaterialApp(
           home: Skeletonizer.zone(
-            effect: SoldColorEffect(),
+            effect: SolidColorEffect(),
             enabled: true,
             child: Bone.text(key: ValueKey('Bone-text'), words: 3),
           ),
@@ -208,7 +208,7 @@ void main() {
       await tester.pumpWidget(
         const MaterialApp(
           home: Skeletonizer.zone(
-            effect: SoldColorEffect(),
+            effect: SolidColorEffect(),
             enabled: true,
             child: Bone.text(key: ValueKey('Bone-text-font'), fontSize: 20, words: 2),
           ),
@@ -221,7 +221,7 @@ void main() {
       await tester.pumpWidget(
         const MaterialApp(
           home: Skeletonizer.zone(
-            effect: SoldColorEffect(),
+            effect: SolidColorEffect(),
             enabled: true,
             child: Bone.text(key: ValueKey('Bone-text-width'), width: 200),
           ),
@@ -234,7 +234,7 @@ void main() {
       await tester.pumpWidget(
         const MaterialApp(
           home: Skeletonizer.zone(
-            effect: SoldColorEffect(),
+            effect: SolidColorEffect(),
             enabled: true,
             child: Bone.text(
               key: ValueKey('Bone-text-style'),
@@ -251,7 +251,7 @@ void main() {
       await tester.pumpWidget(
         const MaterialApp(
           home: Skeletonizer.zone(
-            effect: SoldColorEffect(),
+            effect: SolidColorEffect(),
             enabled: true,
             child: Column(
               children: [
@@ -274,7 +274,7 @@ void main() {
       await tester.pumpWidget(
         const MaterialApp(
           home: Skeletonizer.zone(
-            effect: SoldColorEffect(),
+            effect: SolidColorEffect(),
             enabled: true,
             child: SizedBox(
               width: 200,
@@ -290,7 +290,7 @@ void main() {
       await tester.pumpWidget(
         const MaterialApp(
           home: Skeletonizer.zone(
-            effect: SoldColorEffect(),
+            effect: SolidColorEffect(),
             enabled: true,
             child: SizedBox(
               width: 200,
@@ -306,7 +306,7 @@ void main() {
       await tester.pumpWidget(
         const MaterialApp(
           home: Skeletonizer.zone(
-            effect: SoldColorEffect(),
+            effect: SolidColorEffect(),
             enabled: true,
             child: SizedBox(
               width: 200,
@@ -324,7 +324,7 @@ void main() {
       await tester.pumpWidget(
         const MaterialApp(
           home: Skeletonizer.zone(
-            effect: SoldColorEffect(),
+            effect: SolidColorEffect(),
             enabled: true,
             child: Bone.button(key: ValueKey('Bone-button-elevated'), type: BoneButtonType.elevated),
           ),
@@ -337,7 +337,7 @@ void main() {
       await tester.pumpWidget(
         const MaterialApp(
           home: Skeletonizer.zone(
-            effect: SoldColorEffect(),
+            effect: SolidColorEffect(),
             enabled: true,
             child: Bone.button(key: ValueKey('Bone-button-filled'), type: BoneButtonType.filled),
           ),
@@ -350,7 +350,7 @@ void main() {
       await tester.pumpWidget(
         const MaterialApp(
           home: Skeletonizer.zone(
-            effect: SoldColorEffect(),
+            effect: SolidColorEffect(),
             enabled: true,
             child: Bone.button(key: ValueKey('Bone-button-text'), type: BoneButtonType.text),
           ),
@@ -363,7 +363,7 @@ void main() {
       await tester.pumpWidget(
         const MaterialApp(
           home: Skeletonizer.zone(
-            effect: SoldColorEffect(),
+            effect: SolidColorEffect(),
             enabled: true,
             child: Bone.button(key: ValueKey('Bone-button-outlined'), type: BoneButtonType.outlined),
           ),
@@ -376,7 +376,7 @@ void main() {
       await tester.pumpWidget(
         const MaterialApp(
           home: Skeletonizer.zone(
-            effect: SoldColorEffect(),
+            effect: SolidColorEffect(),
             enabled: true,
             child: Bone.button(key: ValueKey('Bone-button-size'), width: 150, height: 50),
           ),
@@ -389,7 +389,7 @@ void main() {
       await tester.pumpWidget(
         const MaterialApp(
           home: Skeletonizer.zone(
-            effect: SoldColorEffect(),
+            effect: SolidColorEffect(),
             enabled: true,
             child: Bone.button(key: ValueKey('Bone-button-words'), words: 3),
           ),
@@ -404,7 +404,7 @@ void main() {
       await tester.pumpWidget(
         const MaterialApp(
           home: Skeletonizer.zone(
-            effect: SoldColorEffect(),
+            effect: SolidColorEffect(),
             enabled: true,
             child: Bone.iconButton(key: ValueKey('Bone-iconButton')),
           ),
@@ -417,7 +417,7 @@ void main() {
       await tester.pumpWidget(
         const MaterialApp(
           home: Skeletonizer.zone(
-            effect: SoldColorEffect(),
+            effect: SolidColorEffect(),
             enabled: true,
             child: Bone.iconButton(key: ValueKey('Bone-iconButton-size'), size: 48),
           ),
@@ -430,7 +430,7 @@ void main() {
       await tester.pumpWidget(
         MaterialApp(
           home: Skeletonizer.zone(
-            effect: SoldColorEffect(),
+            effect: SolidColorEffect(),
             enabled: true,
             child: Bone.iconButton(
               key: const ValueKey('Bone-iconButton-radius'),

@@ -15,20 +15,14 @@ void main() {
     });
 
     test('custom colors are applied correctly', () {
-      const effect = ShimmerEffect(
-        baseColor: Colors.red,
-        highlightColor: Colors.blue,
-      );
+      const effect = ShimmerEffect(baseColor: Colors.red, highlightColor: Colors.blue);
 
       expect(effect.colors, contains(Colors.red));
       expect(effect.colors, contains(Colors.blue));
     });
 
     test('custom alignment is applied correctly', () {
-      const effect = ShimmerEffect(
-        begin: Alignment.topLeft,
-        end: Alignment.bottomRight,
-      );
+      const effect = ShimmerEffect(begin: Alignment.topLeft, end: Alignment.bottomRight);
 
       expect(effect.begin, equals(Alignment.topLeft));
       expect(effect.end, equals(Alignment.bottomRight));
@@ -104,19 +98,13 @@ void main() {
         const effectDefault = ShimmerEffect();
         expect(effectDefault.colors, isA<List<Color>>());
         expect(effectDefault.stops, [0.1, 0.3, 0.4]);
-        const effectCustom = ShimmerEffect.raw(
-          colors: [Colors.red, Colors.green],
-          stops: [0.0, 1.0],
-        );
+        const effectCustom = ShimmerEffect.raw(colors: [Colors.red, Colors.green], stops: [0.0, 1.0]);
         expect(effectCustom.colors, [Colors.red, Colors.green]);
         expect(effectCustom.stops, [0.0, 1.0]);
       });
 
       test('tileMode property is set correctly', () {
-        const effect = ShimmerEffect.raw(
-          colors: [Colors.red, Colors.blue],
-          tileMode: TileMode.repeated,
-        );
+        const effect = ShimmerEffect.raw(colors: [Colors.red, Colors.blue], tileMode: TileMode.repeated);
         expect(effect.tileMode, TileMode.repeated);
       });
 
@@ -131,10 +119,7 @@ void main() {
 
       test('runtimeType and hashCode differ for different configs', () {
         const effect1 = ShimmerEffect();
-        const effect2 = ShimmerEffect(
-          baseColor: Colors.red,
-          highlightColor: Colors.blue,
-        );
+        const effect2 = ShimmerEffect(baseColor: Colors.red, highlightColor: Colors.blue);
         expect(effect1.hashCode, isNot(equals(effect2.hashCode)));
         expect(effect1.runtimeType, equals(effect2.runtimeType));
       });
@@ -225,10 +210,7 @@ void main() {
     });
 
     test('custom colors are applied correctly', () {
-      const effect = PulseEffect(
-        from: Colors.red,
-        to: Colors.blue,
-      );
+      const effect = PulseEffect(from: Colors.red, to: Colors.blue);
       expect(effect.from.toARGB32(), equals(Colors.red.toARGB32()));
       expect(effect.to.toARGB32(), equals(Colors.blue.toARGB32()));
     });
@@ -244,10 +226,7 @@ void main() {
     });
 
     test('createPaint lerps between colors based on t value', () {
-      const effect = PulseEffect(
-        from: Colors.white,
-        to: Colors.black,
-      );
+      const effect = PulseEffect(from: Colors.white, to: Colors.black);
       const rect = Rect.fromLTWH(0, 0, 100, 100);
 
       // These should create different shaders
@@ -296,20 +275,20 @@ void main() {
 
   group('SoldColorEffect', () {
     test('default constructor creates effect with default color', () {
-      const effect = SoldColorEffect();
+      const effect = SolidColorEffect();
 
       expect(effect.color, equals(const Color(0xFFF6F6F6)));
       expect(effect.duration, equals(Duration.zero));
     });
 
     test('custom color is applied correctly', () {
-      const effect = SoldColorEffect(color: Colors.red);
+      const effect = SolidColorEffect(color: Colors.red);
 
       expect(effect.color.toARGB32(), equals(Colors.red.toARGB32()));
     });
 
     test('createPaint returns a Paint with shader', () {
-      const effect = SoldColorEffect();
+      const effect = SolidColorEffect();
       const rect = Rect.fromLTWH(0, 0, 100, 100);
 
       final paint = effect.createPaint(0.5, rect, TextDirection.ltr);
@@ -319,16 +298,16 @@ void main() {
     });
 
     test('lerp interpolates between two SoldColorEffects', () {
-      const effect1 = SoldColorEffect(color: Colors.white);
-      const effect2 = SoldColorEffect(color: Colors.black);
+      const effect1 = SolidColorEffect(color: Colors.white);
+      const effect2 = SolidColorEffect(color: Colors.black);
 
-      final lerped = effect1.lerp(effect2, 0.5) as SoldColorEffect;
+      final lerped = effect1.lerp(effect2, 0.5) as SolidColorEffect;
 
       expect(lerped.color, equals(Color.lerp(Colors.white, Colors.black, 0.5)));
     });
 
     test('lerp returns this when other is not SoldColorEffect', () {
-      const soldEffect = SoldColorEffect();
+      const soldEffect = SolidColorEffect();
       const shimmerEffect = ShimmerEffect();
 
       final lerped = soldEffect.lerp(shimmerEffect, 0.5);
@@ -337,17 +316,17 @@ void main() {
     });
 
     test('equality works correctly', () {
-      const effect1 = SoldColorEffect();
-      const effect2 = SoldColorEffect();
-      const effect3 = SoldColorEffect(color: Colors.red);
+      const effect1 = SolidColorEffect();
+      const effect2 = SolidColorEffect();
+      const effect3 = SolidColorEffect(color: Colors.red);
 
       expect(effect1, equals(effect2));
       expect(effect1, isNot(equals(effect3)));
     });
 
     test('hashCode is consistent with equality', () {
-      const effect1 = SoldColorEffect();
-      const effect2 = SoldColorEffect();
+      const effect1 = SolidColorEffect();
+      const effect2 = SolidColorEffect();
 
       expect(effect1.hashCode, equals(effect2.hashCode));
     });
@@ -355,20 +334,14 @@ void main() {
 
   group('ShimmerEffect isVertical logic', () {
     test('isVertical is true when beginX and endX are 0', () {
-      final effect = ShimmerEffect(
-        begin: Alignment(0, -1),
-        end: Alignment(0, 1),
-      );
+      final effect = ShimmerEffect(begin: Alignment(0, -1), end: Alignment(0, 1));
       // Should trigger isVertical = true
       final paint = effect.createPaint(0.5, Rect.fromLTWH(0, 0, 10, 10), TextDirection.ltr);
       expect(paint, isA<Paint>());
       // No direct way to check isVertical, but this ensures the code path is covered
     });
     test('isVertical is false when beginX or endX is not 0', () {
-      final effect = ShimmerEffect(
-        begin: Alignment(-1, 0),
-        end: Alignment(1, 0),
-      );
+      final effect = ShimmerEffect(begin: Alignment(-1, 0), end: Alignment(1, 0));
       // Should trigger isVertical = false
       final paint = effect.createPaint(0.5, Rect.fromLTWH(0, 0, 10, 10), TextDirection.ltr);
       expect(paint, isA<Paint>());

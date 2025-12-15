@@ -12,7 +12,7 @@ void main() {
               textDirection: TextDirection.ltr,
               child: Skeletonizer(
                 enabled: true,
-                effect: SoldColorEffect(),
+                effect: SolidColorEffect(),
                 child: Text('LTR Test'),
               ),
             ),
@@ -31,7 +31,7 @@ void main() {
               textDirection: TextDirection.rtl,
               child: Skeletonizer(
                 enabled: true,
-                effect: SoldColorEffect(),
+                effect: SolidColorEffect(),
                 child: Text('RTL Test'),
               ),
             ),
@@ -51,7 +51,7 @@ void main() {
             body: Skeletonizer(
               enabled: true,
               ignorePointers: true,
-              effect: const SoldColorEffect(),
+              effect: const SolidColorEffect(),
               child: GestureDetector(
                 onTap: () => tapped = true,
                 child: const Text('Tap me'),
@@ -78,7 +78,7 @@ void main() {
             body: Skeletonizer(
               enabled: true,
               ignorePointers: false,
-              effect: const SoldColorEffect(),
+              effect: const SolidColorEffect(),
               child: GestureDetector(
                 onTap: () => tapped = true,
                 child: const Text('Tap me'),
@@ -102,7 +102,7 @@ void main() {
             body: Skeletonizer(
               key: key,
               enabled: true,
-              effect: SoldColorEffect(),
+              effect: SolidColorEffect(),
               child: Text('Test'),
             ),
           ),
@@ -135,7 +135,7 @@ void main() {
           home: Scaffold(
             body: Skeletonizer.zone(
               enabled: true,
-              effect: const SoldColorEffect(),
+              effect: const SolidColorEffect(),
               child: Column(
                 children: [const Text('Normal Text'), Bone.text(words: 3)],
               ),
@@ -174,7 +174,7 @@ void main() {
           home: Scaffold(
             body: Skeletonizer(
               enabled: true,
-              effect: const SoldColorEffect(),
+              effect: const SolidColorEffect(),
               child: Column(
                 children: [
                   const ListTile(
@@ -212,7 +212,7 @@ void main() {
               slivers: [
                 Skeletonizer.sliver(
                   enabled: true,
-                  effect: const SoldColorEffect(),
+                  effect: const SolidColorEffect(),
                   child: SliverList(
                     delegate: SliverChildListDelegate([
                       const ListTile(title: Text('Item 1')),
@@ -238,7 +238,7 @@ void main() {
               slivers: [
                 Skeletonizer.sliver(
                   enabled: true,
-                  effect: const SoldColorEffect(),
+                  effect: const SolidColorEffect(),
                   child: SliverGrid(
                     gridDelegate:
                         const SliverGridDelegateWithFixedCrossAxisCount(
@@ -271,7 +271,7 @@ void main() {
                 slivers: [
                   SliverSkeletonizer(
                     enabled: true,
-                    effect: const SoldColorEffect(),
+                    effect: const SolidColorEffect(),
                     child: SliverList(
                       delegate: SliverChildListDelegate(const [
                         ListTile(title: Text('RTL Item')),
@@ -298,7 +298,7 @@ void main() {
                 SliverSkeletonizer(
                   key: key,
                   enabled: true,
-                  effect: const SoldColorEffect(),
+                  effect: const SolidColorEffect(),
                   child: SliverList(
                     delegate: SliverChildListDelegate(const [
                       ListTile(title: Text('Test')),
@@ -350,7 +350,7 @@ void main() {
                 SliverSkeletonizer(
                   enabled: true,
                   ignorePointers: true,
-                  effect: const SoldColorEffect(),
+                  effect: const SolidColorEffect(),
                   child: SliverList(
                     delegate: SliverChildListDelegate([
                       GestureDetector(
@@ -385,7 +385,7 @@ void main() {
                 SliverSkeletonizer(
                   enabled: true,
                   ignorePointers: false,
-                  effect: const SoldColorEffect(),
+                  effect: const SolidColorEffect(),
                   child: SliverList(
                     delegate: SliverChildListDelegate([
                       GestureDetector(
@@ -415,7 +415,7 @@ void main() {
               slivers: [
                 SliverSkeletonizer.zone(
                   enabled: true,
-                  effect: const SoldColorEffect(),
+                  effect: const SolidColorEffect(),
                   child: SliverList(
                     delegate: SliverChildListDelegate([
                       const ListTile(title: Text('Normal Text')),

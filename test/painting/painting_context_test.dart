@@ -14,7 +14,7 @@ void main() {
     setUp(() {
       config = const SkeletonizerConfigData(
         justifyMultiLineText: true,
-        effect: SoldColorEffect(),
+        effect: SolidColorEffect(),
       );
       canvas = UnitingCanvas(config);
     });
@@ -218,7 +218,7 @@ void main() {
     setUp(() {
       config = const SkeletonizerConfigData(
         justifyMultiLineText: true,
-        effect: SoldColorEffect(),
+        effect: SolidColorEffect(),
       );
       containerLayer = OffsetLayer();
     });
@@ -288,7 +288,7 @@ void main() {
           home: Scaffold(
             body: Skeletonizer(
               enabled: true,
-              effect: const SoldColorEffect(),
+              effect: const SolidColorEffect(),
               child: Container(width: 100, height: 100, color: Colors.red),
             ),
           ),
@@ -307,7 +307,7 @@ void main() {
     setUp(() {
       config = const SkeletonizerConfigData(
         justifyMultiLineText: true,
-        effect: SoldColorEffect(),
+        effect: SolidColorEffect(),
       );
       canvas = UnitingCanvas(config);
     });

@@ -25,7 +25,7 @@ void runTests() {
     fileName: 'text',
     builder: () => SkeletonizerConfig(
       data: skeletonizerConfigData.copyWith(
-        effect: const SoldColorEffect(color: Colors.green),
+        effect: const SolidColorEffect(color: Colors.green),
       ),
       child: GoldenTestGroup(
         scenarioConstraints: const BoxConstraints(maxWidth: 500),
@@ -125,7 +125,7 @@ void runTests() {
     fileName: 'container',
     builder: () => SkeletonizerConfig(
       data: skeletonizerConfigData.copyWith(
-        effect: const SoldColorEffect(color: Colors.green),
+        effect: const SolidColorEffect(color: Colors.green),
       ),
       child: GoldenTestGroup(
         scenarioConstraints: const BoxConstraints(maxWidth: 500),
@@ -244,7 +244,7 @@ void runTests() {
     fileName: 'ignored_container',
     builder: () => SkeletonizerConfig(
       data: skeletonizerConfigData.copyWith(
-        effect: const SoldColorEffect(color: Colors.green),
+        effect: const SolidColorEffect(color: Colors.green),
         ignoreContainers: true,
       ),
       child: GoldenTestGroup(
@@ -360,7 +360,7 @@ void runTests() {
     fileName: 'container_color_override',
     builder: () => SkeletonizerConfig(
       data: skeletonizerConfigData.copyWith(
-        effect: const SoldColorEffect(color: Colors.green),
+        effect: const SolidColorEffect(color: Colors.green),
         containersColor: Colors.purple,
       ),
       child: GoldenTestGroup(
@@ -475,7 +475,7 @@ void runTests() {
     fileName: 'list_tile',
     builder: () => SkeletonizerConfig(
       data: skeletonizerConfigData.copyWith(
-        effect: const SoldColorEffect(color: Colors.green),
+        effect: const SolidColorEffect(color: Colors.green),
       ),
       child: GoldenTestGroup(
         children: [
@@ -577,7 +577,7 @@ void runTests() {
     fileName: 'skeleton_annotations',
     builder: () => SkeletonizerConfig(
       data: skeletonizerConfigData.copyWith(
-        effect: const SoldColorEffect(color: Colors.green),
+        effect: const SolidColorEffect(color: Colors.green),
       ),
       child: GoldenTestGroup(
         scenarioConstraints: const BoxConstraints(maxWidth: 500),
@@ -606,7 +606,7 @@ void runTests() {
           GoldenTestScenario(
             name: 'shade',
             child: const Skeletonizer(
-              effect: SoldColorEffect(color: Colors.red),
+              effect: SolidColorEffect(color: Colors.red),
               child: Skeleton.shade(child: Icon(Icons.ac_unit_outlined)),
             ),
           ),
@@ -651,7 +651,7 @@ void runTests() {
     fileName: 'clippers',
     builder: () => SkeletonizerConfig(
       data: skeletonizerConfigData.copyWith(
-        effect: const SoldColorEffect(color: Colors.green),
+        effect: const SolidColorEffect(color: Colors.green),
       ),
       child: GoldenTestGroup(
         scenarioConstraints: const BoxConstraints(maxWidth: 500),
@@ -745,7 +745,7 @@ void runTests() {
     fileName: 'transformers',
     builder: () => SkeletonizerConfig(
       data: skeletonizerConfigData.copyWith(
-        effect: const SoldColorEffect(color: Colors.green),
+        effect: const SolidColorEffect(color: Colors.green),
       ),
       child: GoldenTestGroup(
         scenarioConstraints: const BoxConstraints(maxWidth: 500),
@@ -811,7 +811,7 @@ void runTests() {
     fileName: 'slivers',
     builder: () => SkeletonizerConfig(
       data: skeletonizerConfigData.copyWith(
-        effect: const SoldColorEffect(color: Colors.green),
+        effect: const SolidColorEffect(color: Colors.green),
       ),
       child: GoldenTestGroup(
         children: [
@@ -868,7 +868,7 @@ void runTests() {
     fileName: 'zones',
     builder: () => SkeletonizerConfig(
       data: skeletonizerConfigData.copyWith(
-        effect: const SoldColorEffect(color: Colors.green),
+        effect: const SolidColorEffect(color: Colors.green),
       ),
       child: GoldenTestGroup(
         scenarioConstraints: const BoxConstraints(maxWidth: 500),
@@ -900,7 +900,7 @@ void runTests() {
     fileName: 'bones',
     builder: () => SkeletonizerConfig(
       data: skeletonizerConfigData.copyWith(
-        effect: const SoldColorEffect(color: Colors.green),
+        effect: const SolidColorEffect(color: Colors.green),
       ),
       child: Skeletonizer(
         child: GoldenTestGroup(

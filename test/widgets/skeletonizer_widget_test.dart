@@ -6,25 +6,14 @@ import 'package:skeletonizer/src/widgets/skeletonizer_render_object_widget.dart'
 void main() {
   group('Skeletonizer Widget', () {
     testWidgets('renders child when enabled is false', (tester) async {
-      await tester.pumpWidget(
-        const MaterialApp(
-          home: Skeletonizer(
-            enabled: false,
-            child: Text('Visible'),
-          ),
-        ),
-      );
+      await tester.pumpWidget(const MaterialApp(home: Skeletonizer(enabled: false, child: Text('Visible'))));
       expect(find.text('Visible'), findsOneWidget);
     });
 
     testWidgets('renders skeleton when enabled is true', (tester) async {
       await tester.pumpWidget(
         MaterialApp(
-          home: Skeletonizer(
-            enabled: true,
-            effect: SoldColorEffect(),
-            child: const Text('Skeletonized'),
-          ),
+          home: Skeletonizer(enabled: true, effect: SolidColorEffect(), child: const Text('Skeletonized')),
         ),
       );
       expect(find.text('Skeletonized'), findsOneWidget);
@@ -36,7 +25,7 @@ void main() {
         MaterialApp(
           home: Skeletonizer(
             enabled: true,
-            effect: SoldColorEffect(color: Colors.red),
+            effect: SolidColorEffect(color: Colors.red),
             textBoneBorderRadius: TextBoneBorderRadius(BorderRadius.circular(8)),
             child: const Text('Custom'),
           ),
@@ -48,11 +37,7 @@ void main() {
     testWidgets('handles null/empty child gracefully', (tester) async {
       await tester.pumpWidget(
         MaterialApp(
-          home: Skeletonizer(
-            enabled: true,
-            effect: SoldColorEffect(),
-            child: const SizedBox.shrink(),
-          ),
+          home: Skeletonizer(enabled: true, effect: SolidColorEffect(), child: const SizedBox.shrink()),
         ),
       );
       expect(find.byType(SizedBox), findsOneWidget);
@@ -66,7 +51,7 @@ void main() {
             return MaterialApp(
               home: Skeletonizer(
                 enabled: enabled,
-                effect: SoldColorEffect(),
+                effect: SolidColorEffect(),
                 child: Text(enabled ? 'Skeleton' : 'Normal'),
               ),
             );
@@ -82,7 +67,7 @@ void main() {
             return MaterialApp(
               home: Skeletonizer(
                 enabled: enabled,
-                effect: SoldColorEffect(),
+                effect: SolidColorEffect(),
                 child: Text(enabled ? 'Skeleton' : 'Normal'),
               ),
             );
@@ -98,12 +83,9 @@ void main() {
         MaterialApp(
           home: Skeletonizer(
             enabled: true,
-            effect: SoldColorEffect(),
+            effect: SolidColorEffect(),
             ignorePointers: true,
-            child: GestureDetector(
-              onTap: () => tapped = true,
-              child: const Text('Tap me'),
-            ),
+            child: GestureDetector(onTap: () => tapped = true, child: const Text('Tap me')),
           ),
         ),
       );
@@ -118,12 +100,9 @@ void main() {
         MaterialApp(
           home: Skeletonizer(
             enabled: true,
-            effect: SoldColorEffect(),
+            effect: SolidColorEffect(),
             ignorePointers: false,
-            child: GestureDetector(
-              onTap: () => tapped = true,
-              child: const Text('Tap me'),
-            ),
+            child: GestureDetector(onTap: () => tapped = true, child: const Text('Tap me')),
           ),
         ),
       );
@@ -187,7 +166,7 @@ void main() {
         MaterialApp(
           home: Skeletonizer(
             enabled: true,
-            effect: SoldColorEffect(),
+            effect: SolidColorEffect(),
             textBoneBorderRadius: TextBoneBorderRadius(BorderRadius.circular(16)),
             child: const Text('Radius'),
           ),
@@ -201,13 +180,8 @@ void main() {
         MaterialApp(
           home: Skeletonizer(
             enabled: true,
-            effect: SoldColorEffect(),
-            child: Column(
-              children: const [
-                Text('Child1'),
-                Text('Child2'),
-              ],
-            ),
+            effect: SolidColorEffect(),
+            child: Column(children: const [Text('Child1'), Text('Child2')]),
           ),
         ),
       );
@@ -218,11 +192,7 @@ void main() {
     testWidgets('renders with empty Container child', (tester) async {
       await tester.pumpWidget(
         MaterialApp(
-          home: Skeletonizer(
-            enabled: true,
-            effect: SoldColorEffect(),
-            child: Container(),
-          ),
+          home: Skeletonizer(enabled: true, effect: SolidColorEffect(), child: Container()),
         ),
       );
       expect(find.byType(Container), findsOneWidget);
@@ -233,13 +203,8 @@ void main() {
         MaterialApp(
           home: Skeletonizer(
             enabled: true,
-            effect: SoldColorEffect(),
-            child: ListView(
-              children: const [
-                Text('ListItem1'),
-                Text('ListItem2'),
-              ],
-            ),
+            effect: SolidColorEffect(),
+            child: ListView(children: const [Text('ListItem1'), Text('ListItem2')]),
           ),
         ),
       );
@@ -334,36 +299,19 @@ void main() {
 
   group('Bone widget', () {
     testWidgets('renders default rectangle bone', (tester) async {
-      await tester.pumpWidget(
-        MaterialApp(
-          home: Skeletonizer(
-            enabled: true,
-            child: Bone(width: 80, height: 20),
-          ),
-        ),
-      );
+      await tester.pumpWidget(MaterialApp(home: Skeletonizer(enabled: true, child: Bone(width: 80, height: 20))));
       expect(find.byType(BoneRenderObjectWidget), findsOneWidget);
     });
 
     testWidgets('renders circle bone', (tester) async {
-      await tester.pumpWidget(
-        MaterialApp(
-          home: Skeletonizer(
-            enabled: true,
-            child: Bone.circle(size: 40),
-          ),
-        ),
-      );
+      await tester.pumpWidget(MaterialApp(home: Skeletonizer(enabled: true, child: Bone.circle(size: 40))));
       expect(find.byType(BoneRenderObjectWidget), findsOneWidget);
     });
 
     testWidgets('renders square bone', (tester) async {
       await tester.pumpWidget(
         MaterialApp(
-          home: Skeletonizer(
-            enabled: true,
-            child: Bone.square(size: 50, borderRadius: BorderRadius.circular(8)),
-          ),
+          home: Skeletonizer(enabled: true, child: Bone.square(size: 50, borderRadius: BorderRadius.circular(8))),
         ),
       );
       expect(find.byType(BoneRenderObjectWidget), findsOneWidget);
@@ -379,111 +327,60 @@ void main() {
         ),
       );
       await tester.pumpWidget(
-        MaterialApp(
-          home: Skeletonizer(
-            enabled: true,
-            child: Bone(width: 60, height: 20, uniRadius: 12),
-          ),
-        ),
+        MaterialApp(home: Skeletonizer(enabled: true, child: Bone(width: 60, height: 20, uniRadius: 12))),
       );
       expect(find.byType(BoneRenderObjectWidget), findsOneWidget);
     });
 
     testWidgets('renders bone with indent and indentEnd', (tester) async {
       await tester.pumpWidget(
-        MaterialApp(
-          home: Skeletonizer(
-            enabled: true,
-            child: Bone(width: 60, height: 20, indent: 5, indentEnd: 7),
-          ),
-        ),
+        MaterialApp(home: Skeletonizer(enabled: true, child: Bone(width: 60, height: 20, indent: 5, indentEnd: 7))),
       );
       expect(find.byType(BoneRenderObjectWidget), findsOneWidget);
     });
 
     testWidgets('renders text bone', (tester) async {
-      await tester.pumpWidget(
-        MaterialApp(
-          home: Skeletonizer(
-            enabled: true,
-            child: Bone.text(words: 3),
-          ),
-        ),
-      );
+      await tester.pumpWidget(MaterialApp(home: Skeletonizer(enabled: true, child: Bone.text(words: 3))));
       expect(find.byType(BoneRenderObjectWidget), findsWidgets);
     });
 
     testWidgets('renders multiText bone', (tester) async {
-      await tester.pumpWidget(
-        MaterialApp(
-          home: Skeletonizer(
-            enabled: true,
-            child: Bone.multiText(lines: 2),
-          ),
-        ),
-      );
+      await tester.pumpWidget(MaterialApp(home: Skeletonizer(enabled: true, child: Bone.multiText(lines: 2))));
       expect(find.byType(BoneRenderObjectWidget), findsWidgets);
     });
 
     testWidgets('renders button bone', (tester) async {
       await tester.pumpWidget(
         MaterialApp(
-          home: Skeletonizer(
-            enabled: true,
-            child: Bone.button(width: 100, borderRadius: BorderRadius.circular(8)),
-          ),
+          home: Skeletonizer(enabled: true, child: Bone.button(width: 100, borderRadius: BorderRadius.circular(8))),
         ),
       );
       expect(find.byType(BoneRenderObjectWidget), findsWidgets);
     });
 
     testWidgets('renders icon bone', (tester) async {
-      await tester.pumpWidget(
-        MaterialApp(
-          home: Skeletonizer(
-            enabled: true,
-            child: Bone.icon(size: 32),
-          ),
-        ),
-      );
+      await tester.pumpWidget(MaterialApp(home: Skeletonizer(enabled: true, child: Bone.icon(size: 32))));
       expect(find.byType(BoneRenderObjectWidget), findsWidgets);
     });
 
     testWidgets('renders iconButton bone', (tester) async {
       await tester.pumpWidget(
         MaterialApp(
-          home: Skeletonizer(
-            enabled: true,
-            child: Bone.iconButton(size: 32, borderRadius: BorderRadius.circular(6)),
-          ),
+          home: Skeletonizer(enabled: true, child: Bone.iconButton(size: 32, borderRadius: BorderRadius.circular(6))),
         ),
       );
       expect(find.byType(BoneRenderObjectWidget), findsWidgets);
     });
 
     testWidgets('Bone rectangle dimensions', (tester) async {
-      await tester.pumpWidget(
-        MaterialApp(
-          home: Skeletonizer(
-            enabled: true,
-            child: Bone(width: 80, height: 20),
-          ),
-        ),
-      );
+      await tester.pumpWidget(MaterialApp(home: Skeletonizer(enabled: true, child: Bone(width: 80, height: 20))));
       final sizedBox = tester.widget<SizedBox>(find.byType(SizedBox));
       expect(sizedBox.width, 80);
       expect(sizedBox.height, 20);
     });
 
     testWidgets('Bone circle dimensions', (tester) async {
-      await tester.pumpWidget(
-        MaterialApp(
-          home: Skeletonizer(
-            enabled: true,
-            child: Bone.circle(size: 40),
-          ),
-        ),
-      );
+      await tester.pumpWidget(MaterialApp(home: Skeletonizer(enabled: true, child: Bone.circle(size: 40))));
       final sizedBox = tester.widget<SizedBox>(find.byType(SizedBox));
       expect(sizedBox.width, 40);
       expect(sizedBox.height, 40);
@@ -492,10 +389,7 @@ void main() {
     testWidgets('Bone square dimensions', (tester) async {
       await tester.pumpWidget(
         MaterialApp(
-          home: Skeletonizer(
-            enabled: true,
-            child: Bone.square(size: 50, borderRadius: BorderRadius.circular(8)),
-          ),
+          home: Skeletonizer(enabled: true, child: Bone.square(size: 50, borderRadius: BorderRadius.circular(8))),
         ),
       );
       final sizedBox = tester.widget<SizedBox>(find.byType(SizedBox));
@@ -505,12 +399,7 @@ void main() {
 
     testWidgets('Bone indent and indentEnd', (tester) async {
       await tester.pumpWidget(
-        MaterialApp(
-          home: Skeletonizer(
-            enabled: true,
-            child: Bone(width: 60, height: 20, indent: 5, indentEnd: 7),
-          ),
-        ),
+        MaterialApp(home: Skeletonizer(enabled: true, child: Bone(width: 60, height: 20, indent: 5, indentEnd: 7))),
       );
       final padding = tester.widget<Padding>(find.byType(Padding));
       final edgeInsets = padding.padding as EdgeInsetsDirectional;
@@ -534,37 +423,20 @@ void main() {
       expect(boxDecoration.shape, BoxShape.rectangle);
       // uniRadius
       await tester.pumpWidget(
-        MaterialApp(
-          home: Skeletonizer(
-            enabled: true,
-            child: Bone(width: 60, height: 20, uniRadius: 12),
-          ),
-        ),
+        MaterialApp(home: Skeletonizer(enabled: true, child: Bone(width: 60, height: 20, uniRadius: 12))),
       );
       final boneWidget2 = tester.widget<BoneRenderObjectWidget>(find.byType(BoneRenderObjectWidget));
       final boxDecoration2 = boneWidget2.decoration;
       expect(boxDecoration2.borderRadius, BorderRadius.circular(12));
       expect(boxDecoration2.shape, BoxShape.rectangle);
       // shape: circle
-      await tester.pumpWidget(
-        MaterialApp(
-          home: Skeletonizer(
-            enabled: true,
-            child: Bone.circle(size: 30),
-          ),
-        ),
-      );
+      await tester.pumpWidget(MaterialApp(home: Skeletonizer(enabled: true, child: Bone.circle(size: 30))));
       final boneWidget3 = tester.widget<BoneRenderObjectWidget>(find.byType(BoneRenderObjectWidget));
       final boxDecoration3 = boneWidget3.decoration;
       expect(boxDecoration3.shape, BoxShape.circle);
       // padding: indent and indentEnd
       await tester.pumpWidget(
-        MaterialApp(
-          home: Skeletonizer(
-            enabled: true,
-            child: Bone(width: 60, height: 20, indent: 8, indentEnd: 12),
-          ),
-        ),
+        MaterialApp(home: Skeletonizer(enabled: true, child: Bone(width: 60, height: 20, indent: 8, indentEnd: 12))),
       );
       final padding = tester.widget<Padding>(find.byType(Padding));
       final edgeInsets = padding.padding as EdgeInsetsDirectional;

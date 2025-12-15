@@ -196,7 +196,7 @@ void main() {
         const MaterialApp(
           home: Skeletonizer(
             enabled: true,
-            effect: SoldColorEffect(),
+            effect: SolidColorEffect(),
             child: Skeleton.replace(
               replacement: Text('Replacement'),
               child: Text('Original'),
@@ -245,7 +245,7 @@ void main() {
         const MaterialApp(
           home: Skeletonizer(
             enabled: true,
-            effect: SoldColorEffect(),
+            effect: SolidColorEffect(),
             child: Skeleton.replace(
               key: Key('skeleton'),
               width: 100,
@@ -298,7 +298,7 @@ void main() {
       await tester.pumpWidget(
         MaterialApp(
           home: Skeletonizer(
-            effect: SoldColorEffect(),
+            effect: SolidColorEffect(),
             enabled: true,
             ignorePointers: false, // Allow pointers at Skeletonizer level
             child: Skeleton.ignorePointer(
@@ -560,7 +560,7 @@ void main() {
         const MaterialApp(
           home: Skeletonizer(
             enabled: true,
-            effect: SoldColorEffect(),
+            effect: SolidColorEffect(),
             child: Skeleton.replace(child: Text('Original')),
           ),
         ),
