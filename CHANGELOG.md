@@ -1,3 +1,9 @@
+## 2.1.2
+- Chore: add .pubignore to exclude irrelevant files and reduce package size
+- Internal: reorganize test folders and improve coverage 
+- Chore: Add codecov test coverage badge
+- Chore: Update environment constraints
+
 ## 2.1.1
 - Refactor: improve painting logic and add debug timeline events
 - Refactor: simplify render object implementation by removing redundant isRepaintBoundary override

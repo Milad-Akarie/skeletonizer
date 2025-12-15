@@ -1,6 +1,6 @@
 name: skeletonizer
 description: Converts already built widgets into skeleton loaders with no extra effort.
-version: 2.1.1
+version: 2.1.2
 homepage: https://github.com/Milad-Akarie/skeletonizer
 screenshots:
   - description: 'Example of skeletonizer in action.'
@@ -12,8 +12,8 @@ topics:
   - loading
 
 environment:
-  sdk: '>=3.10.0 <4.0.0'
-  flutter: '>=3.31.0-0.0.pre'
+  sdk: '>=3.7.0 <4.0.0'
+  flutter: '>=3.32.0'
 
 dependencies:
   flutter:
