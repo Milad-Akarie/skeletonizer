@@ -184,6 +184,9 @@ mixin _RenderSkeletonBase<R extends RenderObject>
   /// if true, only [Bone] and [Skeletonizer] widgets will be shaded
   bool get isZone;
 
+  @override
+  bool get alwaysNeedsCompositing => true;
+
   SkeletonizerPaintingContext createSkeletonizerContext(
       ContainerLayer layer, Offset offset) {
     final estimatedBounds = paintBounds.shift(offset);
