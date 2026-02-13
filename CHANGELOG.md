@@ -1,3 +1,5 @@
+## 2.1.3
+- Fix: Skeletonizer does not respect clipping #76
 ## 2.1.2
 - Chore: add .pubignore to exclude irrelevant files and reduce package size
 - Internal: reorganize test folders and improve coverage 
