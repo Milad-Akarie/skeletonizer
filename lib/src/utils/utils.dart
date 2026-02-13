@@ -26,8 +26,7 @@ extension OffsetsSet on Set<Offset> {
   /// Returns true if the set contains an offset that is within a certain tolerance of the given offset.
   bool containsFuzzy(Offset offset, {double tolerance = 0.1}) {
     for (final o in this) {
-      if ((o.dx - offset.dx).abs() < tolerance &&
-          (o.dy - offset.dy).abs() < tolerance) {
+      if ((o.dx - offset.dx).abs() < tolerance && (o.dy - offset.dy).abs() < tolerance) {
         return true;
       }
     }

@@ -35,7 +35,10 @@ void main() {
     });
 
     test('longParagraph returns longer string than paragraph', () {
-      expect(BoneMock.longParagraph.length, greaterThan(BoneMock.paragraph.length));
+      expect(
+        BoneMock.longParagraph.length,
+        greaterThan(BoneMock.paragraph.length),
+      );
     });
 
     test('date returns expected length', () {

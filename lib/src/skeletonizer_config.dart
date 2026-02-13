@@ -132,8 +132,15 @@ class SkeletonizerConfigData extends ThemeExtension<SkeletonizerConfigData> {
           switchAnimationConfig == other.switchAnimationConfig;
 
   @override
-  int get hashCode => Object.hash(effect, textBorderRadius, justifyMultiLineText, ignoreContainers, containersColor,
-      enableSwitchAnimation, switchAnimationConfig);
+  int get hashCode => Object.hash(
+    effect,
+    textBorderRadius,
+    justifyMultiLineText,
+    ignoreContainers,
+    containersColor,
+    enableSwitchAnimation,
+    switchAnimationConfig,
+  );
 }
 
 /// Singleton instance for skeletonizer theme configurations.
@@ -164,19 +171,19 @@ class TextBoneBorderRadius {
   const TextBoneBorderRadius(
     BorderRadiusGeometry borderRadius, {
     this.borderShape = TextBoneBorderShape.roundedRectangle,
-  })  : _borderRadius = borderRadius,
-        _heightPercentage = null,
-        usesHeightFactor = false;
+  }) : _borderRadius = borderRadius,
+       _heightPercentage = null,
+       usesHeightFactor = false;
 
   /// Builds TextBoneBorderRadius instance that
   /// uses a high factor to resolve used border radius
   const TextBoneBorderRadius.fromHeightFactor(
     double factor, {
     this.borderShape = TextBoneBorderShape.roundedRectangle,
-  })  : assert(factor >= 0 && factor <= 1),
-        _borderRadius = null,
-        _heightPercentage = factor,
-        usesHeightFactor = true;
+  }) : assert(factor >= 0 && factor <= 1),
+       _borderRadius = null,
+       _heightPercentage = factor,
+       usesHeightFactor = true;
 
   /// This defines the value of border radius
   /// based on the font size e.g
@@ -227,7 +234,7 @@ enum TextBoneBorderShape {
   roundedRectangle,
 
   /// Superellipse border shape
-  roundedSuperellipse
+  roundedSuperellipse,
 }
 
 /// Provided the scoped [SkeletonizerConfigData] to descended widgets
@@ -250,8 +257,9 @@ class SkeletonizerConfig extends InheritedTheme {
     assert(() {
       if (inherited == null && fromThemeExtension == null) {
         throw FlutterError(
-            'SkeletonizerConfig.of() called with a context that does not contain a SkeletonizerConfigData.\n'
-            'try wrapping the context with SkeletonizerConfig widget or provide the data using Theme.extension');
+          'SkeletonizerConfig.of() called with a context that does not contain a SkeletonizerConfigData.\n'
+          'try wrapping the context with SkeletonizerConfig widget or provide the data using Theme.extension',
+        );
       }
       return true;
     }());

@@ -5,10 +5,11 @@ import 'package:skeletonizer/src/utils/utils.dart';
 void main() {
   group('PaintX extension', () {
     test('copyWith creates a copy with updated color', () {
-      final original = Paint()
-        ..color = Colors.red
-        ..strokeWidth = 2.0
-        ..style = PaintingStyle.stroke;
+      final original =
+          Paint()
+            ..color = Colors.red
+            ..strokeWidth = 2.0
+            ..style = PaintingStyle.stroke;
 
       final copy = original.copyWith(color: Colors.blue);
 
@@ -32,16 +33,17 @@ void main() {
     });
 
     test('copyWith preserves all paint properties', () {
-      final original = Paint()
-        ..color = Colors.red
-        ..strokeWidth = 3.0
-        ..style = PaintingStyle.stroke
-        ..strokeCap = StrokeCap.round
-        ..strokeJoin = StrokeJoin.bevel
-        ..isAntiAlias = true
-        ..filterQuality = FilterQuality.high
-        ..invertColors = false
-        ..blendMode = BlendMode.multiply;
+      final original =
+          Paint()
+            ..color = Colors.red
+            ..strokeWidth = 3.0
+            ..style = PaintingStyle.stroke
+            ..strokeCap = StrokeCap.round
+            ..strokeJoin = StrokeJoin.bevel
+            ..isAntiAlias = true
+            ..filterQuality = FilterQuality.high
+            ..invertColors = false
+            ..blendMode = BlendMode.multiply;
 
       final copy = original.copyWith(color: Colors.green);
 
@@ -57,9 +59,10 @@ void main() {
     });
 
     test('copyWith without arguments preserves original values', () {
-      final original = Paint()
-        ..color = Colors.purple
-        ..strokeWidth = 5.0;
+      final original =
+          Paint()
+            ..color = Colors.purple
+            ..strokeWidth = 5.0;
 
       final copy = original.copyWith();
 
@@ -93,8 +96,14 @@ void main() {
     test('containsFuzzy respects custom tolerance', () {
       final offsets = <Offset>{const Offset(10, 20)};
 
-      expect(offsets.containsFuzzy(const Offset(10.5, 20.5), tolerance: 1.0), isTrue);
-      expect(offsets.containsFuzzy(const Offset(10.5, 20.5), tolerance: 0.1), isFalse);
+      expect(
+        offsets.containsFuzzy(const Offset(10.5, 20.5), tolerance: 1.0),
+        isTrue,
+      );
+      expect(
+        offsets.containsFuzzy(const Offset(10.5, 20.5), tolerance: 0.1),
+        isFalse,
+      );
     });
 
     test('containsFuzzy returns false for empty set', () {

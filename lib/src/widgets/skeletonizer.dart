@@ -134,8 +134,7 @@ abstract class Skeletonizer extends StatefulWidget {
 
   /// Depends on the the nearest SkeletonizerScope if any otherwise it throws
   static SkeletonizerScope of(BuildContext context) {
-    final scope =
-        context.dependOnInheritedWidgetOfExactType<SkeletonizerScope>();
+    final scope = context.dependOnInheritedWidgetOfExactType<SkeletonizerScope>();
     assert(() {
       if (scope == null) {
         throw FlutterError(
@@ -154,8 +153,7 @@ abstract class Skeletonizer extends StatefulWidget {
 }
 
 /// The state of [Skeletonizer] widget
-class SkeletonizerState extends State<Skeletonizer>
-    with TickerProviderStateMixin<Skeletonizer> {
+class SkeletonizerState extends State<Skeletonizer> with TickerProviderStateMixin<Skeletonizer> {
   AnimationController? _animationController;
 
   late bool _enabled = widget.enabled;
@@ -177,10 +175,9 @@ class SkeletonizerState extends State<Skeletonizer>
   void _setupEffect() {
     _textDirection = Directionality.of(context);
     late final brightness = Theme.of(context).brightness;
-    var resolvedConfig = SkeletonizerConfig.maybeOf(context) ??
-        (brightness == Brightness.light
-            ? const SkeletonizerConfigData()
-            : const SkeletonizerConfigData.dark());
+    var resolvedConfig =
+        SkeletonizerConfig.maybeOf(context) ??
+        (brightness == Brightness.light ? const SkeletonizerConfigData() : const SkeletonizerConfigData.dark());
 
     resolvedConfig = resolvedConfig.copyWith(
       effect: widget.effect,
@@ -211,14 +208,15 @@ class SkeletonizerState extends State<Skeletonizer>
   void _startAnimationIfNeeded() {
     assert(_effect != null);
     if (_effect!.duration.inMilliseconds != 0) {
-      _animationController = AnimationController.unbounded(vsync: this)
-        ..addListener(_onShimmerChange)
-        ..repeat(
-          reverse: _effect!.reverse,
-          min: _effect!.lowerBound,
-          max: _effect!.upperBound,
-          period: _effect!.duration,
-        );
+      _animationController =
+          AnimationController.unbounded(vsync: this)
+            ..addListener(_onShimmerChange)
+            ..repeat(
+              reverse: _effect!.reverse,
+              min: _effect!.lowerBound,
+              max: _effect!.upperBound,
+              period: _effect!.duration,
+            );
     }
   }
 
@@ -303,16 +301,17 @@ class _Skeletonizer extends Skeletonizer {
 
   @override
   Widget build(BuildContext context, SkeletonizerBuildData data) {
-    Widget body = data.enabled
-        ? SkeletonizerRenderObjectWidget(
-            key: const ValueKey('skeletonizer'),
-            data: data,
-            child: child,
-          )
-        : KeyedSubtree(
-            key: const ValueKey('content'),
-            child: child,
-          );
+    Widget body =
+        data.enabled
+            ? SkeletonizerRenderObjectWidget(
+              key: const ValueKey('skeletonizer'),
+              data: data,
+              child: child,
+            )
+            : KeyedSubtree(
+              key: const ValueKey('content'),
+              child: child,
+            );
     if (data.config.enableSwitchAnimation) {
       final switchConfig = data.config.switchAnimationConfig;
       body = AnimatedSwitcher(
@@ -372,12 +371,13 @@ class SliverSkeletonizer extends Skeletonizer {
       isZone: data.isZone,
       isInsideZone: data.isInsideZone,
       animationController: data.animationController,
-      child: data.enabled
-          ? SliverSkeletonizerRenderObjectWidget(
-              data: data,
-              child: child,
-            )
-          : child,
+      child:
+          data.enabled
+              ? SliverSkeletonizerRenderObjectWidget(
+                data: data,
+                child: child,
+              )
+              : child,
     );
   }
 }

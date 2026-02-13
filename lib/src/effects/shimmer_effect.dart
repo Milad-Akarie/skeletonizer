@@ -21,7 +21,11 @@ abstract class ShimmerEffect extends PaintingEffect {
   /// see [LinearGradient.tileMode]
   TileMode get tileMode;
 
-  const ShimmerEffect._({super.lowerBound, super.upperBound, super.duration = const Duration(milliseconds: 2000)});
+  const ShimmerEffect._({
+    super.lowerBound,
+    super.upperBound,
+    super.duration = const Duration(milliseconds: 2000),
+  });
 
   /// Builds a [_ShimmerEffect] with default values
   const factory ShimmerEffect({
@@ -178,7 +182,10 @@ class RawShimmerEffect extends ShimmerEffect {
   PaintingEffect lerp(PaintingEffect? other, double t) {
     if (other is RawShimmerEffect) {
       return RawShimmerEffect(
-        colors: List.generate(colors.length, (index) => Color.lerp(colors[index], other.colors[index], t)!),
+        colors: List.generate(
+          colors.length,
+          (index) => Color.lerp(colors[index], other.colors[index], t)!,
+        ),
         stops: stops,
         begin: AlignmentGeometry.lerp(begin, other.begin, t)!,
         end: AlignmentGeometry.lerp(end, other.end, t)!,
@@ -191,7 +198,10 @@ class RawShimmerEffect extends ShimmerEffect {
 }
 
 class _SlidingGradientTransform extends GradientTransform {
-  const _SlidingGradientTransform({required this.offset, required this.isVertical});
+  const _SlidingGradientTransform({
+    required this.offset,
+    required this.isVertical,
+  });
 
   final bool isVertical;
   final double offset;

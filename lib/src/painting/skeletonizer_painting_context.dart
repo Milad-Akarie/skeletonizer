@@ -61,7 +61,10 @@ class SkeletonizerPaintingContext extends PaintingContext {
   ui.Canvas get canvas => isZone ? super.canvas : SkeletonizerCanvas(super.canvas, this);
 
   @override
-  PaintingContext createChildContext(ContainerLayer childLayer, ui.Rect bounds) {
+  PaintingContext createChildContext(
+    ContainerLayer childLayer,
+    ui.Rect bounds,
+  ) {
     return SkeletonizerPaintingContext(
       layer: childLayer,
       estimatedBounds: bounds,
@@ -109,7 +112,10 @@ class SkeletonizerPaintingContext extends PaintingContext {
         }
         return true;
       }());
-      FlutterTimeline.startSync('$runtimeType', arguments: debugTimelineArguments);
+      FlutterTimeline.startSync(
+        '$runtimeType',
+        arguments: debugTimelineArguments,
+      );
     }
     child.paint(this, offset);
     if (!kReleaseMode && debugProfilePaintsEnabled) {
@@ -149,9 +155,14 @@ class SkeletonizerCanvas implements Canvas {
         paragraphWidth: paragraph.width,
       );
 
-      final borderRadius = _config.textBorderRadius.usesHeightFactor
-          ? BorderRadius.circular((rect.height) * _config.textBorderRadius.heightPercentage!)
-          : _config.textBorderRadius.borderRadius?.resolve(TextDirection.ltr);
+      final borderRadius =
+          _config.textBorderRadius.usesHeightFactor
+              ? BorderRadius.circular(
+                (rect.height) * _config.textBorderRadius.heightPercentage!,
+              )
+              : _config.textBorderRadius.borderRadius?.resolve(
+                TextDirection.ltr,
+              );
 
       if (borderRadius != null) {
         final borderShape = _config.textBorderRadius.borderShape;
@@ -160,7 +171,10 @@ class SkeletonizerCanvas implements Canvas {
             parent.drawRRect(borderRadius.toRRect(rect), _shaderPaint);
             break;
           case TextBoneBorderShape.roundedSuperellipse:
-            parent.drawRSuperellipse(borderRadius.toRSuperellipse(rect), _shaderPaint);
+            parent.drawRSuperellipse(
+              borderRadius.toRSuperellipse(rect),
+              _shaderPaint,
+            );
             break;
         }
       } else {
@@ -180,8 +194,7 @@ class SkeletonizerCanvas implements Canvas {
     ui.Rect rect, {
     ui.ClipOp clipOp = ui.ClipOp.intersect,
     bool doAntiAlias = true,
-  }) =>
-      parent.clipRect(rect, clipOp: clipOp, doAntiAlias: doAntiAlias);
+  }) => parent.clipRect(rect, clipOp: clipOp, doAntiAlias: doAntiAlias);
 
   @override
   void drawArc(
@@ -190,8 +203,7 @@ class SkeletonizerCanvas implements Canvas {
     double sweepAngle,
     bool useCenter,
     ui.Paint paint,
-  ) =>
-      parent.drawArc(rect, startAngle, sweepAngle, useCenter, paint);
+  ) => parent.drawArc(rect, startAngle, sweepAngle, useCenter, paint);
 
   @override
   void drawAtlas(
@@ -202,16 +214,15 @@ class SkeletonizerCanvas implements Canvas {
     ui.BlendMode? blendMode,
     ui.Rect? cullRect,
     ui.Paint paint,
-  ) =>
-      parent.drawAtlas(
-        atlas,
-        transforms,
-        rects,
-        colors,
-        blendMode,
-        cullRect,
-        paint,
-      );
+  ) => parent.drawAtlas(
+    atlas,
+    transforms,
+    rects,
+    colors,
+    blendMode,
+    cullRect,
+    paint,
+  );
 
   @override
   void drawColor(ui.Color color, ui.BlendMode blendMode) {
@@ -316,7 +327,9 @@ class SkeletonizerCanvas implements Canvas {
   void drawPath(ui.Path path, ui.Paint paint) {
     if (paint.color.a == 0) return;
     context._didPaint = true;
-    final treatAsBone = context._treatedAsLeaf.containsFuzzy(path.getBounds().center);
+    final treatAsBone = context._treatedAsLeaf.containsFuzzy(
+      path.getBounds().center,
+    );
     if (treatAsBone) {
       parent.drawPath(path, paint.copyWith(shader: _shaderPaint.shader));
     } else if (!_config.ignoreContainers) {
@@ -353,7 +366,10 @@ class SkeletonizerCanvas implements Canvas {
       parent.drawRRect(rrect, paint.copyWith(shader: _shaderPaint.shader));
     } else if (!_config.ignoreContainers) {
       if (_config.containersColor != null) {
-        parent.drawRRect(rrect, paint.copyWith(color: _config.containersColor!));
+        parent.drawRRect(
+          rrect,
+          paint.copyWith(color: _config.containersColor!),
+        );
       } else {
         parent.drawRRect(rrect, paint);
       }
@@ -369,7 +385,11 @@ class SkeletonizerCanvas implements Canvas {
       parent.drawCircle(c, radius, paint.copyWith(shader: _shaderPaint.shader));
     } else if (!_config.ignoreContainers) {
       if (_config.containersColor != null) {
-        parent.drawCircle(c, radius, paint.copyWith(color: _config.containersColor!));
+        parent.drawCircle(
+          c,
+          radius,
+          paint.copyWith(color: _config.containersColor!),
+        );
       } else {
         parent.drawCircle(c, radius, paint);
       }

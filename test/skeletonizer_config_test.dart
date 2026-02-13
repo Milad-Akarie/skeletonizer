@@ -250,7 +250,9 @@ void main() {
       expect(retrievedConfig, equals(configData));
     });
 
-    testWidgets('maybeOf returns null when no config is present', (tester) async {
+    testWidgets('maybeOf returns null when no config is present', (
+      tester,
+    ) async {
       SkeletonizerConfigData? retrievedConfig;
 
       await tester.pumpWidget(
@@ -267,7 +269,9 @@ void main() {
       expect(retrievedConfig, isNull);
     });
 
-    testWidgets('updateShouldNotify returns true when data changes', (tester) async {
+    testWidgets('updateShouldNotify returns true when data changes', (
+      tester,
+    ) async {
       const configData1 = SkeletonizerConfigData();
       const configData2 = SkeletonizerConfigData(justifyMultiLineText: false);
 
@@ -324,12 +328,17 @@ void main() {
       expect(config, isA<SkeletonizerConfigData>());
     });
 
-    testWidgets('SkeletonizerConfig.of throws when no config is present', (tester) async {
+    testWidgets('SkeletonizerConfig.of throws when no config is present', (
+      tester,
+    ) async {
       await tester.pumpWidget(
         MaterialApp(
           home: Builder(
             builder: (context) {
-              expect(() => SkeletonizerConfig.of(context), throwsA(isA<FlutterError>()));
+              expect(
+                () => SkeletonizerConfig.of(context),
+                throwsA(isA<FlutterError>()),
+              );
               return const SizedBox();
             },
           ),
@@ -357,19 +366,33 @@ void main() {
     });
 
     test('TextBoneBorderRadius with different border shapes', () {
-      const br1 = TextBoneBorderRadius.fromHeightFactor(0.5, borderShape: TextBoneBorderShape.roundedRectangle);
-      const br2 = TextBoneBorderRadius.fromHeightFactor(0.5, borderShape: TextBoneBorderShape.roundedSuperellipse);
+      const br1 = TextBoneBorderRadius.fromHeightFactor(
+        0.5,
+        borderShape: TextBoneBorderShape.roundedRectangle,
+      );
+      const br2 = TextBoneBorderRadius.fromHeightFactor(
+        0.5,
+        borderShape: TextBoneBorderShape.roundedSuperellipse,
+      );
       expect(br1.borderShape, isNot(br2.borderShape));
     });
 
-    test('SwitchAnimationConfig with custom transition and layout builders', () {
-      final config = SwitchAnimationConfig(
-        transitionBuilder: (child, animation) => FadeTransition(opacity: animation, child: child),
-        layoutBuilder: (currentChild, previousChildren) =>
-            Stack(children: [if (currentChild != null) currentChild, ...previousChildren]),
-      );
-      expect(config.transitionBuilder, isNotNull);
-      expect(config.layoutBuilder, isNotNull);
-    });
+    test(
+      'SwitchAnimationConfig with custom transition and layout builders',
+      () {
+        final config = SwitchAnimationConfig(
+          transitionBuilder: (child, animation) => FadeTransition(opacity: animation, child: child),
+          layoutBuilder:
+              (currentChild, previousChildren) => Stack(
+                children: [
+                  if (currentChild != null) currentChild,
+                  ...previousChildren,
+                ],
+              ),
+        );
+        expect(config.transitionBuilder, isNotNull);
+        expect(config.layoutBuilder, isNotNull);
+      },
+    );
   });
 }

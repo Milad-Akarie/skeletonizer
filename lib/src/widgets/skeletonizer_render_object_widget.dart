@@ -40,8 +40,7 @@ class SkeletonizerRenderObjectWidget extends SingleChildRenderObjectWidget {
 }
 
 /// Builds a [RenderSkeletonizer]
-class SliverSkeletonizerRenderObjectWidget
-    extends SingleChildRenderObjectWidget {
+class SliverSkeletonizerRenderObjectWidget extends SingleChildRenderObjectWidget {
   /// The default constructor
   const SliverSkeletonizerRenderObjectWidget({
     super.key,

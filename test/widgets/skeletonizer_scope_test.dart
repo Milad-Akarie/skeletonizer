@@ -20,8 +20,7 @@ void main() {
       );
 
       final BuildContext context = tester.element(find.byType(SizedBox));
-      final scope = context
-          .dependOnInheritedWidgetOfExactType<SkeletonizerScope>();
+      final scope = context.dependOnInheritedWidgetOfExactType<SkeletonizerScope>();
 
       final newScope = SkeletonizerScope(
         enabled: false,
@@ -51,8 +50,7 @@ void main() {
       );
 
       final BuildContext context = tester.element(find.byType(SizedBox));
-      final scope = context
-          .dependOnInheritedWidgetOfExactType<SkeletonizerScope>();
+      final scope = context.dependOnInheritedWidgetOfExactType<SkeletonizerScope>();
 
       final config2 = const SkeletonizerConfigData(
         containersColor: Colors.blue,

@@ -106,7 +106,11 @@ void main() {
           home: Skeletonizer.zone(
             effect: SolidColorEffect(),
             enabled: true,
-            child: Bone.circle(key: ValueKey('Bone-circle-indent'), size: 50, indent: 10),
+            child: Bone.circle(
+              key: ValueKey('Bone-circle-indent'),
+              size: 50,
+              indent: 10,
+            ),
           ),
         ),
       );
@@ -210,7 +214,11 @@ void main() {
           home: Skeletonizer.zone(
             effect: SolidColorEffect(),
             enabled: true,
-            child: Bone.text(key: ValueKey('Bone-text-font'), fontSize: 20, words: 2),
+            child: Bone.text(
+              key: ValueKey('Bone-text-font'),
+              fontSize: 20,
+              words: 2,
+            ),
           ),
         ),
       );
@@ -255,9 +263,21 @@ void main() {
             enabled: true,
             child: Column(
               children: [
-                Bone.text(key: ValueKey('Bone-text-left'), textAlign: TextAlign.left, words: 2),
-                Bone.text(key: ValueKey('Bone-text-center'), textAlign: TextAlign.center, words: 2),
-                Bone.text(key: ValueKey('Bone-text-right'), textAlign: TextAlign.right, words: 2),
+                Bone.text(
+                  key: ValueKey('Bone-text-left'),
+                  textAlign: TextAlign.left,
+                  words: 2,
+                ),
+                Bone.text(
+                  key: ValueKey('Bone-text-center'),
+                  textAlign: TextAlign.center,
+                  words: 2,
+                ),
+                Bone.text(
+                  key: ValueKey('Bone-text-right'),
+                  textAlign: TextAlign.right,
+                  words: 2,
+                ),
               ],
             ),
           ),
@@ -294,12 +314,18 @@ void main() {
             enabled: true,
             child: SizedBox(
               width: 200,
-              child: Bone.multiText(key: ValueKey('Bone-multitext-lines'), lines: 5),
+              child: Bone.multiText(
+                key: ValueKey('Bone-multitext-lines'),
+                lines: 5,
+              ),
             ),
           ),
         ),
       );
-      expect(find.byKey(const ValueKey('Bone-multitext-lines')), findsOneWidget);
+      expect(
+        find.byKey(const ValueKey('Bone-multitext-lines')),
+        findsOneWidget,
+      );
     });
 
     testWidgets('renders with custom fontSize', (tester) async {
@@ -310,7 +336,11 @@ void main() {
             enabled: true,
             child: SizedBox(
               width: 200,
-              child: Bone.multiText(key: ValueKey('Bone-multitext-font'), lines: 2, fontSize: 18),
+              child: Bone.multiText(
+                key: ValueKey('Bone-multitext-font'),
+                lines: 2,
+                fontSize: 18,
+              ),
             ),
           ),
         ),
@@ -326,11 +356,17 @@ void main() {
           home: Skeletonizer.zone(
             effect: SolidColorEffect(),
             enabled: true,
-            child: Bone.button(key: ValueKey('Bone-button-elevated'), type: BoneButtonType.elevated),
+            child: Bone.button(
+              key: ValueKey('Bone-button-elevated'),
+              type: BoneButtonType.elevated,
+            ),
           ),
         ),
       );
-      expect(find.byKey(const ValueKey('Bone-button-elevated')), findsOneWidget);
+      expect(
+        find.byKey(const ValueKey('Bone-button-elevated')),
+        findsOneWidget,
+      );
     });
 
     testWidgets('renders filled button bone', (tester) async {
@@ -339,7 +375,10 @@ void main() {
           home: Skeletonizer.zone(
             effect: SolidColorEffect(),
             enabled: true,
-            child: Bone.button(key: ValueKey('Bone-button-filled'), type: BoneButtonType.filled),
+            child: Bone.button(
+              key: ValueKey('Bone-button-filled'),
+              type: BoneButtonType.filled,
+            ),
           ),
         ),
       );
@@ -352,7 +391,10 @@ void main() {
           home: Skeletonizer.zone(
             effect: SolidColorEffect(),
             enabled: true,
-            child: Bone.button(key: ValueKey('Bone-button-text'), type: BoneButtonType.text),
+            child: Bone.button(
+              key: ValueKey('Bone-button-text'),
+              type: BoneButtonType.text,
+            ),
           ),
         ),
       );
@@ -365,11 +407,17 @@ void main() {
           home: Skeletonizer.zone(
             effect: SolidColorEffect(),
             enabled: true,
-            child: Bone.button(key: ValueKey('Bone-button-outlined'), type: BoneButtonType.outlined),
+            child: Bone.button(
+              key: ValueKey('Bone-button-outlined'),
+              type: BoneButtonType.outlined,
+            ),
           ),
         ),
       );
-      expect(find.byKey(const ValueKey('Bone-button-outlined')), findsOneWidget);
+      expect(
+        find.byKey(const ValueKey('Bone-button-outlined')),
+        findsOneWidget,
+      );
     });
 
     testWidgets('renders with custom width and height', (tester) async {
@@ -378,7 +426,11 @@ void main() {
           home: Skeletonizer.zone(
             effect: SolidColorEffect(),
             enabled: true,
-            child: Bone.button(key: ValueKey('Bone-button-size'), width: 150, height: 50),
+            child: Bone.button(
+              key: ValueKey('Bone-button-size'),
+              width: 150,
+              height: 50,
+            ),
           ),
         ),
       );
@@ -419,11 +471,17 @@ void main() {
           home: Skeletonizer.zone(
             effect: SolidColorEffect(),
             enabled: true,
-            child: Bone.iconButton(key: ValueKey('Bone-iconButton-size'), size: 48),
+            child: Bone.iconButton(
+              key: ValueKey('Bone-iconButton-size'),
+              size: 48,
+            ),
           ),
         ),
       );
-      expect(find.byKey(const ValueKey('Bone-iconButton-size')), findsOneWidget);
+      expect(
+        find.byKey(const ValueKey('Bone-iconButton-size')),
+        findsOneWidget,
+      );
     });
 
     testWidgets('renders with border radius', (tester) async {
@@ -439,7 +497,10 @@ void main() {
           ),
         ),
       );
-      expect(find.byKey(const ValueKey('Bone-iconButton-radius')), findsOneWidget);
+      expect(
+        find.byKey(const ValueKey('Bone-iconButton-radius')),
+        findsOneWidget,
+      );
     });
   });
 }

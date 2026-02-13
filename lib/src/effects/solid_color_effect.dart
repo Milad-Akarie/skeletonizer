@@ -11,8 +11,11 @@ class SolidColorEffect extends PaintingEffect {
   final Color color;
 
   /// Default constructor
-  const SolidColorEffect({this.color = const Color(0xFFF6F6F6), super.lowerBound, super.upperBound})
-    : super(duration: Duration.zero);
+  const SolidColorEffect({
+    this.color = const Color(0xFFF6F6F6),
+    super.lowerBound,
+    super.upperBound,
+  }) : super(duration: Duration.zero);
 
   @override
   Paint createPaint(double t, Rect rect, TextDirection? textDirection) {

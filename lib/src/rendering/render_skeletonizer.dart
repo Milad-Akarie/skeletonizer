@@ -4,8 +4,7 @@ import 'package:skeletonizer/src/painting/skeletonizer_painting_context.dart';
 
 /// Builds a renderer object that overrides the painting operation
 /// and provides a [SkeletonizerPaintingContext] to paint the skeleton effect
-class RenderSkeletonizer extends RenderProxyBox
-    with _RenderSkeletonBase<RenderBox> {
+class RenderSkeletonizer extends RenderProxyBox with _RenderSkeletonBase<RenderBox> {
   /// Default constructor
   RenderSkeletonizer({
     required TextDirection textDirection,
@@ -14,12 +13,12 @@ class RenderSkeletonizer extends RenderProxyBox
     required bool ignorePointers,
     required bool isZone,
     RenderBox? child,
-  })  : _animationValue = animationValue,
-        _textDirection = textDirection,
-        _config = config,
-        _isZone = isZone,
-        _ignorePointers = ignorePointers,
-        super(child);
+  }) : _animationValue = animationValue,
+       _textDirection = textDirection,
+       _config = config,
+       _isZone = isZone,
+       _ignorePointers = ignorePointers,
+       super(child);
 
   TextDirection _textDirection;
 
@@ -87,8 +86,7 @@ class RenderSkeletonizer extends RenderProxyBox
 
 /// Builds a sliver renderer object that overrides the painting operation
 /// and provides a [SkeletonizerPaintingContext] to paint the skeleton effect
-class RenderSliverSkeletonizer extends RenderProxySliver
-    with _RenderSkeletonBase<RenderSliver> {
+class RenderSliverSkeletonizer extends RenderProxySliver with _RenderSkeletonBase<RenderSliver> {
   /// Default constructor
   RenderSliverSkeletonizer({
     required TextDirection textDirection,
@@ -97,12 +95,12 @@ class RenderSliverSkeletonizer extends RenderProxySliver
     required bool ignorePointers,
     required bool isZone,
     RenderSliver? child,
-  })  : _animationValue = animationValue,
-        _textDirection = textDirection,
-        _config = config,
-        _isZone = isZone,
-        _ignorePointers = ignorePointers,
-        super(child);
+  }) : _animationValue = animationValue,
+       _textDirection = textDirection,
+       _config = config,
+       _isZone = isZone,
+       _ignorePointers = ignorePointers,
+       super(child);
 
   TextDirection _textDirection;
 
@@ -161,17 +159,21 @@ class RenderSliverSkeletonizer extends RenderProxySliver
   }
 
   @override
-  bool hitTest(SliverHitTestResult result,
-      {required double mainAxisPosition, required double crossAxisPosition}) {
+  bool hitTest(
+    SliverHitTestResult result, {
+    required double mainAxisPosition,
+    required double crossAxisPosition,
+  }) {
     if (_ignorePointers) return false;
-    return super.hitTest(result,
-        mainAxisPosition: mainAxisPosition,
-        crossAxisPosition: crossAxisPosition);
+    return super.hitTest(
+      result,
+      mainAxisPosition: mainAxisPosition,
+      crossAxisPosition: crossAxisPosition,
+    );
   }
 }
 
-mixin _RenderSkeletonBase<R extends RenderObject>
-    on RenderObjectWithChildMixin<R> {
+mixin _RenderSkeletonBase<R extends RenderObject> on RenderObjectWithChildMixin<R> {
   /// The text direction used to resolve Directional geometries
   TextDirection get textDirection;
 
@@ -188,7 +190,9 @@ mixin _RenderSkeletonBase<R extends RenderObject>
   bool get alwaysNeedsCompositing => true;
 
   SkeletonizerPaintingContext createSkeletonizerContext(
-      ContainerLayer layer, Offset offset) {
+    ContainerLayer layer,
+    Offset offset,
+  ) {
     final estimatedBounds = paintBounds.shift(offset);
     final shaderPaint = config.effect.createPaint(
       animationValue,

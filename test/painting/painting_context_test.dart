@@ -101,12 +101,13 @@ void main() {
     });
 
     test('drawPath updates unitedRect', () {
-      final path = Path()
-        ..moveTo(10, 10)
-        ..lineTo(100, 10)
-        ..lineTo(100, 50)
-        ..lineTo(10, 50)
-        ..close();
+      final path =
+          Path()
+            ..moveTo(10, 10)
+            ..lineTo(100, 10)
+            ..lineTo(100, 50)
+            ..lineTo(10, 50)
+            ..close();
 
       canvas.drawPath(path, Paint());
 

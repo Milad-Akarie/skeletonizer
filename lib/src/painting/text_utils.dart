@@ -25,9 +25,8 @@ Rect lineToRect({
   final lineStart = line.left.round();
   final lineEnd = (line.left + line.width).round();
   final isNotCentered = lineStart == 0 || lineEnd == paragraphWidth;
-  final shouldJustify = justifyMultiLineText &&
-      isNotCentered &&
-      (numberOfLines > 1 && line.lineNumber < (numberOfLines - 1));
+  final shouldJustify =
+      justifyMultiLineText && isNotCentered && (numberOfLines > 1 && line.lineNumber < (numberOfLines - 1));
   final width = shouldJustify ? paragraphWidth : line.width;
   return Rect.fromLTWH(
     shouldJustify ? offset.dx : line.left + offset.dx,

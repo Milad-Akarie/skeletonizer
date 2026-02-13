@@ -240,10 +240,9 @@ void main() {
                   enabled: true,
                   effect: const SolidColorEffect(),
                   child: SliverGrid(
-                    gridDelegate:
-                        const SliverGridDelegateWithFixedCrossAxisCount(
-                          crossAxisCount: 2,
-                        ),
+                    gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+                      crossAxisCount: 2,
+                    ),
                     delegate: SliverChildListDelegate([
                       Container(color: Colors.red, child: const Text('1')),
                       Container(color: Colors.blue, child: const Text('2')),

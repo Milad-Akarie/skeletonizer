@@ -178,10 +178,7 @@ void main() {
       );
       expect(find.byIcon(Icons.star), findsOneWidget);
       // Bone may or may not be present depending on annotation logic
-      final boneWidgets = find
-          .byType(BoneRenderObjectWidget)
-          .evaluate()
-          .toList();
+      final boneWidgets = find.byType(BoneRenderObjectWidget).evaluate().toList();
       if (boneWidgets.isNotEmpty) {
         final boneWidget = boneWidgets.first.widget as BoneRenderObjectWidget;
         final boxDecoration = boneWidget.decoration;

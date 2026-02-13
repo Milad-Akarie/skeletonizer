@@ -15,14 +15,20 @@ void main() {
     });
 
     test('custom colors are applied correctly', () {
-      const effect = ShimmerEffect(baseColor: Colors.red, highlightColor: Colors.blue);
+      const effect = ShimmerEffect(
+        baseColor: Colors.red,
+        highlightColor: Colors.blue,
+      );
 
       expect(effect.colors, contains(Colors.red));
       expect(effect.colors, contains(Colors.blue));
     });
 
     test('custom alignment is applied correctly', () {
-      const effect = ShimmerEffect(begin: Alignment.topLeft, end: Alignment.bottomRight);
+      const effect = ShimmerEffect(
+        begin: Alignment.topLeft,
+        end: Alignment.bottomRight,
+      );
 
       expect(effect.begin, equals(Alignment.topLeft));
       expect(effect.end, equals(Alignment.bottomRight));
@@ -98,13 +104,19 @@ void main() {
         const effectDefault = ShimmerEffect();
         expect(effectDefault.colors, isA<List<Color>>());
         expect(effectDefault.stops, [0.1, 0.3, 0.4]);
-        const effectCustom = ShimmerEffect.raw(colors: [Colors.red, Colors.green], stops: [0.0, 1.0]);
+        const effectCustom = ShimmerEffect.raw(
+          colors: [Colors.red, Colors.green],
+          stops: [0.0, 1.0],
+        );
         expect(effectCustom.colors, [Colors.red, Colors.green]);
         expect(effectCustom.stops, [0.0, 1.0]);
       });
 
       test('tileMode property is set correctly', () {
-        const effect = ShimmerEffect.raw(colors: [Colors.red, Colors.blue], tileMode: TileMode.repeated);
+        const effect = ShimmerEffect.raw(
+          colors: [Colors.red, Colors.blue],
+          tileMode: TileMode.repeated,
+        );
         expect(effect.tileMode, TileMode.repeated);
       });
 
@@ -119,7 +131,10 @@ void main() {
 
       test('runtimeType and hashCode differ for different configs', () {
         const effect1 = ShimmerEffect();
-        const effect2 = ShimmerEffect(baseColor: Colors.red, highlightColor: Colors.blue);
+        const effect2 = ShimmerEffect(
+          baseColor: Colors.red,
+          highlightColor: Colors.blue,
+        );
         expect(effect1.hashCode, isNot(equals(effect2.hashCode)));
         expect(effect1.runtimeType, equals(effect2.runtimeType));
       });
@@ -135,38 +150,50 @@ void main() {
         expect(effectCustom.toString(), contains('ShimmerEffect'));
       });
 
-      test('lerp returns value-equal effect at t=0 and t=1 (duration from first)', () {
-        const effect1 = ShimmerEffect(
-          baseColor: Colors.red,
-          highlightColor: Colors.blue,
-          duration: Duration(milliseconds: 1000),
-          begin: Alignment.topLeft,
-          end: Alignment.bottomRight,
-        );
-        const effect2 = ShimmerEffect(
-          baseColor: Colors.green,
-          highlightColor: Colors.yellow,
-          duration: Duration(milliseconds: 2000),
-          begin: Alignment.bottomLeft,
-          end: Alignment.topRight,
-        );
-        final lerped0 = effect1.lerp(effect2, 0.0) as ShimmerEffect;
-        final lerped1 = effect1.lerp(effect2, 1.0) as ShimmerEffect;
-        // Compare all fields for lerped0
-        expect(lerped0.colors[0].toARGB32(), effect1.colors[0].toARGB32());
-        expect(lerped0.colors[1].toARGB32(), effect1.colors[1].toARGB32());
-        expect(lerped0.colors[2].toARGB32(), effect1.colors[2].toARGB32());
-        expect(lerped0.duration, effect1.duration);
-        expect(lerped0.begin, effect1.begin);
-        expect(lerped0.end, effect1.end);
-        // Compare all fields for lerped1 (duration from effect1)
-        expect(lerped1.colors[0].toARGB32(), Color.lerp(Colors.red, Colors.green, 1.0)!.toARGB32());
-        expect(lerped1.colors[1].toARGB32(), Color.lerp(Colors.blue, Colors.yellow, 1.0)!.toARGB32());
-        expect(lerped1.colors[2].toARGB32(), Color.lerp(Colors.red, Colors.green, 1.0)!.toARGB32());
-        expect(lerped1.duration, effect1.duration);
-        expect(lerped1.begin, effect2.begin);
-        expect(lerped1.end, effect2.end);
-      });
+      test(
+        'lerp returns value-equal effect at t=0 and t=1 (duration from first)',
+        () {
+          const effect1 = ShimmerEffect(
+            baseColor: Colors.red,
+            highlightColor: Colors.blue,
+            duration: Duration(milliseconds: 1000),
+            begin: Alignment.topLeft,
+            end: Alignment.bottomRight,
+          );
+          const effect2 = ShimmerEffect(
+            baseColor: Colors.green,
+            highlightColor: Colors.yellow,
+            duration: Duration(milliseconds: 2000),
+            begin: Alignment.bottomLeft,
+            end: Alignment.topRight,
+          );
+          final lerped0 = effect1.lerp(effect2, 0.0) as ShimmerEffect;
+          final lerped1 = effect1.lerp(effect2, 1.0) as ShimmerEffect;
+          // Compare all fields for lerped0
+          expect(lerped0.colors[0].toARGB32(), effect1.colors[0].toARGB32());
+          expect(lerped0.colors[1].toARGB32(), effect1.colors[1].toARGB32());
+          expect(lerped0.colors[2].toARGB32(), effect1.colors[2].toARGB32());
+          expect(lerped0.duration, effect1.duration);
+          expect(lerped0.begin, effect1.begin);
+          expect(lerped0.end, effect1.end);
+          // Compare all fields for lerped1 (duration from effect1)
+          expect(
+            lerped1.colors[0].toARGB32(),
+            Color.lerp(Colors.red, Colors.green, 1.0)!.toARGB32(),
+          );
+          expect(
+            lerped1.colors[1].toARGB32(),
+            Color.lerp(Colors.blue, Colors.yellow, 1.0)!.toARGB32(),
+          );
+          expect(
+            lerped1.colors[2].toARGB32(),
+            Color.lerp(Colors.red, Colors.green, 1.0)!.toARGB32(),
+          );
+          expect(lerped1.duration, effect1.duration);
+          expect(lerped1.begin, effect2.begin);
+          expect(lerped1.end, effect2.end);
+        },
+      );
 
       test('lerp returns this if other is not ShimmerEffect', () {
         const effect = ShimmerEffect();
@@ -334,16 +361,30 @@ void main() {
 
   group('ShimmerEffect isVertical logic', () {
     test('isVertical is true when beginX and endX are 0', () {
-      final effect = ShimmerEffect(begin: Alignment(0, -1), end: Alignment(0, 1));
+      final effect = ShimmerEffect(
+        begin: Alignment(0, -1),
+        end: Alignment(0, 1),
+      );
       // Should trigger isVertical = true
-      final paint = effect.createPaint(0.5, Rect.fromLTWH(0, 0, 10, 10), TextDirection.ltr);
+      final paint = effect.createPaint(
+        0.5,
+        Rect.fromLTWH(0, 0, 10, 10),
+        TextDirection.ltr,
+      );
       expect(paint, isA<Paint>());
       // No direct way to check isVertical, but this ensures the code path is covered
     });
     test('isVertical is false when beginX or endX is not 0', () {
-      final effect = ShimmerEffect(begin: Alignment(-1, 0), end: Alignment(1, 0));
+      final effect = ShimmerEffect(
+        begin: Alignment(-1, 0),
+        end: Alignment(1, 0),
+      );
       // Should trigger isVertical = false
-      final paint = effect.createPaint(0.5, Rect.fromLTWH(0, 0, 10, 10), TextDirection.ltr);
+      final paint = effect.createPaint(
+        0.5,
+        Rect.fromLTWH(0, 0, 10, 10),
+        TextDirection.ltr,
+      );
       expect(paint, isA<Paint>());
     });
   });
@@ -371,9 +412,15 @@ void main() {
     });
 
     test('equality and hashCode', () {
-      final effect1 = RawShimmerEffect(colors: [Colors.red, Colors.green, Colors.blue]);
-      final effect2 = RawShimmerEffect(colors: [Colors.red, Colors.green, Colors.blue]);
-      final effect3 = RawShimmerEffect(colors: [Colors.red, Colors.green, Colors.yellow]);
+      final effect1 = RawShimmerEffect(
+        colors: [Colors.red, Colors.green, Colors.blue],
+      );
+      final effect2 = RawShimmerEffect(
+        colors: [Colors.red, Colors.green, Colors.blue],
+      );
+      final effect3 = RawShimmerEffect(
+        colors: [Colors.red, Colors.green, Colors.yellow],
+      );
       expect(effect1, equals(effect2));
       expect(effect1.hashCode, equals(effect2.hashCode));
       expect(effect1, isNot(equals(effect3)));
@@ -399,23 +446,37 @@ void main() {
       expect(lerped.colors[0], Color.lerp(Colors.red, Colors.yellow, 0.5));
       expect(lerped.colors[1], Color.lerp(Colors.green, Colors.purple, 0.5));
       expect(lerped.colors[2], Color.lerp(Colors.blue, Colors.orange, 0.5));
-      expect(lerped.begin, AlignmentGeometry.lerp(Alignment.topLeft, Alignment.bottomLeft, 0.5));
-      expect(lerped.end, AlignmentGeometry.lerp(Alignment.bottomRight, Alignment.topRight, 0.5));
+      expect(
+        lerped.begin,
+        AlignmentGeometry.lerp(Alignment.topLeft, Alignment.bottomLeft, 0.5),
+      );
+      expect(
+        lerped.end,
+        AlignmentGeometry.lerp(Alignment.bottomRight, Alignment.topRight, 0.5),
+      );
       // tileMode and duration are from effect1
       expect(lerped.tileMode, effect1.tileMode);
       expect(lerped.duration, effect1.duration);
     });
 
     test('lerp returns this if other is not RawShimmerEffect', () {
-      final effect = RawShimmerEffect(colors: [Colors.red, Colors.green, Colors.blue]);
+      final effect = RawShimmerEffect(
+        colors: [Colors.red, Colors.green, Colors.blue],
+      );
       final notRaw = ShimmerEffect();
       final lerped = effect.lerp(notRaw, 0.5);
       expect(lerped, equals(effect));
     });
 
     test('createPaint produces Paint with shader', () {
-      final effect = RawShimmerEffect(colors: [Colors.red, Colors.green, Colors.blue]);
-      final paint = effect.createPaint(0.5, Rect.fromLTWH(0, 0, 100, 100), TextDirection.ltr);
+      final effect = RawShimmerEffect(
+        colors: [Colors.red, Colors.green, Colors.blue],
+      );
+      final paint = effect.createPaint(
+        0.5,
+        Rect.fromLTWH(0, 0, 100, 100),
+        TextDirection.ltr,
+      );
       expect(paint, isA<Paint>());
       expect(paint.shader, isNotNull);
     });
