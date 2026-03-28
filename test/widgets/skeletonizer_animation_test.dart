@@ -20,6 +20,29 @@ void main() {
       expect(find.byType(AnimatedSwitcher), findsOneWidget);
     });
 
+    testWidgets('default switch transition builder is keyless', (tester) async {
+      await tester.pumpWidget(
+        const MaterialApp(
+          home: Skeletonizer(
+            enabled: true,
+            enableSwitchAnimation: true,
+            child: Text('Content'),
+          ),
+        ),
+      );
+
+      final switcher = tester.widget<AnimatedSwitcher>(
+        find.byType(AnimatedSwitcher),
+      );
+      final transition = switcher.transitionBuilder(
+        const SizedBox(key: ValueKey('probe')),
+        kAlwaysCompleteAnimation,
+      );
+
+      expect(transition, isA<FadeTransition>());
+      expect(transition.key, isNull);
+    });
+
     testWidgets('enableSwitchAnimation respects switchAnimationConfig', (
       tester,
     ) async {
@@ -88,6 +111,41 @@ void main() {
       );
       await tester.pump();
       // Should start animation
+    });
+
+    testWidgets('rapid toggles do not throw duplicate key exceptions', (
+      tester,
+    ) async {
+      bool enabled = true;
+      late VoidCallback toggle;
+
+      await tester.pumpWidget(
+        MaterialApp(
+          home: StatefulBuilder(
+            builder: (context, setState) {
+              toggle = () => setState(() => enabled = !enabled);
+              return Skeletonizer(
+                enabled: enabled,
+                enableSwitchAnimation: true,
+                child: const Text('Content'),
+              );
+            },
+          ),
+        ),
+      );
+
+      for (var i = 0; i < 8; i++) {
+        toggle();
+        await tester.pump(const Duration(milliseconds: 40));
+        expect(
+          tester.takeException(),
+          isNull,
+          reason: 'No exception expected on rapid toggle #$i',
+        );
+      }
+
+      await tester.pump(const Duration(milliseconds: 400));
+      expect(tester.takeException(), isNull);
     });
   });
 }
