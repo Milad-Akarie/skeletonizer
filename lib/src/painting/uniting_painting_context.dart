@@ -63,8 +63,7 @@ class UnitingCanvas implements Canvas {
     double sweepAngle,
     bool useCenter,
     ui.Paint paint,
-  ) =>
-      unitedRect = unitedRect.expandToInclude(rect);
+  ) => unitedRect = unitedRect.expandToInclude(rect);
 
   @override
   void drawAtlas(
@@ -267,11 +266,22 @@ class UnitingCanvas implements Canvas {
 class UnitingPaintingContext extends PaintingContext {
   /// Creates a [UnitingPaintingContext] with the given [containerLayer] and [estimatedBounds].
   UnitingPaintingContext(
-      super.containerLayer, super.estimatedBounds, this._config);
+    super.containerLayer,
+    super.estimatedBounds,
+    this._config,
+  );
 
   final SkeletonizerConfigData _config;
   @override
   late final UnitingCanvas canvas = UnitingCanvas(_config);
+
+  @override
+  PaintingContext createChildContext(
+    ContainerLayer childLayer,
+    ui.Rect bounds,
+  ) {
+    return UnitingPaintingContext(childLayer, bounds, _config);
+  }
 
   @override
   void paintChild(RenderObject child, ui.Offset offset) {

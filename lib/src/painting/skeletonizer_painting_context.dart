@@ -1,10 +1,9 @@
-import 'dart:typed_data';
 import 'dart:ui' as ui;
 
+import 'package:flutter/foundation.dart';
 import 'package:flutter/rendering.dart';
 import 'package:skeletonizer/skeletonizer.dart';
 import 'package:skeletonizer/src/painting/text_utils.dart';
-import 'package:skeletonizer/src/rendering/render_skeletonizer.dart';
 import 'package:skeletonizer/src/utils/utils.dart';
 
 /// A painting context that draws a skeleton of of widgets
@@ -59,12 +58,13 @@ class SkeletonizerPaintingContext extends PaintingContext {
   bool _didPaint = false;
 
   @override
-  ui.Canvas get canvas =>
-      isZone ? super.canvas : SkeletonizerCanvas(super.canvas, this);
+  ui.Canvas get canvas => isZone ? super.canvas : SkeletonizerCanvas(super.canvas, this);
 
   @override
   PaintingContext createChildContext(
-      ContainerLayer childLayer, ui.Rect bounds) {
+    ContainerLayer childLayer,
+    ui.Rect bounds,
+  ) {
     return SkeletonizerPaintingContext(
       layer: childLayer,
       estimatedBounds: bounds,
@@ -84,14 +84,10 @@ class SkeletonizerPaintingContext extends PaintingContext {
 
   @override
   void paintChild(RenderObject child, ui.Offset offset) {
-    if (child is RenderSkeletonizer || child is RenderSliverSkeletonizer) {
-      return super.paintChild(child, offset);
-    }
     if (!isZone && child is RenderObjectWithChildMixin) {
       final key = child.paintBounds.shift(offset).center;
       final subChild = child.child;
-      var treatAaLeaf = subChild == null ||
-          (subChild is RenderIgnoredSkeleton && subChild.enabled);
+      var treatAaLeaf = subChild == null || (subChild is RenderIgnoredSkeleton && subChild.enabled);
       if (child is RenderSemanticsAnnotations) {
         treatAaLeaf |= child.properties.button == true;
       }
@@ -99,7 +95,32 @@ class SkeletonizerPaintingContext extends PaintingContext {
         _treatedAsLeaf.add(key);
       }
     }
+    _painChild(child, offset);
+  }
+
+  void _painChild(RenderObject child, ui.Offset offset) {
+    assert(() {
+      debugOnProfilePaint?.call(child);
+      return true;
+    }());
+
+    if (!kReleaseMode && debugProfilePaintsEnabled) {
+      Map<String, String>? debugTimelineArguments;
+      assert(() {
+        if (debugEnhancePaintTimelineArguments) {
+          debugTimelineArguments = child.toDiagnosticsNode().toTimelineArguments();
+        }
+        return true;
+      }());
+      FlutterTimeline.startSync(
+        '$runtimeType',
+        arguments: debugTimelineArguments,
+      );
+    }
     child.paint(this, offset);
+    if (!kReleaseMode && debugProfilePaintsEnabled) {
+      FlutterTimeline.finishSync();
+    }
   }
 }
 
@@ -134,13 +155,28 @@ class SkeletonizerCanvas implements Canvas {
         paragraphWidth: paragraph.width,
       );
 
-      final borderRadius = _config.textBorderRadius.usesHeightFactor
-          ? BorderRadius.circular(
-              (rect.height) * _config.textBorderRadius.heightPercentage!)
-          : _config.textBorderRadius.borderRadius?.resolve(TextDirection.ltr);
+      final borderRadius =
+          _config.textBorderRadius.usesHeightFactor
+              ? BorderRadius.circular(
+                (rect.height) * _config.textBorderRadius.heightPercentage!,
+              )
+              : _config.textBorderRadius.borderRadius?.resolve(
+                TextDirection.ltr,
+              );
 
       if (borderRadius != null) {
-        parent.drawRRect(borderRadius.toRRect(rect), _shaderPaint);
+        final borderShape = _config.textBorderRadius.borderShape;
+        switch (borderShape) {
+          case TextBoneBorderShape.roundedRectangle:
+            parent.drawRRect(borderRadius.toRRect(rect), _shaderPaint);
+            break;
+          case TextBoneBorderShape.roundedSuperellipse:
+            parent.drawRSuperellipse(
+              borderRadius.toRSuperellipse(rect),
+              _shaderPaint,
+            );
+            break;
+        }
       } else {
         parent.drawRect(rect, _shaderPaint);
       }
@@ -148,20 +184,17 @@ class SkeletonizerCanvas implements Canvas {
   }
 
   @override
-  void clipPath(ui.Path path, {bool doAntiAlias = true}) =>
-      parent.clipPath(path, doAntiAlias: doAntiAlias);
+  void clipPath(ui.Path path, {bool doAntiAlias = true}) => parent.clipPath(path, doAntiAlias: doAntiAlias);
 
   @override
-  void clipRRect(ui.RRect rrect, {bool doAntiAlias = true}) =>
-      parent.clipRRect(rrect, doAntiAlias: doAntiAlias);
+  void clipRRect(ui.RRect rrect, {bool doAntiAlias = true}) => parent.clipRRect(rrect, doAntiAlias: doAntiAlias);
 
   @override
   void clipRect(
     ui.Rect rect, {
     ui.ClipOp clipOp = ui.ClipOp.intersect,
     bool doAntiAlias = true,
-  }) =>
-      parent.clipRect(rect, clipOp: clipOp, doAntiAlias: doAntiAlias);
+  }) => parent.clipRect(rect, clipOp: clipOp, doAntiAlias: doAntiAlias);
 
   @override
   void drawArc(
@@ -170,8 +203,7 @@ class SkeletonizerCanvas implements Canvas {
     double sweepAngle,
     bool useCenter,
     ui.Paint paint,
-  ) =>
-      parent.drawArc(rect, startAngle, sweepAngle, useCenter, paint);
+  ) => parent.drawArc(rect, startAngle, sweepAngle, useCenter, paint);
 
   @override
   void drawAtlas(
@@ -182,16 +214,15 @@ class SkeletonizerCanvas implements Canvas {
     ui.BlendMode? blendMode,
     ui.Rect? cullRect,
     ui.Paint paint,
-  ) =>
-      parent.drawAtlas(
-        atlas,
-        transforms,
-        rects,
-        colors,
-        blendMode,
-        cullRect,
-        paint,
-      );
+  ) => parent.drawAtlas(
+    atlas,
+    transforms,
+    rects,
+    colors,
+    blendMode,
+    cullRect,
+    paint,
+  );
 
   @override
   void drawColor(ui.Color color, ui.BlendMode blendMode) {
@@ -296,8 +327,9 @@ class SkeletonizerCanvas implements Canvas {
   void drawPath(ui.Path path, ui.Paint paint) {
     if (paint.color.a == 0) return;
     context._didPaint = true;
-    final treatAsBone =
-        context._treatedAsLeaf.containsFuzzy(path.getBounds().center);
+    final treatAsBone = context._treatedAsLeaf.containsFuzzy(
+      path.getBounds().center,
+    );
     if (treatAsBone) {
       parent.drawPath(path, paint.copyWith(shader: _shaderPaint.shader));
     } else if (!_config.ignoreContainers) {
@@ -335,7 +367,9 @@ class SkeletonizerCanvas implements Canvas {
     } else if (!_config.ignoreContainers) {
       if (_config.containersColor != null) {
         parent.drawRRect(
-            rrect, paint.copyWith(color: _config.containersColor!));
+          rrect,
+          paint.copyWith(color: _config.containersColor!),
+        );
       } else {
         parent.drawRRect(rrect, paint);
       }
@@ -352,7 +386,10 @@ class SkeletonizerCanvas implements Canvas {
     } else if (!_config.ignoreContainers) {
       if (_config.containersColor != null) {
         parent.drawCircle(
-            c, radius, paint.copyWith(color: _config.containersColor!));
+          c,
+          radius,
+          paint.copyWith(color: _config.containersColor!),
+        );
       } else {
         parent.drawCircle(c, radius, paint);
       }
@@ -427,8 +464,7 @@ class SkeletonizerCanvas implements Canvas {
   void save() => parent.save();
 
   @override
-  void saveLayer(ui.Rect? bounds, ui.Paint paint) =>
-      parent.saveLayer(bounds, paint);
+  void saveLayer(ui.Rect? bounds, ui.Paint paint) => parent.saveLayer(bounds, paint);
 
   @override
   void scale(double sx, [double? sy]) => parent.scale(sx, sy);

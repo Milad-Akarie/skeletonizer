@@ -1,4 +1,4 @@
-import 'package:flutter/cupertino.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 
 import 'painting_effect.dart';
@@ -36,7 +36,7 @@ abstract class ShimmerEffect extends PaintingEffect {
     Duration duration,
   }) = _ShimmerEffect;
 
-  /// Builds a [_RawShimmerEffect] with default values
+  /// Builds a [RawShimmerEffect] with default values
   const factory ShimmerEffect.raw({
     required List<Color> colors,
     List<double>? stops,
@@ -46,7 +46,7 @@ abstract class ShimmerEffect extends PaintingEffect {
     double lowerBound,
     double upperBound,
     Duration duration,
-  }) = _RawShimmerEffect;
+  }) = RawShimmerEffect;
 
   @override
   Paint createPaint(double t, Rect rect, TextDirection? textDirection) {
@@ -78,11 +78,7 @@ class _ShimmerEffect extends ShimmerEffect {
   }) : super._(lowerBound: -.5, upperBound: 1.5);
 
   @override
-  List<Color> get colors => [
-        baseColor,
-        highlightColor,
-        baseColor,
-      ];
+  List<Color> get colors => [baseColor, highlightColor, baseColor];
 
   @override
   final AlignmentGeometry begin;
@@ -132,7 +128,9 @@ class _ShimmerEffect extends ShimmerEffect {
   }
 }
 
-class _RawShimmerEffect extends ShimmerEffect {
+/// A customizable shimmer effect where you can provide
+/// your own colors, stops, and other gradient properties
+class RawShimmerEffect extends ShimmerEffect {
   @override
   final List<Color> colors;
 
@@ -147,7 +145,8 @@ class _RawShimmerEffect extends ShimmerEffect {
   @override
   final TileMode tileMode;
 
-  const _RawShimmerEffect({
+  /// Builds a [RawShimmerEffect] with the provided properties
+  const RawShimmerEffect({
     required this.colors,
     this.stops,
     this.begin = const AlignmentDirectional(-1.0, -0.3),
@@ -161,10 +160,10 @@ class _RawShimmerEffect extends ShimmerEffect {
   @override
   bool operator ==(Object other) =>
       identical(this, other) ||
-      other is _RawShimmerEffect &&
+      other is RawShimmerEffect &&
           runtimeType == other.runtimeType &&
-          colors == other.colors &&
-          stops == other.stops &&
+          listEquals(colors, other.colors) &&
+          listEquals(stops, other.stops) &&
           begin == other.begin &&
           end == other.end &&
           duration == other.duration &&
@@ -172,8 +171,8 @@ class _RawShimmerEffect extends ShimmerEffect {
 
   @override
   int get hashCode =>
-      colors.hashCode ^
-      stops.hashCode ^
+      Object.hashAll(colors) ^
+      Object.hashAll(colors) ^
       begin.hashCode ^
       end.hashCode ^
       tileMode.hashCode ^
@@ -181,8 +180,8 @@ class _RawShimmerEffect extends ShimmerEffect {
 
   @override
   PaintingEffect lerp(PaintingEffect? other, double t) {
-    if (other is _RawShimmerEffect) {
-      return _RawShimmerEffect(
+    if (other is RawShimmerEffect) {
+      return RawShimmerEffect(
         colors: List.generate(
           colors.length,
           (index) => Color.lerp(colors[index], other.colors[index], t)!,
@@ -212,8 +211,7 @@ class _SlidingGradientTransform extends GradientTransform {
     if (isVertical) {
       return Matrix4.translationValues(0.0, bounds.height * offset, 0.0);
     }
-    final resolvedOffset =
-        textDirection == TextDirection.rtl ? -offset : offset;
+    final resolvedOffset = textDirection == TextDirection.rtl ? -offset : offset;
     return Matrix4.translationValues(bounds.width * resolvedOffset, 0.0, 0.0);
   }
 }

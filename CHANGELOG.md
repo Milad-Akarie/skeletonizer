@@ -1,3 +1,19 @@
+## 2.1.3
+- Fix: Skeletonizer does not respect clipping #76
+## 2.1.2
+- Chore: add .pubignore to exclude irrelevant files and reduce package size
+- Internal: reorganize test folders and improve coverage 
+- Chore: Add codecov test coverage badge
+- Chore: Update environment constraints
+
+## 2.1.1
+- Refactor: improve painting logic and add debug timeline events
+- Refactor: simplify render object implementation by removing redundant isRepaintBoundary override
+- Feat: add equality operator and hashCode to SkeletonizerConfigData
+## 2.1.0+1
+- Chore: remove a forgotten print statement
+## 2.1.0
+- Feat: add TextBoneBorderShape to TextBoneBorderRadius to support the new RoundedSuperellipseBorder
 ## 2.0.1
 - Fix: Fix Bone.text does not respect TextStyle.height #45
 ## 2.0.0
