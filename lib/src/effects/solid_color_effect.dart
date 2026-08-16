@@ -1,4 +1,4 @@
-import 'package:flutter/cupertino.dart';
+import 'package:flutter/widgets.dart';
 import 'package:skeletonizer/src/effects/painting_effect.dart';
 
 @Deprecated('Use SolidColorEffect instead')

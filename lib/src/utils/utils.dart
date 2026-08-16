@@ -1,4 +1,4 @@
-import 'package:flutter/material.dart';
+import 'package:material_ui/material_ui.dart';
 
 /// Adds functionality to [Paint] to clone it with a different color.
 extension PaintX on Paint {

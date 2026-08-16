@@ -1,6 +1,7 @@
 import 'dart:async';
 
 import 'package:alchemist/alchemist.dart';
+// TODO: switch to material_ui once alchemist depends on it
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:skeletonizer/skeletonizer.dart';

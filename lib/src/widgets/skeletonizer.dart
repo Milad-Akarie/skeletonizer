@@ -1,4 +1,4 @@
-import 'package:flutter/material.dart';
+import 'package:material_ui/material_ui.dart';
 import 'package:skeletonizer/src/effects/painting_effect.dart';
 import 'package:skeletonizer/src/skeletonizer_config.dart';
 import 'package:skeletonizer/src/widgets/skeletonizer_render_object_widget.dart';
