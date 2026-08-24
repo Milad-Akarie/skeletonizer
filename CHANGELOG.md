@@ -1,3 +1,11 @@
+## 3.0.0
+- **BREAKING**: Migrated from `package:flutter/material.dart` to `package:material_ui/material_ui.dart`.
+  Material was decoupled from the Flutter SDK and now ships as the `material_ui` package; the SDK copy is
+  frozen and scheduled for removal (flutter/flutter#184093, flutter/flutter#172942).
+- **BREAKING**: `SkeletonizerConfigData` now extends `material_ui`'s `ThemeExtension`, so it can only be
+  registered on a `material_ui` `ThemeData`. Apps still on `package:flutter/material.dart` should stay on 2.x.
+- **BREAKING**: Requires Flutter >= 3.44.0 and Dart >= 3.12.0 (the floor `material_ui` itself declares).
+
 ## 2.1.3
 - Fix: Skeletonizer does not respect clipping #76
 ## 2.1.2

@@ -1,7 +1,10 @@
 import 'dart:async';
 
 import 'package:alchemist/alchemist.dart';
-import 'package:flutter/material.dart';
+// alchemist is still built on the legacy flutter/material, so its config wants that ThemeData — a material_ui
+// ThemeData is a different type. Only the golden harness needs it; the widgets under test use material_ui.
+import 'package:flutter/material.dart' as legacy;
+import 'package:material_ui/material_ui.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:skeletonizer/skeletonizer.dart';
 
@@ -12,7 +15,7 @@ void main() => testExecutable(runTests);
 Future<void> testExecutable(FutureOr<void> Function() testMain) async {
   return AlchemistConfig.runWithConfig(
     config: AlchemistConfig(
-      platformGoldensConfig: PlatformGoldensConfig(theme: ThemeData.light()),
+      platformGoldensConfig: PlatformGoldensConfig(theme: legacy.ThemeData.light()),
       ciGoldensConfig: const CiGoldensConfig(enabled: false),
     ),
     run: testMain,
