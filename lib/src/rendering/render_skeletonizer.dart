@@ -206,6 +206,7 @@ mixin _RenderSkeletonBase<R extends RenderObject> on RenderObjectWithChildMixin<
       shaderPaint: shaderPaint,
       config: config,
       isZone: isZone,
+      textDirection: textDirection,
     );
   }
 

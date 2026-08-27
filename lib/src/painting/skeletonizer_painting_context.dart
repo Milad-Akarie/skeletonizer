@@ -17,6 +17,7 @@ class SkeletonizerPaintingContext extends PaintingContext {
     required this.config,
     required this.isZone,
     required this.animationValue,
+    required this.textDirection,
   }) : super(layer, estimatedBounds);
 
   /// The [SkeletonizerConfigData] that controls the skeletonization process
@@ -24,6 +25,9 @@ class SkeletonizerPaintingContext extends PaintingContext {
 
   /// The animation value
   final double animationValue;
+
+  /// The text direction used to resolve directional padding.
+  final TextDirection textDirection;
 
   /// Whether the skeletonization is zone
   bool isZone;
@@ -50,6 +54,7 @@ class SkeletonizerPaintingContext extends PaintingContext {
       shaderPaint: shaderPaint,
       config: config,
       estimatedBounds: rect,
+      textDirection: textDirection,
     );
     painter(context, rect.topLeft);
     context.stopRecordingIfNeeded();
@@ -72,6 +77,7 @@ class SkeletonizerPaintingContext extends PaintingContext {
       config: config,
       isZone: isZone,
       animationValue: animationValue,
+      textDirection: textDirection,
     );
   }
 
@@ -136,6 +142,31 @@ class SkeletonizerCanvas implements Canvas {
 
   SkeletonizerConfigData get _config => context.config;
 
+  EdgeInsets get _padding => _config.padding?.resolve(context.textDirection) ?? EdgeInsets.zero;
+
+  ui.Rect _inflateRect(ui.Rect rect) {
+    final padding = _padding;
+    if (padding == EdgeInsets.zero) return rect;
+    return ui.Rect.fromLTRB(
+      rect.left - padding.left,
+      rect.top - padding.top,
+      rect.right + padding.right,
+      rect.bottom + padding.bottom,
+    );
+  }
+
+  ui.RRect _inflateRRect(ui.RRect rrect) {
+    final inflatedRect = _inflateRect(rrect.outerRect);
+    if (inflatedRect == rrect.outerRect) return rrect;
+    return ui.RRect.fromRectAndCorners(
+      inflatedRect,
+      topLeft: rrect.tlRadius,
+      topRight: rrect.trRadius,
+      bottomRight: rrect.brRadius,
+      bottomLeft: rrect.blRadius,
+    );
+  }
+
   /// The parent [Canvas] that handles drawing operations
   final Canvas parent;
 
@@ -154,31 +185,32 @@ class SkeletonizerCanvas implements Canvas {
         justifyMultiLineText: _config.justifyMultiLineText,
         paragraphWidth: paragraph.width,
       );
+      final paddedRect = _inflateRect(rect);
 
       final borderRadius =
           _config.textBorderRadius.usesHeightFactor
               ? BorderRadius.circular(
-                (rect.height) * _config.textBorderRadius.heightPercentage!,
+                paddedRect.height * _config.textBorderRadius.heightPercentage!,
               )
               : _config.textBorderRadius.borderRadius?.resolve(
-                TextDirection.ltr,
+                context.textDirection,
               );
 
       if (borderRadius != null) {
         final borderShape = _config.textBorderRadius.borderShape;
         switch (borderShape) {
           case TextBoneBorderShape.roundedRectangle:
-            parent.drawRRect(borderRadius.toRRect(rect), _shaderPaint);
+            parent.drawRRect(borderRadius.toRRect(paddedRect), _shaderPaint);
             break;
           case TextBoneBorderShape.roundedSuperellipse:
             parent.drawRSuperellipse(
-              borderRadius.toRSuperellipse(rect),
+              borderRadius.toRSuperellipse(paddedRect),
               _shaderPaint,
             );
             break;
         }
       } else {
-        parent.drawRect(rect, _shaderPaint);
+        parent.drawRect(paddedRect, _shaderPaint);
       }
     }
   }
@@ -262,7 +294,7 @@ class SkeletonizerCanvas implements Canvas {
   void drawImage(ui.Image image, ui.Offset offset, ui.Paint paint) {
     context._didPaint = true;
     parent.drawRect(
-      (offset & Size(image.width.toDouble(), image.height.toDouble())),
+      _inflateRect(offset & Size(image.width.toDouble(), image.height.toDouble())),
       _shaderPaint,
     );
   }
@@ -275,7 +307,7 @@ class SkeletonizerCanvas implements Canvas {
     ui.Paint paint,
   ) {
     context._didPaint = true;
-    parent.drawRect(dst, _shaderPaint);
+    parent.drawRect(_inflateRect(dst), _shaderPaint);
   }
 
   @override
@@ -286,7 +318,7 @@ class SkeletonizerCanvas implements Canvas {
     ui.Paint paint,
   ) {
     context._didPaint = true;
-    parent.drawRect(dst, _shaderPaint);
+    parent.drawRect(_inflateRect(dst), _shaderPaint);
   }
 
   @override
@@ -347,7 +379,7 @@ class SkeletonizerCanvas implements Canvas {
     context._didPaint = true;
     final treatAsBone = context._treatedAsLeaf.containsFuzzy(rect.center);
     if (treatAsBone) {
-      parent.drawRect(rect, paint.copyWith(shader: _shaderPaint.shader));
+      parent.drawRect(_inflateRect(rect), paint.copyWith(shader: _shaderPaint.shader));
     } else if (!_config.ignoreContainers) {
       if (_config.containersColor != null) {
         parent.drawRect(rect, paint.copyWith(color: _config.containersColor!));
@@ -363,7 +395,7 @@ class SkeletonizerCanvas implements Canvas {
     context._didPaint = true;
     final treatAsBone = context._treatedAsLeaf.containsFuzzy(rrect.center);
     if (treatAsBone) {
-      parent.drawRRect(rrect, paint.copyWith(shader: _shaderPaint.shader));
+      parent.drawRRect(_inflateRRect(rrect), paint.copyWith(shader: _shaderPaint.shader));
     } else if (!_config.ignoreContainers) {
       if (_config.containersColor != null) {
         parent.drawRRect(
@@ -382,7 +414,10 @@ class SkeletonizerCanvas implements Canvas {
     context._didPaint = true;
     final treatAsBone = context._treatedAsLeaf.containsFuzzy(c);
     if (treatAsBone) {
-      parent.drawCircle(c, radius, paint.copyWith(shader: _shaderPaint.shader));
+      parent.drawOval(
+        _inflateRect(ui.Rect.fromCircle(center: c, radius: radius)),
+        paint.copyWith(shader: _shaderPaint.shader),
+      );
     } else if (!_config.ignoreContainers) {
       if (_config.containersColor != null) {
         parent.drawCircle(
@@ -510,6 +545,7 @@ class LeafPaintingContext extends SkeletonizerPaintingContext {
     required super.estimatedBounds,
     required super.shaderPaint,
     required super.config,
+    required super.textDirection,
   }) : super(isZone: false, animationValue: 0);
 
   @override

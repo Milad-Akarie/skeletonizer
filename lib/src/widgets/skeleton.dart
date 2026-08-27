@@ -192,7 +192,14 @@ class _UnitingSkeleton extends _BasicSkeleton {
     );
     paint(unitingContext, Offset.zero);
     final canvas = unitingContext.canvas;
-    final unitedRect = canvas.unitedRect.shift(paintBounds.topLeft);
+    final padding = context.config.padding?.resolve(context.textDirection) ?? EdgeInsets.zero;
+    final rawUnitedRect = canvas.unitedRect.shift(paintBounds.topLeft);
+    final unitedRect = Rect.fromLTRB(
+      rawUnitedRect.left - padding.left,
+      rawUnitedRect.top - padding.top,
+      rawUnitedRect.right + padding.right,
+      rawUnitedRect.bottom + padding.bottom,
+    );
     final brRadius = borderRadius?.resolve(textDirection) ?? canvas.borderRadius;
     if (brRadius != null) {
       context.canvas.drawRRect(

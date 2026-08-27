@@ -34,6 +34,9 @@ abstract class Skeletonizer extends StatefulWidget {
   /// if null the actual color will be used
   final Color? containersColor;
 
+  /// The padding applied to each skeletonized element.
+  final EdgeInsetsGeometry? padding;
+
   /// Whether to ignore pointer events
   ///
   /// defaults to true
@@ -61,6 +64,7 @@ abstract class Skeletonizer extends StatefulWidget {
     this.ignoreContainers,
     this.justifyMultiLineText,
     this.containersColor,
+    this.padding,
     this.ignorePointers = true,
     this.enableSwitchAnimation,
     this.switchAnimationConfig,
@@ -76,6 +80,7 @@ abstract class Skeletonizer extends StatefulWidget {
     this.ignoreContainers,
     this.justifyMultiLineText,
     this.containersColor,
+    this.padding,
     this.ignorePointers = true,
     this.enableSwitchAnimation,
     this.switchAnimationConfig,
@@ -91,6 +96,7 @@ abstract class Skeletonizer extends StatefulWidget {
     bool? ignoreContainers,
     bool? justifyMultiLineText,
     Color? containersColor,
+    EdgeInsetsGeometry? padding,
     bool ignorePointers,
     bool? enableSwitchAnimation,
     SwitchAnimationConfig? switchAnimationConfig,
@@ -105,6 +111,7 @@ abstract class Skeletonizer extends StatefulWidget {
     bool? ignoreContainers,
     bool? justifyMultiLineText,
     Color? containersColor,
+    EdgeInsetsGeometry? padding,
     bool ignorePointers,
     bool enabled,
     bool? enableSwitchAnimation,
@@ -121,6 +128,7 @@ abstract class Skeletonizer extends StatefulWidget {
     bool? ignoreContainers,
     bool? justifyMultiLineText,
     Color? containersColor,
+    EdgeInsetsGeometry? padding,
     bool ignorePointers,
   }) = SliverSkeletonizer;
 
@@ -185,6 +193,7 @@ class SkeletonizerState extends State<Skeletonizer> with TickerProviderStateMixi
       ignoreContainers: widget.ignoreContainers,
       justifyMultiLineText: widget.justifyMultiLineText,
       containersColor: widget.containersColor,
+      padding: widget.padding,
       enableSwitchAnimation: widget.enableSwitchAnimation,
       switchAnimationConfig: widget.switchAnimationConfig,
     );
@@ -280,6 +289,7 @@ class _Skeletonizer extends Skeletonizer {
     super.ignoreContainers,
     super.justifyMultiLineText,
     super.containersColor,
+    super.padding,
     super.ignorePointers,
     super.enableSwitchAnimation,
     super.switchAnimationConfig,
@@ -293,6 +303,7 @@ class _Skeletonizer extends Skeletonizer {
     super.ignoreContainers,
     super.justifyMultiLineText,
     super.containersColor,
+    super.padding,
     super.ignorePointers,
     super.enabled,
     super.enableSwitchAnimation,
@@ -347,6 +358,7 @@ class SliverSkeletonizer extends Skeletonizer {
     super.ignoreContainers,
     super.justifyMultiLineText,
     super.containersColor,
+    super.padding,
     super.ignorePointers,
   }) : super._(enableSwitchAnimation: false);
 
@@ -359,6 +371,7 @@ class SliverSkeletonizer extends Skeletonizer {
     super.ignoreContainers,
     super.justifyMultiLineText,
     super.containersColor,
+    super.padding,
     super.ignorePointers,
     super.enabled,
   }) : super._zone();

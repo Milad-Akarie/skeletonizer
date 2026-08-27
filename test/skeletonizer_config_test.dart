@@ -11,6 +11,7 @@ void main() {
       expect(config.justifyMultiLineText, isTrue);
       expect(config.ignoreContainers, isFalse);
       expect(config.containersColor, isNull);
+      expect(config.padding, isNull);
       expect(config.enableSwitchAnimation, isFalse);
     });
 
@@ -31,6 +32,7 @@ void main() {
         justifyMultiLineText: false,
         ignoreContainers: true,
         containersColor: Colors.red,
+        padding: EdgeInsets.all(4),
         enableSwitchAnimation: true,
       );
 
@@ -38,6 +40,7 @@ void main() {
       expect(copy.justifyMultiLineText, isFalse);
       expect(copy.ignoreContainers, isTrue);
       expect(copy.containersColor, equals(Colors.red));
+      expect(copy.padding, equals(const EdgeInsets.all(4)));
       expect(copy.enableSwitchAnimation, isTrue);
     });
 
@@ -85,9 +88,11 @@ void main() {
       const config1 = SkeletonizerConfigData();
       const config2 = SkeletonizerConfigData();
       const config3 = SkeletonizerConfigData(justifyMultiLineText: false);
+      const config4 = SkeletonizerConfigData(padding: EdgeInsets.all(4));
 
       expect(config1, equals(config2));
       expect(config1, isNot(equals(config3)));
+      expect(config1, isNot(equals(config4)));
     });
 
     test('hashCode is consistent with equality', () {

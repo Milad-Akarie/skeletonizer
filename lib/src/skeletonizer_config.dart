@@ -15,6 +15,7 @@ class SkeletonizerConfigData extends ThemeExtension<SkeletonizerConfigData> {
   /// - [justifyMultiLineText]: Whether to justify multi-line text bones.
   /// - [ignoreContainers]: Whether to ignore container elements and only paint the dependents.
   /// - [containersColor]: The color of the container elements. If null, the actual color will be used.
+  /// - [padding]: The padding applied to each skeletonized element.
   /// - [enableSwitchAnimation]: Whether to enable switch animation between the skeleton and the actual widget.
   /// - [switchAnimationConfig]: The configuration for the switch animation.
   const SkeletonizerConfigData({
@@ -23,6 +24,7 @@ class SkeletonizerConfigData extends ThemeExtension<SkeletonizerConfigData> {
     this.justifyMultiLineText = true,
     this.ignoreContainers = false,
     this.containersColor,
+    this.padding,
     this.enableSwitchAnimation = false,
     this.switchAnimationConfig = const SwitchAnimationConfig(),
   });
@@ -35,6 +37,7 @@ class SkeletonizerConfigData extends ThemeExtension<SkeletonizerConfigData> {
     bool justifyMultiLineText,
     bool ignoreContainers,
     Color? containersColor,
+    EdgeInsetsGeometry? padding,
     bool enableSwitchAnimation,
     SwitchAnimationConfig switchAnimationConfig,
   }) = SkeletonizerConfigData;
@@ -49,6 +52,7 @@ class SkeletonizerConfigData extends ThemeExtension<SkeletonizerConfigData> {
     this.justifyMultiLineText = true,
     this.ignoreContainers = false,
     this.containersColor,
+    this.padding,
     this.enableSwitchAnimation = false,
     this.switchAnimationConfig = const SwitchAnimationConfig(),
   });
@@ -73,6 +77,11 @@ class SkeletonizerConfigData extends ThemeExtension<SkeletonizerConfigData> {
   /// if null the actual color will be used
   final Color? containersColor;
 
+  /// The padding applied to each skeletonized element.
+  ///
+  /// If null, skeletonized elements keep their original paint bounds.
+  final EdgeInsetsGeometry? padding;
+
   /// Whether to enable switch animation
   ///
   /// This will animate the switch between the skeleton and the actual widget
@@ -90,6 +99,7 @@ class SkeletonizerConfigData extends ThemeExtension<SkeletonizerConfigData> {
     bool? justifyMultiLineText,
     bool? ignoreContainers,
     Color? containersColor,
+    EdgeInsetsGeometry? padding,
     bool? enableSwitchAnimation,
     SwitchAnimationConfig? switchAnimationConfig,
   }) {
@@ -99,6 +109,7 @@ class SkeletonizerConfigData extends ThemeExtension<SkeletonizerConfigData> {
       justifyMultiLineText: justifyMultiLineText ?? this.justifyMultiLineText,
       ignoreContainers: ignoreContainers ?? this.ignoreContainers,
       containersColor: containersColor ?? this.containersColor,
+      padding: padding ?? this.padding,
       enableSwitchAnimation: enableSwitchAnimation ?? this.enableSwitchAnimation,
       switchAnimationConfig: switchAnimationConfig ?? this.switchAnimationConfig,
     );
@@ -113,6 +124,7 @@ class SkeletonizerConfigData extends ThemeExtension<SkeletonizerConfigData> {
       justifyMultiLineText: t < 0.5 ? justifyMultiLineText : other.justifyMultiLineText,
       ignoreContainers: t < 0.5 ? ignoreContainers : other.ignoreContainers,
       containersColor: t < 0.5 ? containersColor : other.containersColor,
+      padding: EdgeInsetsGeometry.lerp(padding, other.padding, t),
       enableSwitchAnimation: t < 0.5 ? enableSwitchAnimation : other.enableSwitchAnimation,
       switchAnimationConfig: t < 0.5 ? switchAnimationConfig : other.switchAnimationConfig,
     );
@@ -128,6 +140,7 @@ class SkeletonizerConfigData extends ThemeExtension<SkeletonizerConfigData> {
           justifyMultiLineText == other.justifyMultiLineText &&
           ignoreContainers == other.ignoreContainers &&
           containersColor == other.containersColor &&
+          padding == other.padding &&
           enableSwitchAnimation == other.enableSwitchAnimation &&
           switchAnimationConfig == other.switchAnimationConfig;
 
@@ -138,6 +151,7 @@ class SkeletonizerConfigData extends ThemeExtension<SkeletonizerConfigData> {
     justifyMultiLineText,
     ignoreContainers,
     containersColor,
+    padding,
     enableSwitchAnimation,
     switchAnimationConfig,
   );
@@ -150,6 +164,7 @@ const SkeletonizerConfigData skeletonizerConfigData = SkeletonizerConfigData(
   justifyMultiLineText: true,
   ignoreContainers: false,
   containersColor: null,
+  padding: null,
   enableSwitchAnimation: false,
   switchAnimationConfig: SwitchAnimationConfig(),
 );
