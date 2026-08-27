@@ -1,5 +1,3 @@
-export 'package:flutter/painting.dart';
-
 export 'src/effects/effects.dart';
 export 'src/skeletonizer_config.dart';
 export 'src/utils/bone_mock.dart';
