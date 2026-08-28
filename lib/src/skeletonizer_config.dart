@@ -5,6 +5,9 @@ import 'package:skeletonizer/skeletonizer.dart';
 
 const _defaultTextBoneBorderRadius = TextBoneBorderRadius.fromHeightFactor(.5);
 
+Widget _defaultSwitchTransitionBuilder(Widget child, Animation<double> animation) =>
+    FadeTransition(opacity: animation, child: child);
+
 /// The immutable configuration data for the skeletonizer theme.
 @immutable
 class SkeletonizerConfigData extends ThemeExtension<SkeletonizerConfigData> {
@@ -309,7 +312,7 @@ class SwitchAnimationConfig {
     this.duration = const Duration(milliseconds: 300),
     this.switchInCurve = Curves.linear,
     this.switchOutCurve = Curves.linear,
-    this.transitionBuilder = AnimatedSwitcher.defaultTransitionBuilder,
+    this.transitionBuilder = _defaultSwitchTransitionBuilder,
     this.layoutBuilder = AnimatedSwitcher.defaultLayoutBuilder,
     this.reverseDuration,
   });
