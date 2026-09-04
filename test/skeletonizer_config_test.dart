@@ -1,44 +1,93 @@
-import 'package:flutter/material.dart';
+import 'package:material_ui/material_ui.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:skeletonizer/skeletonizer.dart';
 
 void main() {
   group('SkeletonizerConfigData', () {
+    test('stores and copies the bone resolver', () {
+      final resolver = _TestBoneResolver();
+      final config = SkeletonizerConfigData(boneResolver: resolver);
+      final copy = config.copyWith();
+
+      expect(config.boneResolver, same(resolver));
+      expect(copy.boneResolver, same(resolver));
+    });
+
+    test('stores and copies brightness', () {
+      const config = SkeletonizerConfigData(brightness: Brightness.dark);
+      final copy = config.copyWith();
+
+      expect(config.brightness, Brightness.dark);
+      expect(copy.brightness, Brightness.dark);
+    });
+
     test('default constructor creates instance with default values', () {
       const config = SkeletonizerConfigData();
 
-      expect(config.effect, isA<ShimmerEffect>());
       expect(config.justifyMultiLineText, isTrue);
       expect(config.ignoreContainers, isFalse);
       expect(config.containersColor, isNull);
+      expect(config.boneResolver, isNull);
+      expect(config.brightness, isNull);
       expect(config.enableSwitchAnimation, isFalse);
     });
 
-    test('dark constructor creates instance with dark theme colors', () {
-      const config = SkeletonizerConfigData.dark();
+    test('resolveEffect resolves the painting effect for a brightness', () {
+      const config = SkeletonizerConfigData();
 
-      expect(config.effect, isA<ShimmerEffect>());
-      expect(config.justifyMultiLineText, isTrue);
-      expect(config.ignoreContainers, isFalse);
+      expect(config.resolveEffect(Brightness.light), isA<ShimmerEffect>());
+      expect(config.resolveEffect(Brightness.dark), isA<ShimmerEffect>());
+    });
+
+    test('a deprecated effect overrides the effect resolver', () {
+      // ignore: deprecated_member_use_from_same_package
+      const config = SkeletonizerConfigData(effect: PulseEffect());
+
+      expect(
+        config.resolveEffect(Brightness.light),
+        equals(const PulseEffect()),
+      );
+      expect(
+        config.resolveEffect(Brightness.dark),
+        equals(const PulseEffect()),
+      );
+    });
+
+    test('effectResolver resolves the painting effect', () {
+      const config = SkeletonizerConfigData(
+        effectResolver: _solidColorEffectResolver,
+      );
+
+      expect(config.resolveEffect(Brightness.light), isA<SolidColorEffect>());
+      expect(config.resolveEffect(Brightness.dark), isA<SolidColorEffect>());
     });
 
     test('copyWith creates a copy with updated values', () {
       const original = SkeletonizerConfigData();
-      const newEffect = PulseEffect();
 
       final copy = original.copyWith(
-        effect: newEffect,
         justifyMultiLineText: false,
         ignoreContainers: true,
         containersColor: Colors.red,
+        brightness: Brightness.dark,
         enableSwitchAnimation: true,
       );
 
-      expect(copy.effect, equals(newEffect));
       expect(copy.justifyMultiLineText, isFalse);
       expect(copy.ignoreContainers, isTrue);
       expect(copy.containersColor, equals(Colors.red));
+      expect(copy.brightness, Brightness.dark);
       expect(copy.enableSwitchAnimation, isTrue);
+    });
+
+    test('copyWith replaces the deprecated effect', () {
+      // ignore: deprecated_member_use_from_same_package
+      const original = SkeletonizerConfigData(effect: PulseEffect());
+
+      // ignore: deprecated_member_use_from_same_package
+      final copy = original.copyWith(effect: const SolidColorEffect());
+
+      expect(copy.resolveEffect(Brightness.dark), equals(const SolidColorEffect()));
     });
 
     test('copyWith preserves original values when not specified', () {
@@ -52,33 +101,6 @@ void main() {
       expect(copy.justifyMultiLineText, isFalse);
       expect(copy.ignoreContainers, isTrue);
       expect(copy.containersColor, equals(Colors.blue));
-    });
-
-    test('lerp interpolates between two configs', () {
-      const config1 = SkeletonizerConfigData(
-        justifyMultiLineText: true,
-        ignoreContainers: false,
-      );
-      const config2 = SkeletonizerConfigData(
-        justifyMultiLineText: false,
-        ignoreContainers: true,
-      );
-
-      // At t=0.5, the boolean values switch based on t < 0.5 condition
-      final lerpedAt0 = config1.lerp(config2, 0.0);
-      expect(lerpedAt0.justifyMultiLineText, isTrue);
-      expect(lerpedAt0.ignoreContainers, isFalse);
-
-      final lerpedAt1 = config1.lerp(config2, 1.0);
-      expect(lerpedAt1.justifyMultiLineText, isFalse);
-      expect(lerpedAt1.ignoreContainers, isTrue);
-    });
-
-    test('lerp returns this when other is null', () {
-      const config = SkeletonizerConfigData();
-      final lerped = config.lerp(null, 0.5);
-
-      expect(lerped, equals(config));
     });
 
     test('equality works correctly', () {
@@ -314,9 +336,9 @@ void main() {
   });
 
   group('Additional coverage for SkeletonizerConfig', () {
-    test('Deprecated SkeletonizerConfigData.light factory works', () {
+    test('const constructor accepts the deprecated effect parameter', () {
       // ignore: deprecated_member_use_from_same_package
-      const config = SkeletonizerConfigData.light(
+      const config = SkeletonizerConfigData(
         effect: ShimmerEffect(),
         textBorderRadius: TextBoneBorderRadius.fromHeightFactor(0.5),
         justifyMultiLineText: true,
@@ -325,6 +347,7 @@ void main() {
         enableSwitchAnimation: false,
         switchAnimationConfig: SwitchAnimationConfig(),
       );
+      expect(config.resolveEffect(Brightness.dark), isA<ShimmerEffect>());
       expect(config, isA<SkeletonizerConfigData>());
     });
 
@@ -395,4 +418,19 @@ void main() {
       },
     );
   });
+}
+
+PaintingEffect _solidColorEffectResolver(Brightness brightness) =>
+    const SolidColorEffect();
+
+class _TestBoneResolver implements BoneResolver {
+  @override
+  BoneButtonSpec resolveButton(BuildContext context, BoneButtonType type) {
+    return BoneButtonSpec(shape: const RoundedRectangleBorder());
+  }
+
+  @override
+  BoneIconButtonSpec resolveIconButton(BuildContext context, BoneButtonType type) {
+    return const BoneIconButtonSpec(iconSize: 24.0, padding: EdgeInsets.all(8));
+  }
 }

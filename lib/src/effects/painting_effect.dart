@@ -1,4 +1,4 @@
-import 'package:flutter/material.dart';
+import 'dart:ui';
 
 /// An abstraction for skeleton painting effects
 /// consumed by the [Skeletonizer.animationController]

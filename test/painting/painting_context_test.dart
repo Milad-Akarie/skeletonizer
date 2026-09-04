@@ -1,6 +1,6 @@
 import 'dart:ui' as ui;
 
-import 'package:flutter/material.dart';
+import 'package:material_ui/material_ui.dart';
 import 'package:flutter/rendering.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:skeletonizer/skeletonizer.dart';
@@ -8,11 +8,11 @@ import 'package:skeletonizer/src/painting/uniting_painting_context.dart';
 
 void main() {
   group('UnitingCanvas', () {
-    late SkeletonizerConfigData config;
+    late ResolvedSkeletonizerConfigData config;
     late UnitingCanvas canvas;
 
     setUp(() {
-      config = const SkeletonizerConfigData(
+      config = const ResolvedSkeletonizerConfigData(
         justifyMultiLineText: true,
         effect: SolidColorEffect(),
       );
@@ -213,11 +213,11 @@ void main() {
   });
 
   group('UnitingPaintingContext', () {
-    late SkeletonizerConfigData config;
+    late ResolvedSkeletonizerConfigData config;
     late ContainerLayer containerLayer;
 
     setUp(() {
-      config = const SkeletonizerConfigData(
+      config = const ResolvedSkeletonizerConfigData(
         justifyMultiLineText: true,
         effect: SolidColorEffect(),
       );
@@ -302,11 +302,11 @@ void main() {
   });
 
   group('UnitingCanvas additional coverage', () {
-    late SkeletonizerConfigData config;
+    late ResolvedSkeletonizerConfigData config;
     late UnitingCanvas canvas;
 
     setUp(() {
-      config = const SkeletonizerConfigData(
+      config = const ResolvedSkeletonizerConfigData(
         justifyMultiLineText: true,
         effect: SolidColorEffect(),
       );

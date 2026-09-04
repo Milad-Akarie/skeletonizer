@@ -1,4 +1,4 @@
-import 'package:flutter/material.dart';
+import 'package:material_ui/material_ui.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:skeletonizer/skeletonizer.dart';
 
@@ -350,55 +350,39 @@ void main() {
   });
 
   group('Bone.button', () {
-    testWidgets('renders elevated button bone', (tester) async {
+    testWidgets('renders prominent button bone', (tester) async {
       await tester.pumpWidget(
         const MaterialApp(
           home: Skeletonizer.zone(
             effect: SolidColorEffect(),
             enabled: true,
             child: Bone.button(
-              key: ValueKey('Bone-button-elevated'),
-              type: BoneButtonType.elevated,
+              key: ValueKey('Bone-button-prominent'),
+              type: BoneButtonType.prominent,
             ),
           ),
         ),
       );
       expect(
-        find.byKey(const ValueKey('Bone-button-elevated')),
+        find.byKey(const ValueKey('Bone-button-prominent')),
         findsOneWidget,
       );
     });
 
-    testWidgets('renders filled button bone', (tester) async {
+    testWidgets('renders plain button bone', (tester) async {
       await tester.pumpWidget(
         const MaterialApp(
           home: Skeletonizer.zone(
             effect: SolidColorEffect(),
             enabled: true,
             child: Bone.button(
-              key: ValueKey('Bone-button-filled'),
-              type: BoneButtonType.filled,
+              key: ValueKey('Bone-button-plain'),
+              type: BoneButtonType.plain,
             ),
           ),
         ),
       );
-      expect(find.byKey(const ValueKey('Bone-button-filled')), findsOneWidget);
-    });
-
-    testWidgets('renders text button bone', (tester) async {
-      await tester.pumpWidget(
-        const MaterialApp(
-          home: Skeletonizer.zone(
-            effect: SolidColorEffect(),
-            enabled: true,
-            child: Bone.button(
-              key: ValueKey('Bone-button-text'),
-              type: BoneButtonType.text,
-            ),
-          ),
-        ),
-      );
-      expect(find.byKey(const ValueKey('Bone-button-text')), findsOneWidget);
+      expect(find.byKey(const ValueKey('Bone-button-plain')), findsOneWidget);
     });
 
     testWidgets('renders outlined button bone', (tester) async {

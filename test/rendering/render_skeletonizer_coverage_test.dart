@@ -1,4 +1,4 @@
-import 'package:flutter/material.dart';
+import 'package:material_ui/material_ui.dart';
 import 'package:flutter/rendering.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:skeletonizer/skeletonizer.dart';
@@ -10,7 +10,7 @@ void main() {
       final renderObject = RenderSkeletonizer(
         textDirection: TextDirection.ltr,
         animationValue: 0,
-        config: const SkeletonizerConfigData(),
+        config: const ResolvedSkeletonizerConfigData(effect: SolidColorEffect()),
         ignorePointers: false,
         isZone: false,
       );
@@ -23,7 +23,10 @@ void main() {
       // But we can check that standard values match.
 
       expect(renderObject.textDirection, TextDirection.ltr);
-      expect(renderObject.config, const SkeletonizerConfigData());
+      expect(
+        renderObject.config,
+        const ResolvedSkeletonizerConfigData(effect: SolidColorEffect()),
+      );
       expect(renderObject.isZone, false);
       expect(renderObject.animationValue, 0);
 
@@ -31,12 +34,16 @@ void main() {
       renderObject.textDirection = TextDirection.rtl;
       expect(renderObject.textDirection, TextDirection.rtl);
 
-      renderObject.config = const SkeletonizerConfigData(
+      renderObject.config = const ResolvedSkeletonizerConfigData(
+        effect: SolidColorEffect(),
         containersColor: Colors.black,
       );
       expect(
         renderObject.config,
-        const SkeletonizerConfigData(containersColor: Colors.black),
+        const ResolvedSkeletonizerConfigData(
+          effect: SolidColorEffect(),
+          containersColor: Colors.black,
+        ),
       );
 
       renderObject.ignorePointers = true;
@@ -61,7 +68,7 @@ void main() {
       final renderObject = RenderSkeletonizer(
         textDirection: TextDirection.ltr,
         animationValue: 0,
-        config: const SkeletonizerConfigData(),
+        config: const ResolvedSkeletonizerConfigData(effect: SolidColorEffect()),
         ignorePointers: true,
         isZone: false,
       );
@@ -83,7 +90,7 @@ void main() {
       final renderObject = RenderSliverSkeletonizer(
         textDirection: TextDirection.ltr,
         animationValue: 0,
-        config: const SkeletonizerConfigData(),
+        config: const ResolvedSkeletonizerConfigData(effect: SolidColorEffect()),
         ignorePointers: false,
         isZone: false,
       );
@@ -91,12 +98,16 @@ void main() {
       renderObject.textDirection = TextDirection.rtl;
       expect(renderObject.textDirection, TextDirection.rtl);
 
-      renderObject.config = const SkeletonizerConfigData(
+      renderObject.config = const ResolvedSkeletonizerConfigData(
+        effect: SolidColorEffect(),
         containersColor: Colors.black,
       );
       expect(
         renderObject.config,
-        const SkeletonizerConfigData(containersColor: Colors.black),
+        const ResolvedSkeletonizerConfigData(
+          effect: SolidColorEffect(),
+          containersColor: Colors.black,
+        ),
       );
 
       renderObject.isZone = true;
@@ -110,7 +121,7 @@ void main() {
       final renderObject = RenderSliverSkeletonizer(
         textDirection: TextDirection.ltr,
         animationValue: 0,
-        config: const SkeletonizerConfigData(),
+        config: const ResolvedSkeletonizerConfigData(effect: SolidColorEffect()),
         ignorePointers: true,
         isZone: false,
       );

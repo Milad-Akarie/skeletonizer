@@ -18,7 +18,7 @@ class UnitingCanvas implements Canvas {
   Size biggestDescendant = Size.zero;
 
   /// The configuration data for the skeletonizer.
-  final SkeletonizerConfigData _config;
+  final ResolvedSkeletonizerConfigData _config;
 
   /// Creates a [UnitingCanvas] with the given [config].
   UnitingCanvas(this._config);
@@ -271,7 +271,7 @@ class UnitingPaintingContext extends PaintingContext {
     this._config,
   );
 
-  final SkeletonizerConfigData _config;
+  final ResolvedSkeletonizerConfigData _config;
   @override
   late final UnitingCanvas canvas = UnitingCanvas(_config);
 

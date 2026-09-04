@@ -1,5 +1,5 @@
-import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
+import 'package:flutter/widgets.dart';
 import 'package:skeletonizer/skeletonizer.dart';
 import 'package:skeletonizer/src/painting/skeletonizer_painting_context.dart';
 import 'package:skeletonizer/src/painting/uniting_painting_context.dart';
@@ -393,12 +393,12 @@ class _SkeletonReplace extends StatelessWidget implements Skeleton {
     bool replace = true,
     this.width,
     this.height,
-    this.replacement = const ColoredBox(color: Colors.black),
+    this.replacement = const ColoredBox(color: Color(0xFF000000)),
   }) : enabled = replace;
 
   final Widget child;
 
-  /// The width nad height of the replacement
+  /// The width and height of the replacement
   final double? width, height;
 
   @override

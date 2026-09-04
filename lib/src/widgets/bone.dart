@@ -1,7 +1,7 @@
 import 'dart:math';
 
-import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
+import 'package:flutter/widgets.dart';
 import 'package:skeletonizer/skeletonizer.dart';
 import 'package:skeletonizer/src/painting/skeletonizer_painting_context.dart';
 
@@ -93,6 +93,7 @@ abstract class Bone extends StatelessWidget {
     double indentEnd,
     double? uniRadius,
     BorderRadiusGeometry? borderRadius,
+    BoneButtonType type,
   }) = _IconButtonBone;
 }
 
@@ -180,21 +181,6 @@ class _IconBone extends Bone {
   }
 }
 
-/// The type of button bone
-enum BoneButtonType {
-  /// represents an [ElevatedButton]
-  elevated,
-
-  /// represents a [FilledButton]
-  filled,
-
-  /// represents a [TextButton]
-  text,
-
-  /// represents an [OutlinedButton]
-  outlined,
-}
-
 class _ButtonBone extends Bone {
   const _ButtonBone({
     super.key,
@@ -206,7 +192,7 @@ class _ButtonBone extends Bone {
     this.indent = 0,
     this.words,
     this.indentEnd = 0,
-    this.type = BoneButtonType.elevated,
+    this.type = BoneButtonType.prominent,
   }) : assert(uniRadius == null || borderRadius == null),
        assert(width == null || words == null),
        super._();
@@ -219,33 +205,30 @@ class _ButtonBone extends Bone {
 
   @override
   Widget build(BuildContext context) {
-    final buttonTheme = ButtonTheme.of(context);
+    final boneResolver = SkeletonizerConfig.maybeOf(context)?.boneResolver;
+    final buttonSpec = boneResolver?.resolveButton(context, type) ?? const BoneButtonSpec();
 
-    final style = _getStyle(context);
-    var effectiveWidth = buttonTheme.minWidth;
+    var effectiveWidth = buttonSpec.width;
     if (width != null) {
       effectiveWidth = width!;
     } else if (words != null) {
-      final effectiveFontSize = style.textStyle?.resolve(const {})?.fontSize ?? 14.0;
+      final effectiveFontSize = buttonSpec.textStyle?.fontSize ?? 14.0;
       effectiveWidth = max(
         effectiveFontSize * words! * 5,
-        buttonTheme.minWidth,
+        buttonSpec.width,
       );
     }
     var effectiveBorderRadius = uniRadius != null ? BorderRadius.circular(uniRadius!) : borderRadius;
     var effectiveShape = shape;
     if (effectiveBorderRadius == null) {
-      final shapeInfo = _getShape(
-        style,
-        height ?? buttonTheme.height,
+      (effectiveBorderRadius, effectiveShape) = buttonSpec.shape.resolve(
+        height ?? buttonSpec.height,
       );
-      effectiveBorderRadius = shapeInfo.$1;
-      effectiveShape = shapeInfo.$2;
     }
 
     return Bone(
       width: effectiveWidth,
-      height: height ?? buttonTheme.height,
+      height: height ?? buttonSpec.height,
       borderRadius: effectiveBorderRadius,
       shape: effectiveShape ?? BoxShape.rectangle,
       indent: indent,
@@ -253,50 +236,7 @@ class _ButtonBone extends Bone {
     );
   }
 
-  (BorderRadiusGeometry, BoxShape) _getShape(ButtonStyle style, double height) {
-    final shape = style.shape?.resolve(const {});
-    return switch (shape.runtimeType) {
-      RoundedRectangleBorder _ => (
-        (shape as RoundedRectangleBorder).borderRadius,
-        BoxShape.rectangle,
-      ),
-      CircleBorder _ => (BorderRadius.zero, BoxShape.circle),
-      StadiumBorder _ => (
-        BorderRadius.circular(height / 2),
-        BoxShape.rectangle,
-      ),
-      _ => (BorderRadius.zero, BoxShape.rectangle),
-    };
-  }
-
-  ButtonStyle _getStyle(BuildContext context) {
-    return switch (type) {
-      BoneButtonType.elevated =>
-        ElevatedButtonTheme.of(context).style ??
-            const ElevatedButton(
-              onPressed: null,
-              child: SizedBox.shrink(),
-            ).defaultStyleOf(context),
-      BoneButtonType.filled =>
-        FilledButtonTheme.of(context).style ??
-            const FilledButton(
-              onPressed: null,
-              child: SizedBox.shrink(),
-            ).defaultStyleOf(context),
-      BoneButtonType.text =>
-        TextButtonTheme.of(context).style ??
-            const TextButton(
-              onPressed: null,
-              child: SizedBox.shrink(),
-            ).defaultStyleOf(context),
-      BoneButtonType.outlined =>
-        OutlinedButtonTheme.of(context).style ??
-            const OutlinedButton(
-              onPressed: null,
-              child: SizedBox.shrink(),
-            ).defaultStyleOf(context),
-    };
-  }
+ 
 }
 
 class _IconButtonBone extends Bone {
@@ -307,22 +247,28 @@ class _IconButtonBone extends Bone {
     this.uniRadius,
     this.indent = 0,
     this.indentEnd = 0,
+    this.type = BoneButtonType.prominent,
   }) : assert(uniRadius == null || borderRadius == null),
        super._();
   final double? size, uniRadius;
   final double indent, indentEnd;
   final BorderRadiusGeometry? borderRadius;
+  final BoneButtonType type;
 
   @override
   Widget build(BuildContext context) {
     var width = size;
     var height = size;
+    var borderRadius = this.borderRadius;
     if (size == null) {
-      final style = IconButtonTheme.of(context).style;
-      final iconSize = style?.iconSize?.resolve(const {}) ?? IconTheme.of(context).size ?? 24.0;
-      final padding = style?.padding?.resolve(const {}) ?? const EdgeInsets.all(8);
+      final resolver = SkeletonizerConfig.maybeOf(context)?.boneResolver;
+      final iconSpec = resolver?.resolveIconButton(context, type) ?? const BoneIconButtonSpec();
+
+      final iconSize = iconSpec.iconSize ?? IconTheme.of(context).size ?? 24.0;
+      final padding = iconSpec.padding ?? const EdgeInsets.all(8);
       width = iconSize + padding.horizontal;
       height = iconSize + padding.vertical;
+      borderRadius ??= iconSpec.shape.resolve(height).$1;
     }
     final effectiveBorderRadius = uniRadius != null ? BorderRadius.circular(uniRadius!) : borderRadius;
     return Bone(
@@ -489,7 +435,7 @@ class _MultiTextBone extends Bone {
   }
 }
 
-/// A widget that paints a [BoxDecoration] into a canvas with [ManualSkeletonizerPaintingContext].
+/// A widget that paints a [BoxDecoration] into a canvas
 class BoneRenderObjectWidget extends SingleChildRenderObjectWidget {
   /// The default constructor
   const BoneRenderObjectWidget({
@@ -549,7 +495,7 @@ class BoneRenderObject extends RenderProxyBox {
     if (_decoration == null) return;
     final paint =
         (context is SkeletonizerPaintingContext) ? context.shaderPaint : Paint()
-          ..color = Colors.grey;
+          ..color = Color(0xFF818181);
     final painter = _BoneBoxDecorationPainter(_decoration!, paint);
     painter.paint(
       context.canvas,
@@ -605,5 +551,116 @@ class _BoneBoxDecorationPainter extends BoxPainter {
   @override
   String toString() {
     return 'BoneBoxPainter for $_decoration';
+  }
+}
+
+/// The structural emphasis of a button-shaped bone.
+enum BoneButtonType {
+  /// High emphasis — has a background fill (e.g. Material's Filled/Elevated button).
+  prominent,
+
+  /// Medium emphasis — has a border, no fill (e.g. Material's Outlined button).
+  outlined,
+
+  /// Low emphasis — no fill or border (e.g. Material's Text button).
+  plain,
+}
+
+/// Resolves the visual specifications of button and icon button bones.
+abstract class BoneResolver {
+  /// Resolves the specification for a button bone of the given [type].
+  BoneButtonSpec resolveButton(BuildContext context, BoneButtonType type);
+
+  /// Resolves the specification for an icon button bone of the given [type].
+  BoneIconButtonSpec resolveIconButton(BuildContext context, BoneButtonType type);
+
+  /// Creates a [BoneResolver] from button and icon button resolver functions.
+  const factory BoneResolver({
+    BoneButtonSpec Function(BuildContext context, BoneButtonType type) button,
+    BoneIconButtonSpec Function(BuildContext context, BoneButtonType type) iconButton,
+  }) = _BoneResolverCallback;
+}
+
+class _BoneResolverCallback implements BoneResolver {
+  final BoneButtonSpec Function(BuildContext context, BoneButtonType type) button;
+  final BoneIconButtonSpec Function(BuildContext context, BoneButtonType type) iconButton;
+
+  const _BoneResolverCallback({
+    this.button = _defaultButton,
+    this.iconButton = _defaultIconButton,
+  });
+
+  static BoneButtonSpec _defaultButton(BuildContext context, BoneButtonType type) {
+    return const BoneButtonSpec();
+  }
+
+  static BoneIconButtonSpec _defaultIconButton(BuildContext context, BoneButtonType type) {
+    return const BoneIconButtonSpec();
+  }
+
+  @override
+  BoneButtonSpec resolveButton(BuildContext context, BoneButtonType type) {
+    return button(context, type);
+  }
+
+  @override
+  BoneIconButtonSpec resolveIconButton(BuildContext context, BoneButtonType type) {
+    return iconButton(context, type);
+  }
+}
+
+/// The visual specification of a button-shaped bone.
+class BoneButtonSpec {
+  /// The border shape of the button the bone mimics.
+  final OutlinedBorder? shape;
+
+  /// The default width of the button bone.
+  final double width;
+
+  /// The default height of the button bone.
+  final double height;
+
+  /// The text style used to measure buttons that mimic text words.
+  final TextStyle? textStyle;
+
+  /// Creates a [BoneButtonSpec].
+  const BoneButtonSpec({
+    this.shape = const RoundedRectangleBorder(),
+    this.width = 64,
+    this.height = 32,
+    this.textStyle,
+  });
+}
+
+/// The visual specification of an icon button-shaped bone.
+class BoneIconButtonSpec {
+  /// The size of the icon the bone mimics.
+  final double? iconSize;
+
+  /// The padding that surrounds the icon.
+  final EdgeInsetsGeometry? padding;
+
+  /// The  border shape of the icon button the bone mimics.
+  final OutlinedBorder? shape;
+
+  /// Creates a [BoneIconButtonSpec].
+  const BoneIconButtonSpec({
+    this.iconSize = 24,
+    this.padding,
+    this.shape,
+  });
+}
+
+extension _ShapeResolver on OutlinedBorder? {
+  (BorderRadiusGeometry, BoxShape) resolve(double height) {
+    return switch (this) {
+      RoundedRectangleBorder rb => (rb.borderRadius, BoxShape.rectangle),
+      CircleBorder _ => (BorderRadius.zero, BoxShape.circle),
+      StadiumBorder _ => (
+        BorderRadius.circular(height / 2),
+        BoxShape.rectangle,
+      ),
+      _ => (BorderRadius.zero, BoxShape.rectangle),
+    };
   }
 }

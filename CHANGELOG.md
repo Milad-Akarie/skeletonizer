@@ -1,3 +1,16 @@
+## [3.0.0] [Breaking Changes]
+- `SkeletonizerConfigData` no longer extends `ThemeExtension`. Remove it from `ThemeData.extensions`
+  and provide it with `SkeletonizerConfig(data: ..., child: ...)` instead.
+- `SkeletonizerConfigData.light()` and `SkeletonizerConfigData.dark()` have been removed. The default
+  configuration resolves `ShimmerEffect` or `ShimmerEffect.dark()` from the platform brightness.
+  Use `effectResolver` for custom effects and provide `brightness`, such as
+  `Theme.of(context).brightness`, when the app theme differs from the platform brightness.
+- The `effect` argument of `SkeletonizerConfigData` is deprecated in favor of `effectResolver`.
+- `Bone.button()` and `Bone.iconButton()` no longer read Material themes automatically. Configure
+  `SkeletonizerConfigData.boneResolver` to match your design system, or use their generic defaults.
+- `BoneButtonType.elevated`, `BoneButtonType.filled`, and `BoneButtonType.text` were renamed to
+  `BoneButtonType.prominent`, `BoneButtonType.prominent`, and `BoneButtonType.plain`, respectively.
+
 ## 2.1.3
 - Fix: Skeletonizer does not respect clipping #76
 ## 2.1.2

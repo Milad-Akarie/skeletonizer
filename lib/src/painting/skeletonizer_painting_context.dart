@@ -19,8 +19,8 @@ class SkeletonizerPaintingContext extends PaintingContext {
     required this.animationValue,
   }) : super(layer, estimatedBounds);
 
-  /// The [SkeletonizerConfigData] that controls the skeletonization process
-  final SkeletonizerConfigData config;
+  /// The [ResolvedSkeletonizerConfigData] that controls the skeletonization process
+  final ResolvedSkeletonizerConfigData config;
 
   /// The animation value
   final double animationValue;
@@ -134,7 +134,7 @@ class SkeletonizerCanvas implements Canvas {
 
   Paint get _shaderPaint => context.shaderPaint;
 
-  SkeletonizerConfigData get _config => context.config;
+  ResolvedSkeletonizerConfigData get _config => context.config;
 
   /// The parent [Canvas] that handles drawing operations
   final Canvas parent;

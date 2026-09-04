@@ -1,11 +1,12 @@
-import 'package:flutter/material.dart';
+
+import 'dart:ui';
 
 /// Adds functionality to [Paint] to clone it with a different color.
 extension PaintX on Paint {
   /// Clones the [Paint] with a different color.
   Paint copyWith({Color? color, Shader? shader}) {
     return Paint()
-      ..color = color ?? (shader != null ? Colors.black : this.color)
+      ..color = color ?? (shader != null ? const Color(0xFF000000) : this.color)
       ..shader = shader ?? this.shader
       ..blendMode = blendMode
       ..colorFilter = colorFilter

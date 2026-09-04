@@ -1,18 +1,27 @@
 import 'dart:async';
+import 'dart:io';
 
 import 'package:alchemist/alchemist.dart';
-import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
+import 'package:material_ui/material_ui.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:skeletonizer/skeletonizer.dart';
 
 import 'helpers.dart';
 
+const IconData _kTestIcon = IconData(0xe800, fontFamily: 'TestIcons');
+
 void main() => testExecutable(runTests);
 
 Future<void> testExecutable(FutureOr<void> Function() testMain) async {
+  setUpAll(() async {
+    final bytes = File('test/assets/TestIcons.ttf').readAsBytesSync();
+    final fontLoader = FontLoader('TestIcons')..addFont(Future.value(bytes.buffer.asByteData()));
+    await fontLoader.load();
+  });
   return AlchemistConfig.runWithConfig(
     config: AlchemistConfig(
-      platformGoldensConfig: PlatformGoldensConfig(theme: ThemeData.light()),
+      platformGoldensConfig: PlatformGoldensConfig(),
       ciGoldensConfig: const CiGoldensConfig(enabled: false),
     ),
     run: testMain,
@@ -114,7 +123,7 @@ void runTests() {
               ),
               GoldenTestScenario(
                 name: 'Icon text',
-                child: const Skeletonizer(child: Icon(Icons.ac_unit_outlined)),
+                child: const Skeletonizer(child: Icon(_kTestIcon)),
               ),
             ],
           ),
@@ -492,7 +501,7 @@ void runTests() {
                     child: ListTile(
                       title: Text('ListTile.title'),
                       subtitle: Text('ListTIle.subtitle'),
-                      trailing: Icon(Icons.ac_unit_outlined),
+                      trailing: Icon(_kTestIcon),
                     ),
                   ),
                 ),
@@ -506,7 +515,7 @@ void runTests() {
                       child: ListTile(
                         title: Text('ListTile.title'),
                         subtitle: Text('ListTIle.subtitle'),
-                        trailing: Icon(Icons.ac_unit_outlined),
+                        trailing: Icon(_kTestIcon),
                       ),
                     ),
                   ),
@@ -525,7 +534,7 @@ void runTests() {
                       child: const ListTile(
                         title: Text('ListTile.title'),
                         subtitle: Text('ListTIle.subtitle'),
-                        trailing: Icon(Icons.ac_unit_outlined),
+                        trailing: Icon(_kTestIcon),
                       ),
                     ),
                   ),
@@ -547,7 +556,7 @@ void runTests() {
                       child: const ListTile(
                         title: Text('ListTile.title'),
                         subtitle: Text('ListTIle.subtitle'),
-                        trailing: Icon(Icons.ac_unit_outlined),
+                        trailing: Icon(_kTestIcon),
                       ),
                     ),
                   ),
@@ -566,7 +575,7 @@ void runTests() {
                       child: const ListTile(
                         title: Text('ListTile.title'),
                         subtitle: Text('ListTIle.subtitle'),
-                        trailing: Icon(Icons.ac_unit_outlined),
+                        trailing: Icon(_kTestIcon),
                       ),
                     ),
                   ),
@@ -591,7 +600,7 @@ void runTests() {
               GoldenTestScenario(
                 name: 'ignore',
                 child: const Skeletonizer(
-                  child: Skeleton.ignore(child: Icon(Icons.ac_unit_outlined)),
+                  child: Skeleton.ignore(child: Icon(_kTestIcon)),
                 ),
               ),
               GoldenTestScenario(
@@ -599,21 +608,21 @@ void runTests() {
                 child: const Skeletonizer(
                   child: Skeleton.replace(
                     replacement: Text('Replaced'),
-                    child: Icon(Icons.ac_unit_outlined),
+                    child: Icon(_kTestIcon),
                   ),
                 ),
               ),
               GoldenTestScenario(
                 name: 'keep',
                 child: const Skeletonizer(
-                  child: Skeleton.keep(child: Icon(Icons.ac_unit_outlined)),
+                  child: Skeleton.keep(child: Icon(_kTestIcon)),
                 ),
               ),
               GoldenTestScenario(
                 name: 'shade',
                 child: const Skeletonizer(
                   effect: SolidColorEffect(color: Colors.red),
-                  child: Skeleton.shade(child: Icon(Icons.ac_unit_outlined)),
+                  child: Skeleton.shade(child: Icon(_kTestIcon)),
                 ),
               ),
               GoldenTestScenario(
@@ -622,10 +631,10 @@ void runTests() {
                   child: Skeleton.unite(
                     child: Row(
                       children: [
-                        Icon(Icons.ac_unit_outlined),
+                        Icon(_kTestIcon),
                         SizedBox(width: 20),
-                        Icon(Icons.ac_unit_outlined),
-                        Icon(Icons.ac_unit_outlined),
+                        Icon(_kTestIcon),
+                        Icon(_kTestIcon),
                       ],
                     ),
                   ),
@@ -638,10 +647,10 @@ void runTests() {
                     borderRadius: BorderRadius.zero,
                     child: Row(
                       children: [
-                        Icon(Icons.ac_unit_outlined),
+                        Icon(_kTestIcon),
                         SizedBox(width: 20),
-                        Icon(Icons.ac_unit_outlined),
-                        Icon(Icons.ac_unit_outlined),
+                        Icon(_kTestIcon),
+                        Icon(_kTestIcon),
                       ],
                     ),
                   ),
