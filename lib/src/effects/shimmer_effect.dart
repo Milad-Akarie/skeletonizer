@@ -3,6 +3,9 @@ import 'package:flutter/material.dart';
 
 import 'painting_effect.dart';
 
+const double _defaultLowerBound = -1;
+const double _defaultUpperBound = 2;
+
 /// Builds a painting effect where a linear gradient
 /// is used to create a shimmer-like effect
 abstract class ShimmerEffect extends PaintingEffect {
@@ -75,7 +78,7 @@ class _ShimmerEffect extends ShimmerEffect {
     this.begin = const AlignmentDirectional(-1.0, -0.3),
     this.end = const AlignmentDirectional(1.0, 0.3),
     super.duration,
-  }) : super._(lowerBound: -.5, upperBound: 1.5);
+  }) : super._(lowerBound: _defaultLowerBound, upperBound: _defaultUpperBound);
 
   @override
   List<Color> get colors => [baseColor, highlightColor, baseColor];
@@ -152,8 +155,8 @@ class RawShimmerEffect extends ShimmerEffect {
     this.begin = const AlignmentDirectional(-1.0, -0.3),
     this.end = const AlignmentDirectional(1.0, 0.3),
     this.tileMode = TileMode.clamp,
-    super.lowerBound = -0.5,
-    super.upperBound = 1.5,
+    super.lowerBound = _defaultLowerBound,
+    super.upperBound = _defaultUpperBound,
     super.duration,
   }) : super._();
 
