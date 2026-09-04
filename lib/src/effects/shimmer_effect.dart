@@ -27,7 +27,7 @@ abstract class ShimmerEffect extends PaintingEffect {
   const ShimmerEffect._({
     super.lowerBound,
     super.upperBound,
-    super.duration = const Duration(milliseconds: 2000),
+    super.duration = const Duration(milliseconds: 3000),
   });
 
   /// Builds a [_ShimmerEffect] with default values
