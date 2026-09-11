@@ -1,4 +1,3 @@
-
 import 'dart:ui';
 
 /// Adds functionality to [Paint] to clone it with a different color.

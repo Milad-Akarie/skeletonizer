@@ -420,8 +420,7 @@ void main() {
   });
 }
 
-PaintingEffect _solidColorEffectResolver(Brightness brightness) =>
-    const SolidColorEffect();
+PaintingEffect _solidColorEffectResolver(Brightness brightness) => const SolidColorEffect();
 
 class _TestBoneResolver implements BoneResolver {
   @override

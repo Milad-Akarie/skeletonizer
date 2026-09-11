@@ -395,7 +395,6 @@ class ResolvedSkeletonizerConfigData {
     this.boneResolver,
     this.enableSwitchAnimation = false,
     this.switchAnimationConfig = const SwitchAnimationConfig(),
-  
   });
 
   @override

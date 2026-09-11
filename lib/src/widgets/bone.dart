@@ -235,8 +235,6 @@ class _ButtonBone extends Bone {
       indentEnd: indentEnd,
     );
   }
-
- 
 }
 
 class _IconButtonBone extends Bone {

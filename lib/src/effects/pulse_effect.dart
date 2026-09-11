@@ -18,7 +18,7 @@ class PulseEffect extends PaintingEffect {
     super.upperBound,
     super.duration = const Duration(milliseconds: 1000),
   }) : super(reverse: true);
-  
+
   @override
   Paint createPaint(double t, Rect rect, TextDirection? textDirection) {
     final color = Color.lerp(from, to, t)!;
