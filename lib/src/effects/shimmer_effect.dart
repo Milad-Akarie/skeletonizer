@@ -1,5 +1,5 @@
 import 'package:flutter/foundation.dart';
-import 'package:flutter/material.dart';
+import 'package:flutter/widgets.dart';
 
 import 'painting_effect.dart';
 
@@ -48,6 +48,15 @@ abstract class ShimmerEffect extends PaintingEffect {
     Duration duration,
   }) = RawShimmerEffect;
 
+  /// Builds a [_ShimmerEffect] with default values for dark mode
+  const factory ShimmerEffect.dark({
+    Color baseColor,
+    Color highlightColor,
+    AlignmentGeometry begin,
+    AlignmentGeometry end,
+    Duration duration,
+  }) = _ShimmerEffect.dark;
+
   @override
   Paint createPaint(double t, Rect rect, TextDirection? textDirection) {
     final beginX = begin.resolve(textDirection).x;
@@ -72,6 +81,14 @@ class _ShimmerEffect extends ShimmerEffect {
   const _ShimmerEffect({
     this.baseColor = const Color(0xFFEBEBF4),
     this.highlightColor = const Color(0xFFF4F4F4),
+    this.begin = const AlignmentDirectional(-1.0, -0.3),
+    this.end = const AlignmentDirectional(1.0, 0.3),
+    super.duration,
+  }) : super._(lowerBound: -.5, upperBound: 1.5);
+
+  const _ShimmerEffect.dark({
+    this.baseColor = const Color(0xFF3A3A3A),
+    this.highlightColor = const Color(0xFF424242),
     this.begin = const AlignmentDirectional(-1.0, -0.3),
     this.end = const AlignmentDirectional(1.0, 0.3),
     super.duration,

@@ -1,61 +1,61 @@
 import 'dart:ui';
 
-import 'package:flutter/material.dart';
+import 'package:flutter/widgets.dart';
 import 'package:skeletonizer/skeletonizer.dart';
 
 const _defaultTextBoneBorderRadius = TextBoneBorderRadius.fromHeightFactor(.5);
 
+/// Resolves the [PaintingEffect] to use for a given platform [Brightness].
+typedef EffectResolver = PaintingEffect Function(Brightness brightness);
+
+PaintingEffect _defaultEffectResolver(Brightness brightness) =>
+    brightness == Brightness.light ? const ShimmerEffect() : const ShimmerEffect.dark();
+
 /// The immutable configuration data for the skeletonizer theme.
 @immutable
-class SkeletonizerConfigData extends ThemeExtension<SkeletonizerConfigData> {
+class SkeletonizerConfigData {
   /// Constructs a [SkeletonizerConfigData] instance with the given properties.
   ///
   /// - [effect]: The painting effect to apply on the skeletonized elements.
+  /// - [effectResolver]: Resolves the painting effect to apply on the skeletonized elements based on [Brightness].
   /// - [textBorderRadius]: The border radius configuration for text elements.
   /// - [justifyMultiLineText]: Whether to justify multi-line text bones.
   /// - [ignoreContainers]: Whether to ignore container elements and only paint the dependents.
   /// - [containersColor]: The color of the container elements. If null, the actual color will be used.
+  /// - [boneResolver]: Resolves the dimensions and shape of button bones.
+  /// - [brightness]: The brightness to use for the skeletonizer theme. If null, the platform brightness will be used.
   /// - [enableSwitchAnimation]: Whether to enable switch animation between the skeleton and the actual widget.
   /// - [switchAnimationConfig]: The configuration for the switch animation.
   const SkeletonizerConfigData({
-    this.effect = const ShimmerEffect(),
+    @Deprecated('Use effectResolver instead') PaintingEffect? effect,
+    EffectResolver? effectResolver,
     this.textBorderRadius = _defaultTextBoneBorderRadius,
     this.justifyMultiLineText = true,
     this.ignoreContainers = false,
     this.containersColor,
+    this.boneResolver,
+    this.brightness,
     this.enableSwitchAnimation = false,
     this.switchAnimationConfig = const SwitchAnimationConfig(),
-  });
+  }) : assert(
+         effect == null || effectResolver == null,
+         'Cannot provide both effect and effectResolver. Use only one of them.',
+       ),
+       _effect = effect,
+       _effectResolver = effectResolver ?? _defaultEffectResolver;
 
-  /// Constructs a [SkeletonizerConfigData] instance with the given properties for light theme.
-  @Deprecated('use the default constructor instead')
-  const factory SkeletonizerConfigData.light({
-    PaintingEffect effect,
-    TextBoneBorderRadius textBorderRadius,
-    bool justifyMultiLineText,
-    bool ignoreContainers,
-    Color? containersColor,
-    bool enableSwitchAnimation,
-    SwitchAnimationConfig switchAnimationConfig,
-  }) = SkeletonizerConfigData;
+  final PaintingEffect? _effect;
+  final EffectResolver _effectResolver;
 
-  /// Constructs a [SkeletonizerConfigData] instance with the given properties for dark theme.
-  const SkeletonizerConfigData.dark({
-    this.effect = const ShimmerEffect(
-      baseColor: Color(0xFF3A3A3A),
-      highlightColor: Color(0xFF424242),
-    ),
-    this.textBorderRadius = _defaultTextBoneBorderRadius,
-    this.justifyMultiLineText = true,
-    this.ignoreContainers = false,
-    this.containersColor,
-    this.enableSwitchAnimation = false,
-    this.switchAnimationConfig = const SwitchAnimationConfig(),
-  });
-
-  /// The painting effect to apply
-  /// on the skeletonized elements
-  final PaintingEffect effect;
+  /// Resolves the [PaintingEffect] to use for the given [Brightness].
+  ///
+  /// A legacy [effect] takes precedence over the configured [EffectResolver].
+  PaintingEffect resolveEffect(Brightness brightness) {
+    if (_effect != null) {
+      return _effect;
+    }
+    return _effectResolver.call(brightness);
+  }
 
   /// The [TextElement] border radius config
   final TextBoneBorderRadius textBorderRadius;
@@ -73,6 +73,14 @@ class SkeletonizerConfigData extends ThemeExtension<SkeletonizerConfigData> {
   /// if null the actual color will be used
   final Color? containersColor;
 
+  /// Resolves the dimensions and shape of button bones.
+  final BoneResolver? boneResolver;
+
+  /// The brightness to use for the skeletonizer theme.
+  ///
+  /// If null, the platform brightness will be used.
+  final Brightness? brightness;
+
   /// Whether to enable switch animation
   ///
   /// This will animate the switch between the skeleton and the actual widget
@@ -83,38 +91,41 @@ class SkeletonizerConfigData extends ThemeExtension<SkeletonizerConfigData> {
   /// This will be used if [enableSwitchAnimation] is true
   final SwitchAnimationConfig switchAnimationConfig;
 
-  @override
+  /// Creates a copy of this [SkeletonizerConfigData] with the given properties.
+  ///
+  /// - [effect]: Replaces the deprecated painting effect.
+  /// - [effectResolver]: Replaces the effect resolver.
+  /// - [textBorderRadius]: Replaces the text border radius configuration.
+  /// - [justifyMultiLineText]: Replaces the multi-line text justification flag.
+  /// - [ignoreContainers]: Replaces the container ignoring flag.
+  /// - [containersColor]: Replaces the color of the container elements.
+  /// - [boneResolver]: Replaces the button bone resolver.
+  /// - [brightness]: Replaces the platform brightness override.
+  /// - [enableSwitchAnimation]: Replaces the switch animation flag.
+  /// - [switchAnimationConfig]: Replaces the switch animation configuration.
   SkeletonizerConfigData copyWith({
-    PaintingEffect? effect,
+    @Deprecated('Use effectResolver instead') PaintingEffect? effect,
+    EffectResolver? effectResolver,
     TextBoneBorderRadius? textBorderRadius,
     bool? justifyMultiLineText,
     bool? ignoreContainers,
     Color? containersColor,
+    BoneResolver? boneResolver,
+    Brightness? brightness,
     bool? enableSwitchAnimation,
     SwitchAnimationConfig? switchAnimationConfig,
   }) {
     return SkeletonizerConfigData(
-      effect: effect ?? this.effect,
+      effect: effect ?? (effectResolver == null ? _effect : null),
+      effectResolver: effectResolver ?? (effect == null ? _effectResolver : null),
       textBorderRadius: textBorderRadius ?? this.textBorderRadius,
       justifyMultiLineText: justifyMultiLineText ?? this.justifyMultiLineText,
       ignoreContainers: ignoreContainers ?? this.ignoreContainers,
       containersColor: containersColor ?? this.containersColor,
+      boneResolver: boneResolver ?? this.boneResolver,
+      brightness: brightness ?? this.brightness,
       enableSwitchAnimation: enableSwitchAnimation ?? this.enableSwitchAnimation,
       switchAnimationConfig: switchAnimationConfig ?? this.switchAnimationConfig,
-    );
-  }
-
-  @override
-  SkeletonizerConfigData lerp(SkeletonizerConfigData? other, double t) {
-    if (other == null) return this;
-    return SkeletonizerConfigData(
-      effect: effect.lerp(other.effect, t),
-      textBorderRadius: textBorderRadius.lerp(other.textBorderRadius, t),
-      justifyMultiLineText: t < 0.5 ? justifyMultiLineText : other.justifyMultiLineText,
-      ignoreContainers: t < 0.5 ? ignoreContainers : other.ignoreContainers,
-      containersColor: t < 0.5 ? containersColor : other.containersColor,
-      enableSwitchAnimation: t < 0.5 ? enableSwitchAnimation : other.enableSwitchAnimation,
-      switchAnimationConfig: t < 0.5 ? switchAnimationConfig : other.switchAnimationConfig,
     );
   }
 
@@ -123,21 +134,27 @@ class SkeletonizerConfigData extends ThemeExtension<SkeletonizerConfigData> {
       identical(this, other) ||
       other is SkeletonizerConfigData &&
           runtimeType == other.runtimeType &&
-          effect == other.effect &&
+          _effect == other._effect &&
+          _effectResolver == other._effectResolver &&
           textBorderRadius == other.textBorderRadius &&
           justifyMultiLineText == other.justifyMultiLineText &&
           ignoreContainers == other.ignoreContainers &&
           containersColor == other.containersColor &&
+          boneResolver == other.boneResolver &&
+          brightness == other.brightness &&
           enableSwitchAnimation == other.enableSwitchAnimation &&
           switchAnimationConfig == other.switchAnimationConfig;
 
   @override
   int get hashCode => Object.hash(
-    effect,
+    _effect,
+    _effectResolver,
     textBorderRadius,
     justifyMultiLineText,
     ignoreContainers,
     containersColor,
+    boneResolver,
+    brightness,
     enableSwitchAnimation,
     switchAnimationConfig,
   );
@@ -145,7 +162,6 @@ class SkeletonizerConfigData extends ThemeExtension<SkeletonizerConfigData> {
 
 /// Singleton instance for skeletonizer theme configurations.
 const SkeletonizerConfigData skeletonizerConfigData = SkeletonizerConfigData(
-  effect: ShimmerEffect(),
   textBorderRadius: _defaultTextBoneBorderRadius,
   justifyMultiLineText: true,
   ignoreContainers: false,
@@ -246,16 +262,15 @@ class SkeletonizerConfig extends InheritedTheme {
   /// if exists, otherwise null.
   static SkeletonizerConfigData? maybeOf(BuildContext context) {
     final SkeletonizerConfig? inherited = context.dependOnInheritedWidgetOfExactType<SkeletonizerConfig>();
-    return inherited?.data ?? Theme.of(context).extension<SkeletonizerConfigData>();
+    return inherited?.data;
   }
 
   /// The [SkeletonizerConfigData] instance of the closest ancestor Theme.extension
   /// if not found it will throw an exception
   static SkeletonizerConfigData of(BuildContext context) {
     final SkeletonizerConfig? inherited = context.dependOnInheritedWidgetOfExactType<SkeletonizerConfig>();
-    late final fromThemeExtension = Theme.of(context).extension<SkeletonizerConfigData>();
     assert(() {
-      if (inherited == null && fromThemeExtension == null) {
+      if (inherited == null) {
         throw FlutterError(
           'SkeletonizerConfig.of() called with a context that does not contain a SkeletonizerConfigData.\n'
           'try wrapping the context with SkeletonizerConfig widget or provide the data using Theme.extension',
@@ -263,7 +278,7 @@ class SkeletonizerConfig extends InheritedTheme {
       }
       return true;
     }());
-    return inherited?.data ?? fromThemeExtension!;
+    return inherited!.data;
   }
 
   /// Default constructor
@@ -334,4 +349,77 @@ class SwitchAnimationConfig {
       reverseDuration.hashCode ^
       transitionBuilder.hashCode ^
       layoutBuilder.hashCode;
+}
+
+/// The resolved configuration data used by the skeletonizer painting pipeline.
+///
+/// Unlike [SkeletonizerConfigData], the painting [effect] has already been
+/// resolved for a specific [Brightness] so it can be used without a
+/// [BuildContext].
+@protected
+class ResolvedSkeletonizerConfigData {
+  /// The painting effect to apply on the skeletonized elements.
+  final PaintingEffect effect;
+
+  /// The border radius configuration for text elements.
+  final TextBoneBorderRadius textBorderRadius;
+
+  /// Whether to justify multi line text bones.
+  final bool justifyMultiLineText;
+
+  /// Whether to ignore container elements and only paint the dependents.
+  final bool ignoreContainers;
+
+  /// The color of the container elements.
+  ///
+  /// If null the actual color will be used.
+  final Color? containersColor;
+
+  /// Resolves the dimensions and shape of button bones.
+  final BoneResolver? boneResolver;
+
+  /// Whether to enable the switch animation between the skeleton and the
+  /// actual widget.
+  final bool enableSwitchAnimation;
+
+  /// The configuration of the switch animation.
+  final SwitchAnimationConfig switchAnimationConfig;
+
+  /// Constructs a [ResolvedSkeletonizerConfigData] with the given properties.
+  const ResolvedSkeletonizerConfigData({
+    required this.effect,
+    this.textBorderRadius = _defaultTextBoneBorderRadius,
+    this.justifyMultiLineText = true,
+    this.ignoreContainers = false,
+    this.containersColor,
+    this.boneResolver,
+    this.enableSwitchAnimation = false,
+    this.switchAnimationConfig = const SwitchAnimationConfig(),
+  });
+
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      other is ResolvedSkeletonizerConfigData &&
+          runtimeType == other.runtimeType &&
+          effect == other.effect &&
+          textBorderRadius == other.textBorderRadius &&
+          justifyMultiLineText == other.justifyMultiLineText &&
+          ignoreContainers == other.ignoreContainers &&
+          containersColor == other.containersColor &&
+          boneResolver == other.boneResolver &&
+          enableSwitchAnimation == other.enableSwitchAnimation &&
+          switchAnimationConfig == other.switchAnimationConfig;
+
+  @override
+  int get hashCode => Object.hash(
+    effect,
+    textBorderRadius,
+    justifyMultiLineText,
+    ignoreContainers,
+    containersColor,
+    boneResolver,
+    enableSwitchAnimation,
+    switchAnimationConfig,
+  );
 }

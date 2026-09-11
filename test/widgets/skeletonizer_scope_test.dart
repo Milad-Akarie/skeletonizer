@@ -1,4 +1,4 @@
-import 'package:flutter/material.dart';
+import 'package:material_ui/material_ui.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:skeletonizer/skeletonizer.dart';
 import 'package:skeletonizer/src/widgets/skeletonizer.dart';
@@ -11,7 +11,7 @@ void main() {
       await tester.pumpWidget(
         const SkeletonizerScope(
           enabled: true,
-          config: SkeletonizerConfigData(),
+          config: ResolvedSkeletonizerConfigData(effect: SolidColorEffect()),
           isInsideZone: false,
           isZone: false,
           animationController: null,
@@ -24,7 +24,7 @@ void main() {
 
       final newScope = SkeletonizerScope(
         enabled: false,
-        config: const SkeletonizerConfigData(),
+        config: const ResolvedSkeletonizerConfigData(effect: SolidColorEffect()),
         isInsideZone: false,
         isZone: false,
         animationController: null,
@@ -37,7 +37,10 @@ void main() {
     testWidgets('updateShouldNotify returns true when config changes', (
       tester,
     ) async {
-      final config1 = const SkeletonizerConfigData(containersColor: Colors.red);
+      final config1 = const ResolvedSkeletonizerConfigData(
+        effect: SolidColorEffect(),
+        containersColor: Colors.red,
+      );
       await tester.pumpWidget(
         SkeletonizerScope(
           enabled: true,
@@ -52,7 +55,8 @@ void main() {
       final BuildContext context = tester.element(find.byType(SizedBox));
       final scope = context.dependOnInheritedWidgetOfExactType<SkeletonizerScope>();
 
-      final config2 = const SkeletonizerConfigData(
+      final config2 = const ResolvedSkeletonizerConfigData(
+        effect: SolidColorEffect(),
         containersColor: Colors.blue,
       );
       final newScope = SkeletonizerScope(
@@ -74,7 +78,7 @@ void main() {
     test('equality and hashCode', () {
       final data1 = const SkeletonizerBuildData(
         enabled: true,
-        config: SkeletonizerConfigData(),
+        config: ResolvedSkeletonizerConfigData(effect: SolidColorEffect()),
         textDirection: TextDirection.ltr,
         animationValue: 0.5,
         ignorePointers: true,
@@ -85,7 +89,7 @@ void main() {
 
       final data2 = const SkeletonizerBuildData(
         enabled: true,
-        config: SkeletonizerConfigData(),
+        config: ResolvedSkeletonizerConfigData(effect: SolidColorEffect()),
         textDirection: TextDirection.ltr,
         animationValue: 0.5,
         ignorePointers: true,
@@ -96,7 +100,7 @@ void main() {
 
       final data3 = const SkeletonizerBuildData(
         enabled: false,
-        config: SkeletonizerConfigData(),
+        config: ResolvedSkeletonizerConfigData(effect: SolidColorEffect()),
         textDirection: TextDirection.ltr,
         animationValue: 0.5,
         ignorePointers: true,

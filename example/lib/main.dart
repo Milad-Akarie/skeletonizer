@@ -1,4 +1,4 @@
-import 'package:flutter/material.dart';
+import 'package:material_ui/material_ui.dart';
 import 'package:skeletonizer/skeletonizer.dart';
 
 void main() {
@@ -12,18 +12,18 @@ class MyApp extends StatelessWidget {
   Widget build(BuildContext context) {
     return MaterialApp(
       title: 'Skeletonizer Demo',
-      theme: ThemeData(
-        extensions: const [
-          SkeletonizerConfigData(),
-        ],
-      ),
-      darkTheme: ThemeData(
-        brightness: Brightness.dark,
-        extensions: const [
-          SkeletonizerConfigData.dark(),
-        ],
-      ),
       home: const SkeletonizerDemoPage(),
+      builder: (context, child) => SkeletonizerConfig(
+        data: SkeletonizerConfigData(
+          brightness: Theme.of(context).brightness,
+          // this is already the default, just showing usage of the effectResolver
+          effectResolver: (brightness) => switch (brightness) {
+            Brightness.light => const ShimmerEffect(),
+            Brightness.dark => const ShimmerEffect.dark(),
+          },
+        ),
+        child: child!,
+      ),
     );
   }
 }

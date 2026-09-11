@@ -380,7 +380,9 @@ Skeletonizer.zone(
 
 Obviously, you can create any bone shape using `Bone(width, height)` or use the helpers `Bone.circle(size)` and `Bone.square(size)`. The cool part here is using mimic bone types like `Bone.icon()`, which, you guessed it, reads icon sizing information from the inherited theme. As such, Bone.text reads font size and line height from the inherited theme if not provided in the constructor. By default, it mimics 3 words (word = 5 letters), but you can easily change that. For multiline, use `Bone.multiText(lines: 3)`.
 
-Additionally, there's also `Bone.button()` which mimics actual Material buttons and `Bone.iconButton()` to mimic icon buttons.
+`Bone.button()` and `Bone.iconButton()` use `BoneResolver` to determine their dimensions, shape,
+and typography. They use generic defaults when no resolver is provided. Provide a resolver to match
+your design system's button theme.
 
 When opting for the manual approach, only Bone widgets get the shimmer treatment – they're the ones that'll be shaded. This means you can wrap other colorable widgets like cards, containers ..etc, without worrying about them getting shaded. which results to a seamless and perfect shimmer effect!
 ## Customization
@@ -443,36 +445,80 @@ if you want to ignore all containers and only skeletonize their children you can
 if provided, all containers will be painted with this color otherwise the actual color will be
 
 ### Using the inheritable Config data
-You can pass a `SkeletonizerConfigData` as a theme extension to provide default configurations to
-all skeletonizer widgets in your app.
-
-```dart
-MaterialApp(
-  theme: ThemeData(
-    extensions: const [
-      SkeletonizerConfigData(), // default constructor has light theme config
-    ],
-  ),
-  darkTheme: ThemeData(
-    brightness: Brightness.dark,
-    extensions: const [
-      SkeletonizerConfigData.dark(), // dark theme config
-    ],
-  ),
-  ...
-)
-```
-or you can Use `SkeletonizerConfig` to provide inheritable config data to all descendant Skeletonizer widgets.
+Wrap a subtree with `SkeletonizerConfig` to provide default configuration values to all descendant
+`Skeletonizer` widgets. By default, `SkeletonizerConfigData` resolves a light shimmer in light mode
+and a dark shimmer in dark mode, using the platform brightness.
 
 ```dart
 SkeletonizerConfig(
-    data: SkeletonizerConfigData(
-      effect: const ShimmerEffect(),
-      justifyMultiLineText: true,
-      textBorderRadius: TextBoneBorderRadius(..),
-      ignoreContainers: false,
+  data: const SkeletonizerConfigData(),
+  child: MaterialApp(
+    home: MyHomePage(),
+  ),
+)
+```
+
+Use `effectResolver` to supply effects for each brightness. `SkeletonizerConfigData` uses the
+platform brightness by default. When your app uses a different theme mode, provide its brightness
+explicitly. For example, in a Material app, use `Theme.of(context).brightness` from a context below
+`MaterialApp`.
+
+```dart
+MaterialApp(
+  home: Builder(
+    builder: (context) => SkeletonizerConfig(
+      data: SkeletonizerConfigData(
+        effectResolver: (brightness) => switch (brightness) {
+          Brightness.light => const ShimmerEffect(),
+          Brightness.dark => const ShimmerEffect.dark(),
+        },
+        brightness: Theme.of(context).brightness,
+        justifyMultiLineText: true,
+        textBorderRadius: const TextBoneBorderRadius.fromHeightFactor(.5),
+        ignoreContainers: false,
+      ),
+      child: MyHomePage(),
     ),
-    .....
+  ),
+)
+```
+
+### Button bone resolvers
+
+For the default button-bone specifications, use a `BoneResolver` instance:
+
+```dart
+const BoneResolver()
+```
+
+For a custom design system, extend `BoneResolver` and implement `resolveButton` and
+`resolveIconButton`, or construct a `BoneResolver` with callbacks. In a Material app, this callback
+resolver reads the active button themes:
+
+```dart
+SkeletonizerConfig(
+  data: SkeletonizerConfigData(
+    boneResolver: BoneResolver(
+      button: (context, type) {
+        final theme = ButtonTheme.of(context);
+        final style = switch (type) {
+          BoneButtonType.prominent => ElevatedButtonTheme.of(context).style,
+          BoneButtonType.plain => TextButtonTheme.of(context).style,
+          BoneButtonType.outlined => OutlinedButtonTheme.of(context).style,
+        };
+        return BoneButtonSpec(
+          height: theme.height,
+          width: theme.minWidth,
+          shape: style?.shape?.resolve({}) ?? const StadiumBorder(),
+          textStyle: style?.textStyle?.resolve({}),
+        );
+      },
+      iconButton: (context, type) => BoneIconButtonSpec(
+        shape: IconButtonTheme.of(context).style?.shape?.resolve({}),
+      ),
+    ),
+  ),
+  child: MyHomePage(),
 )
 ```
 ## Resources

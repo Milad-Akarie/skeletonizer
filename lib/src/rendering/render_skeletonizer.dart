@@ -9,7 +9,7 @@ class RenderSkeletonizer extends RenderProxyBox with _RenderSkeletonBase<RenderB
   RenderSkeletonizer({
     required TextDirection textDirection,
     required double animationValue,
-    required SkeletonizerConfigData config,
+    required ResolvedSkeletonizerConfigData config,
     required bool ignorePointers,
     required bool isZone,
     RenderBox? child,
@@ -32,12 +32,12 @@ class RenderSkeletonizer extends RenderProxyBox with _RenderSkeletonBase<RenderB
     }
   }
 
-  SkeletonizerConfigData _config;
+  ResolvedSkeletonizerConfigData _config;
 
   @override
-  SkeletonizerConfigData get config => _config;
+  ResolvedSkeletonizerConfigData get config => _config;
 
-  set config(SkeletonizerConfigData value) {
+  set config(ResolvedSkeletonizerConfigData value) {
     if (_config != value) {
       _config = value;
       markNeedsPaint();
@@ -91,7 +91,7 @@ class RenderSliverSkeletonizer extends RenderProxySliver with _RenderSkeletonBas
   RenderSliverSkeletonizer({
     required TextDirection textDirection,
     required double animationValue,
-    required SkeletonizerConfigData config,
+    required ResolvedSkeletonizerConfigData config,
     required bool ignorePointers,
     required bool isZone,
     RenderSliver? child,
@@ -114,12 +114,12 @@ class RenderSliverSkeletonizer extends RenderProxySliver with _RenderSkeletonBas
     }
   }
 
-  SkeletonizerConfigData _config;
+  ResolvedSkeletonizerConfigData _config;
 
   @override
-  SkeletonizerConfigData get config => _config;
+  ResolvedSkeletonizerConfigData get config => _config;
 
-  set config(SkeletonizerConfigData value) {
+  set config(ResolvedSkeletonizerConfigData value) {
     if (_config != value) {
       _config = value;
       markNeedsPaint();
@@ -178,7 +178,7 @@ mixin _RenderSkeletonBase<R extends RenderObject> on RenderObjectWithChildMixin<
   TextDirection get textDirection;
 
   /// The resolved skeletonizer theme data
-  SkeletonizerConfigData get config;
+  ResolvedSkeletonizerConfigData get config;
 
   /// The value to animate painting effects
   double get animationValue;

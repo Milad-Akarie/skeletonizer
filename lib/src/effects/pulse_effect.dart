@@ -1,4 +1,4 @@
-import 'package:flutter/material.dart';
+import 'package:flutter/widgets.dart';
 import 'package:skeletonizer/src/effects/painting_effect.dart';
 
 /// Creates a painting effect where a two colors are lerped

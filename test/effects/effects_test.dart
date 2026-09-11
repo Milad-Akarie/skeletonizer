@@ -1,5 +1,5 @@
-import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:material_ui/material_ui.dart';
 import 'package:skeletonizer/skeletonizer.dart';
 
 void main() {
@@ -300,7 +300,7 @@ void main() {
     });
   });
 
-  group('SoldColorEffect', () {
+  group('SolidColorEffect', () {
     test('default constructor creates effect with default color', () {
       const effect = SolidColorEffect();
 
@@ -324,7 +324,7 @@ void main() {
       expect(paint.shader, isNotNull);
     });
 
-    test('lerp interpolates between two SoldColorEffects', () {
+    test('lerp interpolates between two SolidColorEffects', () {
       const effect1 = SolidColorEffect(color: Colors.white);
       const effect2 = SolidColorEffect(color: Colors.black);
 
@@ -333,13 +333,13 @@ void main() {
       expect(lerped.color, equals(Color.lerp(Colors.white, Colors.black, 0.5)));
     });
 
-    test('lerp returns this when other is not SoldColorEffect', () {
-      const soldEffect = SolidColorEffect();
+    test('lerp returns this when other is not SolidColorEffect', () {
+      const solidEffect = SolidColorEffect();
       const shimmerEffect = ShimmerEffect();
 
-      final lerped = soldEffect.lerp(shimmerEffect, 0.5);
+      final lerped = solidEffect.lerp(shimmerEffect, 0.5);
 
-      expect(lerped, equals(soldEffect));
+      expect(lerped, equals(solidEffect));
     });
 
     test('equality works correctly', () {

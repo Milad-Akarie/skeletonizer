@@ -1,4 +1,4 @@
-import 'package:flutter/material.dart';
+import 'package:flutter/widgets.dart';
 import 'package:skeletonizer/src/effects/painting_effect.dart';
 import 'package:skeletonizer/src/skeletonizer_config.dart';
 import 'package:skeletonizer/src/widgets/skeletonizer_render_object_widget.dart';
@@ -158,7 +158,7 @@ class SkeletonizerState extends State<Skeletonizer> with TickerProviderStateMixi
 
   late bool _enabled = widget.enabled;
 
-  SkeletonizerConfigData? _config;
+  ResolvedSkeletonizerConfigData? _config;
 
   double get _animationValue => _animationController?.value ?? 0.0;
 
@@ -174,20 +174,20 @@ class SkeletonizerState extends State<Skeletonizer> with TickerProviderStateMixi
 
   void _setupEffect() {
     _textDirection = Directionality.of(context);
-    late final brightness = Theme.of(context).brightness;
-    var resolvedConfig =
-        SkeletonizerConfig.maybeOf(context) ??
-        (brightness == Brightness.light ? const SkeletonizerConfigData() : const SkeletonizerConfigData.dark());
+    final config = SkeletonizerConfig.maybeOf(context);
+    final brightness = config?.brightness ?? MediaQuery.platformBrightnessOf(context);
+    var effectiveConfig = config ?? SkeletonizerConfigData();
 
-    resolvedConfig = resolvedConfig.copyWith(
-      effect: widget.effect,
-      textBorderRadius: widget.textBoneBorderRadius,
-      ignoreContainers: widget.ignoreContainers,
-      justifyMultiLineText: widget.justifyMultiLineText,
-      containersColor: widget.containersColor,
-      enableSwitchAnimation: widget.enableSwitchAnimation,
-      switchAnimationConfig: widget.switchAnimationConfig,
+    final resolvedConfig = ResolvedSkeletonizerConfigData(
+      effect: widget.effect ?? effectiveConfig.resolveEffect(brightness),
+      textBorderRadius: widget.textBoneBorderRadius ?? effectiveConfig.textBorderRadius,
+      ignoreContainers: widget.ignoreContainers ?? effectiveConfig.ignoreContainers,
+      justifyMultiLineText: widget.justifyMultiLineText ?? effectiveConfig.justifyMultiLineText,
+      containersColor: widget.containersColor ?? effectiveConfig.containersColor,
+      enableSwitchAnimation: widget.enableSwitchAnimation ?? effectiveConfig.enableSwitchAnimation,
+      switchAnimationConfig: widget.switchAnimationConfig ?? effectiveConfig.switchAnimationConfig,
     );
+
     if (resolvedConfig != _config) {
       _config = resolvedConfig;
       _stopAnimation();
@@ -400,7 +400,7 @@ class SkeletonizerBuildData {
   final bool enabled;
 
   /// The skeletonizer configuration
-  final SkeletonizerConfigData config;
+  final ResolvedSkeletonizerConfigData config;
 
   /// The animation controller used to animate the skeletonization
   final AnimationController? animationController;
@@ -472,7 +472,7 @@ class SkeletonizerScope extends InheritedWidget {
   final bool isInsideZone;
 
   /// The current skeletonizer configuration
-  final SkeletonizerConfigData config;
+  final ResolvedSkeletonizerConfigData config;
 
   /// The animation controller used to animate the skeletonization
   final AnimationController? animationController;

@@ -1,9 +1,5 @@
-import 'package:flutter/cupertino.dart';
+import 'package:flutter/widgets.dart';
 import 'package:skeletonizer/src/effects/painting_effect.dart';
-
-@Deprecated('Use SolidColorEffect instead')
-/// backward compatibility typedef for SolidColorEffect
-typedef SoldColorEffect = SolidColorEffect;
 
 /// Creates a none-animated painting effect
 class SolidColorEffect extends PaintingEffect {
