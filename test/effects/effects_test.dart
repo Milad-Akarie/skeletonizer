@@ -7,9 +7,9 @@ void main() {
     test('default constructor creates effect with default colors', () {
       const effect = ShimmerEffect();
 
-      expect(effect.duration, equals(const Duration(milliseconds: 2000)));
-      expect(effect.lowerBound, equals(-0.5));
-      expect(effect.upperBound, equals(1.5));
+      expect(effect.duration, equals(const Duration(milliseconds: 3000)));
+      expect(effect.lowerBound, equals(-1.0));
+      expect(effect.upperBound, equals(2.0));
       expect(effect.begin, equals(const AlignmentDirectional(-1.0, -0.3)));
       expect(effect.end, equals(const AlignmentDirectional(1.0, 0.3)));
     });
