@@ -3,19 +3,19 @@ import 'dart:io';
 
 import 'package:alchemist/alchemist.dart';
 import 'package:flutter/services.dart';
-import 'package:material_ui/material_ui.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:material_ui/material_ui.dart';
 import 'package:skeletonizer/skeletonizer.dart';
 
 import 'helpers.dart';
 
-const IconData _kTestIcon = IconData(0xe800, fontFamily: 'TestIcons');
+const IconData _kTestIcon = IconData(0xF0000, fontFamily: 'TestIcons');
 
 void main() => testExecutable(runTests);
 
 Future<void> testExecutable(FutureOr<void> Function() testMain) async {
   setUpAll(() async {
-    final bytes = File('test/assets/TestIcons.ttf').readAsBytesSync();
+    final bytes = File('test/assets/testIcons.ttf').readAsBytesSync();
     final fontLoader = FontLoader('TestIcons')..addFont(Future.value(bytes.buffer.asByteData()));
     await fontLoader.load();
   });
@@ -487,31 +487,19 @@ void runTests() {
     'Skeletonize ListTile successfully',
     fileName: 'list_tile',
     builder:
-        () => SkeletonizerConfig(
-          data: skeletonizerConfigData.copyWith(
-            effect: const SolidColorEffect(color: Colors.green),
-          ),
-          child: GoldenTestGroup(
-            children: [
-              GoldenTestScenario(
-                name: 'Regular ListTile',
-                child: const Skeletonizer(
-                  child: SizedBox(
-                    width: 300,
-                    child: ListTile(
-                      title: Text('ListTile.title'),
-                      subtitle: Text('ListTIle.subtitle'),
-                      trailing: Icon(_kTestIcon),
-                    ),
-                  ),
-                ),
-              ),
-              GoldenTestScenario(
-                name: 'ListTile inside a card',
-                child: const Skeletonizer(
-                  child: SizedBox(
-                    width: 300,
-                    child: Card(
+        () => Material(
+          type: MaterialType.transparency,
+          child: SkeletonizerConfig(
+            data: skeletonizerConfigData.copyWith(
+              effect: const SolidColorEffect(color: Colors.green),
+            ),
+            child: GoldenTestGroup(
+              children: [
+                GoldenTestScenario(
+                  name: 'Regular ListTile',
+                  child: const Skeletonizer(
+                    child: SizedBox(
+                      width: 300,
                       child: ListTile(
                         title: Text('ListTile.title'),
                         subtitle: Text('ListTIle.subtitle'),
@@ -520,68 +508,83 @@ void runTests() {
                     ),
                   ),
                 ),
-              ),
-              GoldenTestScenario(
-                name: 'ListTile inside a decoratedBox',
-                child: Skeletonizer(
-                  child: SizedBox(
-                    width: 300,
-                    child: DecoratedBox(
-                      decoration: BoxDecoration(
-                        borderRadius: BorderRadius.circular(16),
-                        color: Colors.white,
-                      ),
-                      child: const ListTile(
-                        title: Text('ListTile.title'),
-                        subtitle: Text('ListTIle.subtitle'),
-                        trailing: Icon(_kTestIcon),
+                GoldenTestScenario(
+                  name: 'ListTile inside a card',
+                  child: const Skeletonizer(
+                    child: SizedBox(
+                      width: 300,
+                      child: Card(
+                        child: ListTile(
+                          title: Text('ListTile.title'),
+                          subtitle: Text('ListTIle.subtitle'),
+                          trailing: Icon(_kTestIcon),
+                        ),
                       ),
                     ),
                   ),
                 ),
-              ),
-              GoldenTestScenario(
-                name: 'ListTile inside a decoratedBox:boxShadow',
-                child: Skeletonizer(
-                  child: SizedBox(
-                    width: 300,
-                    child: DecoratedBox(
-                      decoration: BoxDecoration(
-                        borderRadius: BorderRadius.circular(16),
-                        color: Colors.white,
-                        boxShadow: const [
-                          BoxShadow(offset: Offset(3, 3), blurRadius: 4),
-                        ],
-                      ),
-                      child: const ListTile(
-                        title: Text('ListTile.title'),
-                        subtitle: Text('ListTIle.subtitle'),
-                        trailing: Icon(_kTestIcon),
+                GoldenTestScenario(
+                  name: 'ListTile inside a decoratedBox',
+                  child: Skeletonizer(
+                    child: SizedBox(
+                      width: 300,
+                      child: DecoratedBox(
+                        decoration: BoxDecoration(
+                          borderRadius: BorderRadius.circular(16),
+                          color: Colors.white,
+                        ),
+                        child: const ListTile(
+                          title: Text('ListTile.title'),
+                          subtitle: Text('ListTIle.subtitle'),
+                          trailing: Icon(_kTestIcon),
+                        ),
                       ),
                     ),
                   ),
                 ),
-              ),
-              GoldenTestScenario(
-                name: 'ListTile inside a decoratedBox:border',
-                child: Skeletonizer(
-                  child: SizedBox(
-                    width: 300,
-                    child: DecoratedBox(
-                      decoration: BoxDecoration(
-                        borderRadius: BorderRadius.circular(16),
-                        border: Border.all(),
-                      ),
-                      child: const ListTile(
-                        title: Text('ListTile.title'),
-                        subtitle: Text('ListTIle.subtitle'),
-                        trailing: Icon(_kTestIcon),
+                GoldenTestScenario(
+                  name: 'ListTile inside a decoratedBox:boxShadow',
+                  child: Skeletonizer(
+                    child: SizedBox(
+                      width: 300,
+                      child: DecoratedBox(
+                        decoration: BoxDecoration(
+                          borderRadius: BorderRadius.circular(16),
+                          color: Colors.white,
+                          boxShadow: const [
+                            BoxShadow(offset: Offset(3, 3), blurRadius: 4),
+                          ],
+                        ),
+                        child: const ListTile(
+                          title: Text('ListTile.title'),
+                          subtitle: Text('ListTIle.subtitle'),
+                          trailing: Icon(_kTestIcon),
+                        ),
                       ),
                     ),
                   ),
                 ),
-              ),
-            ],
+                GoldenTestScenario(
+                  name: 'ListTile inside a decoratedBox:border',
+                  child: Skeletonizer(
+                    child: SizedBox(
+                      width: 300,
+                      child: DecoratedBox(
+                        decoration: BoxDecoration(
+                          borderRadius: BorderRadius.circular(16),
+                          border: Border.all(),
+                        ),
+                        child: const ListTile(
+                          title: Text('ListTile.title'),
+                          subtitle: Text('ListTIle.subtitle'),
+                          trailing: Icon(_kTestIcon),
+                        ),
+                      ),
+                    ),
+                  ),
+                ),
+              ],
+            ),
           ),
         ),
   );
@@ -843,8 +846,8 @@ void runTests() {
                       SliverSkeletonizer(
                         child: SliverList(
                           delegate: SliverChildListDelegate([
-                            const ListTile(title: Text('Item 1')),
-                            const ListTile(title: Text('Item 2')),
+                            const Padding(padding: EdgeInsets.all(8.0), child: Text('Item 1')),
+                            const Padding(padding: EdgeInsets.all(8.0), child: Text('Item 2')),
                           ]),
                         ),
                       ),
